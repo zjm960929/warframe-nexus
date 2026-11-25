@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.3.3] - 2026-11-26
+
+### Changed
+
+- 顶栏与主页社交区统一使用提供的 GitHub Invertocat SVG。
+- 主页中央社交区在抖音右侧新增 GitHub 和邮箱按钮。
+- 自包含构建内联 GitHub SVG，保持离线版图标可用。
+
 ## [0.3.2] - 2026-11-26
 
 ### Added

@@ -53,6 +53,17 @@ async function main() {
     readJson(path.join(PUBLIC_DIR, 'data', 'arbitration-node-meta.json')),
   ]);
 
+  // The standalone file lives outside public/, so a relative mask URL would
+  // point at a missing directory. Inline the official GitHub mark instead.
+  const githubMarkup = await fs.readFile(
+    path.join(PUBLIC_DIR, 'assets', 'icons', 'github-invertocat.svg'),
+    'utf8',
+  );
+  const inlinedCss = css.replaceAll(
+    'url("../icons/github-invertocat.svg")',
+    `url("data:image/svg+xml,${encodeURIComponent(githubMarkup)}")`,
+  );
+
   const bundle = await rollup({
     input: path.join(PUBLIC_DIR, 'assets', 'js', 'app.js'),
     treeshake: true,
@@ -89,7 +100,7 @@ async function main() {
     .replace('content="auto"', 'content="static"')
     .replace(
       '<link rel="stylesheet" href="./assets/css/styles.css">',
-      `<style>\n${css}\n</style>`,
+      `<style>\n${inlinedCss}\n</style>`,
     )
     .replace(
       '<script type="module" src="./assets/js/app.js"></script>',

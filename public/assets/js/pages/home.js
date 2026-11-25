@@ -16,13 +16,21 @@ const DOUYIN_ICON = `
     <path fill="currentColor" d="M16.6 3c.4 2.2 1.9 3.8 4.1 4v3.1c-1.6 0-3-.5-4.1-1.4v6.4c0 3.4-2.7 6-6 6s-6-2.6-6-6 2.7-6 6-6c.34 0 .67.03 1 .1v3.3c-.31-.1-.65-.16-1-.16-1.6 0-2.9 1.3-2.9 2.9s1.3 2.9 2.9 2.9 2.9-1.3 2.9-2.9V3h3.1z"/>
   </svg>`;
 
-function socialLink(href, label, markup) {
+const GITHUB_ICON = '<span class="home-social-link__github" aria-hidden="true"></span>';
+
+const EMAIL_ICON = `
+  <svg viewBox="0 0 24 24" width="20" height="20" fill="none" aria-hidden="true" focusable="false">
+    <rect x="3" y="5" width="18" height="14" rx="2.5" stroke="currentColor" stroke-width="1.8"/>
+    <path d="m4 7 8 6 8-6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+  </svg>`;
+
+function socialLink(href, label, markup, external = true) {
   const link = el('a', {
     class: 'home-social-link',
     href,
-    target: '_blank',
-    rel: 'noopener noreferrer',
     title: label,
+    target: external ? '_blank' : null,
+    rel: external ? 'noopener noreferrer' : null,
     attrs: { 'aria-label': label },
   });
   link.innerHTML = markup;
@@ -127,9 +135,14 @@ export function renderHome({ i18n }) {
     input.focus();
   });
 
-  const social = el('div', { class: 'home-social' },
+  const social = el('div', {
+    class: 'home-social',
+    attrs: { role: 'group', 'aria-label': i18n.t('social.label') },
+  },
     socialLink('https://space.bilibili.com/16730771', i18n.t('social.bilibili'), BILIBILI_ICON),
     socialLink('https://www.douyin.com/user/MS4wLjABAAAAFIQ6-Ww8fODvrsOR2oFTtegpwDnpVq_PKHIUbxkvFSE', i18n.t('social.douyin'), DOUYIN_ICON),
+    socialLink('https://github.com/zjm960929/warframe-nexus', i18n.t('social.github'), GITHUB_ICON),
+    socialLink('mailto:zjm960929@outlook.com', i18n.t('social.email'), EMAIL_ICON, false),
   );
 
   const home = el('div', { class: 'home home--minimal' },

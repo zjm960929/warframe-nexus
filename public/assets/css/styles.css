@@ -359,6 +359,15 @@ img, svg {
   display: block;
 }
 
+.social-link__github {
+  display: block;
+  width: 17px;
+  height: 17px;
+  background: currentColor;
+  -webkit-mask: url("../icons/github-invertocat.svg") center / contain no-repeat;
+  mask: url("../icons/github-invertocat.svg") center / contain no-repeat;
+}
+
 .brand__mark {
   display: grid;
   place-items: center;
@@ -687,6 +696,15 @@ img, svg {
 .home-social-link:focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 2px;
+}
+
+.home-social-link__github {
+  display: block;
+  width: 20px;
+  height: 20px;
+  background: currentColor;
+  -webkit-mask: url("../icons/github-invertocat.svg") center / contain no-repeat;
+  mask: url("../icons/github-invertocat.svg") center / contain no-repeat;
 }
 
 .home--minimal .search-form {
