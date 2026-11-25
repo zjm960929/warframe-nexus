@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.2.1] - 2026-11-26
+
+### Changed
+
+- 移除 Cloudflare Worker、Wrangler 配置、浏览器解析器和 live 模式，恢复 Node / 静态快照架构。
+- 移除浏览器解析器相关的 `@noble/hashes` 和 Rollup 插件依赖。
+
 ## [0.2.0] - 2026-11-26
 
 ### Added
