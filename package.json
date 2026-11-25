@@ -1,0 +1,29 @@
+{
+  "name": "warframe-nexus",
+  "version": "0.1.0",
+  "private": true,
+  "license": "MIT",
+  "type": "module",
+  "description": "A bilingual Warframe utility hub using the official Digital Extremes worldstate feed.",
+  "scripts": {
+    "start": "node server.mjs",
+    "dev": "node --watch server.mjs",
+    "test": "node --test --test-isolation=none",
+    "build:terms": "node scripts/build-terms.mjs",
+    "build:chars": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/build-char-map.ps1",
+    "build:pages": "node scripts/build-pages.mjs",
+    "build:standalone": "node scripts/build-standalone.mjs",
+    "build:arbitration": "node scripts/build-arbitration-nodes.mjs"
+  },
+  "engines": {
+    "node": ">=22.18.0"
+  },
+  "dependencies": {
+    "reflect-metadata": "^0.2.2",
+    "warframe-worldstate-data": "^3.20.0",
+    "warframe-worldstate-parser": "^5.5.7"
+  },
+  "devDependencies": {
+    "rollup": "^4.68.8"
+  }
+}

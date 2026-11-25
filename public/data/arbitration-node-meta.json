@@ -1,0 +1,618 @@
+{
+ "ClanNode0": {
+  "name": "Romula (Venus)",
+  "type": "Dark Sector Defense",
+  "typeKey": "MT_DEFENSE",
+  "faction": "Infested",
+  "factionKey": "FC_INFESTATION"
+ },
+ "ClanNode1": {
+  "name": "Malva (Venus)",
+  "type": "Dark Sector Survival",
+  "typeKey": "MT_SURVIVAL",
+  "faction": "Infested",
+  "factionKey": "FC_INFESTATION"
+ },
+ "ClanNode10": {
+  "name": "Memphis (Phobos)",
+  "type": "Dark Sector Defection",
+  "typeKey": "MT_EVACUATION",
+  "faction": "Infested",
+  "factionKey": "FC_INFESTATION"
+ },
+ "ClanNode11": {
+  "name": "Zeugma (Phobos)",
+  "type": "Dark Sector Survival",
+  "typeKey": "MT_SURVIVAL",
+  "faction": "Infested",
+  "factionKey": "FC_INFESTATION"
+ },
+ "ClanNode12": {
+  "name": "Caracol (Saturn)",
+  "type": "Dark Sector Defection",
+  "typeKey": "MT_EVACUATION",
+  "faction": "Infested",
+  "factionKey": "FC_INFESTATION"
+ },
+ "ClanNode13": {
+  "name": "Piscinas (Saturn)",
+  "type": "Dark Sector Survival",
+  "typeKey": "MT_SURVIVAL",
+  "faction": "Infested",
+  "factionKey": "FC_INFESTATION"
+ },
+ "ClanNode14": {
+  "name": "Amarna (Sedna)",
+  "type": "Dark Sector Survival",
+  "typeKey": "MT_SURVIVAL",
+  "faction": "Infested",
+  "factionKey": "FC_INFESTATION"
+ },
+ "ClanNode15": {
+  "name": "Sangeru (Sedna)",
+  "type": "Dark Sector Defense",
+  "typeKey": "MT_DEFENSE",
+  "faction": "Infested",
+  "factionKey": "FC_INFESTATION"
+ },
+ "ClanNode16": {
+  "name": "Ur (Uranus)",
+  "type": "Dark Sector Disruption",
+  "typeKey": "MT_DISRUPTION",
+  "faction": "Infested",
+  "factionKey": "FC_INFESTATION"
+ },
+ "ClanNode17": {
+  "name": "Assur (Uranus)",
+  "type": "Dark Sector Survival",
+  "typeKey": "MT_SURVIVAL",
+  "faction": "Infested",
+  "factionKey": "FC_INFESTATION"
+ },
+ "ClanNode18": {
+  "name": "Akkad (Eris)",
+  "type": "Dark Sector Defense",
+  "typeKey": "MT_DEFENSE",
+  "faction": "Infested",
+  "factionKey": "FC_INFESTATION"
+ },
+ "ClanNode19": {
+  "name": "Zabala (Eris)",
+  "type": "Dark Sector Survival",
+  "typeKey": "MT_SURVIVAL",
+  "faction": "Infested",
+  "factionKey": "FC_INFESTATION"
+ },
+ "ClanNode2": {
+  "name": "Coba (Earth)",
+  "type": "Dark Sector Defense",
+  "typeKey": "MT_DEFENSE",
+  "faction": "Infested",
+  "factionKey": "FC_INFESTATION"
+ },
+ "ClanNode20": {
+  "name": "Yursa (Neptune)",
+  "type": "Dark Sector Defection",
+  "typeKey": "MT_EVACUATION",
+  "faction": "Infested",
+  "factionKey": "FC_INFESTATION"
+ },
+ "ClanNode21": {
+  "name": "Kelashin (Neptune)",
+  "type": "Dark Sector Survival",
+  "typeKey": "MT_SURVIVAL",
+  "faction": "Infested",
+  "factionKey": "FC_INFESTATION"
+ },
+ "ClanNode22": {
+  "name": "Seimeni (Ceres)",
+  "type": "Dark Sector Defense",
+  "typeKey": "MT_DEFENSE",
+  "faction": "Infested",
+  "factionKey": "FC_INFESTATION"
+ },
+ "ClanNode23": {
+  "name": "Gabii (Ceres)",
+  "type": "Dark Sector Survival",
+  "typeKey": "MT_SURVIVAL",
+  "faction": "Infested",
+  "factionKey": "FC_INFESTATION"
+ },
+ "ClanNode24": {
+  "name": "Sechura (Pluto)",
+  "type": "Dark Sector Defense",
+  "typeKey": "MT_DEFENSE",
+  "faction": "Infested",
+  "factionKey": "FC_INFESTATION"
+ },
+ "ClanNode25": {
+  "name": "Hieracon (Pluto)",
+  "type": "Dark Sector Excavation",
+  "typeKey": "MT_EXCAVATE",
+  "faction": "Infested",
+  "factionKey": "FC_INFESTATION"
+ },
+ "ClanNode3": {
+  "name": "Tikal (Earth)",
+  "type": "Dark Sector Excavation",
+  "typeKey": "MT_EXCAVATE",
+  "faction": "Infested",
+  "factionKey": "FC_INFESTATION"
+ },
+ "ClanNode4": {
+  "name": "Sinai (Jupiter)",
+  "type": "Dark Sector Defense",
+  "typeKey": "MT_DEFENSE",
+  "faction": "Infested",
+  "factionKey": "FC_INFESTATION"
+ },
+ "ClanNode5": {
+  "name": "Cameria (Jupiter)",
+  "type": "Dark Sector Survival",
+  "typeKey": "MT_SURVIVAL",
+  "faction": "Infested",
+  "factionKey": "FC_INFESTATION"
+ },
+ "ClanNode6": {
+  "name": "Larzac (Europa)",
+  "type": "Dark Sector Defense",
+  "typeKey": "MT_DEFENSE",
+  "faction": "Infested",
+  "factionKey": "FC_INFESTATION"
+ },
+ "ClanNode7": {
+  "name": "Cholistan (Europa)",
+  "type": "Dark Sector Excavation",
+  "typeKey": "MT_EXCAVATE",
+  "faction": "Infested",
+  "factionKey": "FC_INFESTATION"
+ },
+ "ClanNode8": {
+  "name": "Kadesh (Mars)",
+  "type": "Dark Sector Defense",
+  "typeKey": "MT_DEFENSE",
+  "faction": "Infested",
+  "factionKey": "FC_INFESTATION"
+ },
+ "ClanNode9": {
+  "name": "Wahiba (Mars)",
+  "type": "Dark Sector Survival",
+  "typeKey": "MT_SURVIVAL",
+  "faction": "Infested",
+  "factionKey": "FC_INFESTATION"
+ },
+ "SettlementNode11": {
+  "name": "Gulliver (Phobos)",
+  "type": "Defense",
+  "typeKey": "MT_DEFENSE",
+  "faction": "Corpus",
+  "factionKey": "FC_CORPUS"
+ },
+ "SettlementNode3": {
+  "name": "Stickney (Phobos)",
+  "type": "Survival",
+  "typeKey": "MT_SURVIVAL",
+  "faction": "Corpus",
+  "factionKey": "FC_CORPUS"
+ },
+ "SolNode100": {
+  "name": "Elara (Jupiter)",
+  "type": "Survival",
+  "typeKey": "MT_SURVIVAL",
+  "faction": "Corpus",
+  "factionKey": "FC_CORPUS"
+ },
+ "SolNode101": {
+  "name": "Kiliken (Venus)",
+  "type": "Excavation",
+  "typeKey": "MT_EXCAVATE",
+  "faction": "Corpus",
+  "factionKey": "FC_CORPUS"
+ },
+ "SolNode106": {
+  "name": "Alator (Mars)",
+  "type": "Interception",
+  "typeKey": "MT_TERRITORY",
+  "faction": "Grineer",
+  "factionKey": "FC_GRINEER"
+ },
+ "SolNode118": {
+  "name": "Laomedeia (Neptune)",
+  "type": "Disruption",
+  "typeKey": "MT_DISRUPTION",
+  "faction": "Corpus",
+  "factionKey": "FC_CORPUS"
+ },
+ "SolNode122": {
+  "name": "Stephano (Uranus)",
+  "type": "Defense",
+  "typeKey": "MT_DEFENSE",
+  "faction": "Grineer",
+  "factionKey": "FC_GRINEER"
+ },
+ "SolNode123": {
+  "name": "V Prime (Venus)",
+  "type": "Survival",
+  "typeKey": "MT_SURVIVAL",
+  "faction": "Corpus",
+  "factionKey": "FC_CORPUS"
+ },
+ "SolNode125": {
+  "name": "Io (Jupiter)",
+  "type": "Defense",
+  "typeKey": "MT_DEFENSE",
+  "faction": "Corpus",
+  "factionKey": "FC_CORPUS"
+ },
+ "SolNode130": {
+  "name": "Lares (Mercury)",
+  "type": "Defense",
+  "typeKey": "MT_DEFENSE",
+  "faction": "Grineer",
+  "factionKey": "FC_GRINEER"
+ },
+ "SolNode146": {
+  "name": "Draco (Ceres)",
+  "type": "Survival",
+  "typeKey": "MT_SURVIVAL",
+  "faction": "Grineer",
+  "factionKey": "FC_GRINEER"
+ },
+ "SolNode147": {
+  "name": "Cinxia (Ceres)",
+  "type": "Interception",
+  "typeKey": "MT_TERRITORY",
+  "faction": "Grineer",
+  "factionKey": "FC_GRINEER"
+ },
+ "SolNode149": {
+  "name": "Casta (Ceres)",
+  "type": "Defense",
+  "typeKey": "MT_DEFENSE",
+  "faction": "Grineer",
+  "factionKey": "FC_GRINEER"
+ },
+ "SolNode16": {
+  "name": "Augustus (Mars)",
+  "type": "Excavation",
+  "typeKey": "MT_EXCAVATE",
+  "faction": "Grineer",
+  "factionKey": "FC_GRINEER"
+ },
+ "SolNode164": {
+  "name": "Kala-azar (Eris)",
+  "type": "Defense",
+  "typeKey": "MT_DEFENSE",
+  "faction": "Infested",
+  "factionKey": "FC_INFESTATION"
+ },
+ "SolNode166": {
+  "name": "Nimus (Eris)",
+  "type": "Survival",
+  "typeKey": "MT_SURVIVAL",
+  "faction": "Infested",
+  "factionKey": "FC_INFESTATION"
+ },
+ "SolNode167": {
+  "name": "Oestrus (Eris)",
+  "type": "Infested Salvage",
+  "typeKey": "MT_PURIFY",
+  "faction": "Infested",
+  "factionKey": "FC_INFESTATION"
+ },
+ "SolNode17": {
+  "name": "Proteus (Neptune)",
+  "type": "Defense",
+  "typeKey": "MT_DEFENSE",
+  "faction": "Corpus",
+  "factionKey": "FC_CORPUS"
+ },
+ "SolNode172": {
+  "name": "Xini (Eris)",
+  "type": "Interception",
+  "typeKey": "MT_TERRITORY",
+  "faction": "Infested",
+  "factionKey": "FC_INFESTATION"
+ },
+ "SolNode177": {
+  "name": "Kappa (Sedna)",
+  "type": "Disruption",
+  "typeKey": "MT_DISRUPTION",
+  "faction": "Grineer",
+  "factionKey": "FC_GRINEER"
+ },
+ "SolNode18": {
+  "name": "Rhea (Saturn)",
+  "type": "Interception",
+  "typeKey": "MT_TERRITORY",
+  "faction": "Grineer",
+  "factionKey": "FC_GRINEER"
+ },
+ "SolNode185": {
+  "name": "Berehynia (Sedna)",
+  "type": "Interception",
+  "typeKey": "MT_TERRITORY",
+  "faction": "Grineer",
+  "factionKey": "FC_GRINEER"
+ },
+ "SolNode187": {
+  "name": "Selkie (Sedna)",
+  "type": "Survival",
+  "typeKey": "MT_SURVIVAL",
+  "faction": "Grineer",
+  "factionKey": "FC_GRINEER"
+ },
+ "SolNode195": {
+  "name": "Hydron (Sedna)",
+  "type": "Defense",
+  "typeKey": "MT_DEFENSE",
+  "faction": "Grineer",
+  "factionKey": "FC_GRINEER"
+ },
+ "SolNode211": {
+  "name": "Ose (Europa)",
+  "type": "Interception",
+  "typeKey": "MT_TERRITORY",
+  "faction": "Corpus",
+  "factionKey": "FC_CORPUS"
+ },
+ "SolNode212": {
+  "name": "Paimon (Europa)",
+  "type": "Defense",
+  "typeKey": "MT_DEFENSE",
+  "faction": "Corpus",
+  "factionKey": "FC_CORPUS"
+ },
+ "SolNode216": {
+  "name": "Valefor (Europa)",
+  "type": "Excavation",
+  "typeKey": "MT_EXCAVATE",
+  "faction": "Corpus",
+  "factionKey": "FC_CORPUS"
+ },
+ "SolNode22": {
+  "name": "Tessera (Venus)",
+  "type": "Defense",
+  "typeKey": "MT_DEFENSE",
+  "faction": "Corpus",
+  "factionKey": "FC_CORPUS"
+ },
+ "SolNode224": {
+  "name": "Odin (Mercury)",
+  "type": "Interception",
+  "typeKey": "MT_TERRITORY",
+  "faction": "Grineer",
+  "factionKey": "FC_GRINEER"
+ },
+ "SolNode23": {
+  "name": "Cytherean (Venus)",
+  "type": "Interception",
+  "typeKey": "MT_TERRITORY",
+  "faction": "Corpus",
+  "factionKey": "FC_CORPUS"
+ },
+ "SolNode230": {
+  "name": "Everview Arc (Zariman)",
+  "type": "Void Flood",
+  "typeKey": "MT_CORRUPTION",
+  "faction": "Crossfire",
+  "factionKey": ""
+ },
+ "SolNode232": {
+  "name": "Tuvul Commons (Zariman)",
+  "type": "Void Cascade",
+  "typeKey": "MT_VOID_CASCADE",
+  "faction": "Crossfire",
+  "factionKey": ""
+ },
+ "SolNode233": {
+  "name": "Oro Works (Zariman)",
+  "type": "Void Armageddon",
+  "typeKey": "",
+  "faction": "Crossfire",
+  "factionKey": ""
+ },
+ "SolNode25": {
+  "name": "Callisto (Jupiter)",
+  "type": "Interception",
+  "typeKey": "MT_TERRITORY",
+  "faction": "Corpus",
+  "factionKey": "FC_CORPUS"
+ },
+ "SolNode26": {
+  "name": "Lith (Earth)",
+  "type": "Defense",
+  "typeKey": "MT_DEFENSE",
+  "faction": "Grineer",
+  "factionKey": "FC_GRINEER"
+ },
+ "SolNode30": {
+  "name": "Olympus (Mars)",
+  "type": "Disruption",
+  "typeKey": "MT_DISRUPTION",
+  "faction": "Grineer",
+  "factionKey": "FC_GRINEER"
+ },
+ "SolNode302": {
+  "name": "Tycho (Lua)",
+  "type": "Survival",
+  "typeKey": "MT_SURVIVAL",
+  "faction": "Corpus",
+  "factionKey": "FC_CORPUS"
+ },
+ "SolNode305": {
+  "name": "Stöfler (Lua)",
+  "type": "Defense",
+  "typeKey": "MT_DEFENSE",
+  "faction": "Grineer",
+  "factionKey": "FC_GRINEER"
+ },
+ "SolNode308": {
+  "name": "Apollo (Lua)",
+  "type": "Disruption",
+  "typeKey": "MT_DISRUPTION",
+  "faction": "Corpus",
+  "factionKey": "FC_CORPUS"
+ },
+ "SolNode309": {
+  "name": "Yuvarium (Lua)",
+  "type": "Survival",
+  "typeKey": "MT_SURVIVAL",
+  "faction": "Orokin",
+  "factionKey": "FC_OROKIN"
+ },
+ "SolNode39": {
+  "name": "Everest (Earth)",
+  "type": "Excavation",
+  "typeKey": "MT_EXCAVATE",
+  "faction": "Grineer",
+  "factionKey": "FC_GRINEER"
+ },
+ "SolNode402": {
+  "name": "Taranis (Void)",
+  "type": "Defense",
+  "typeKey": "MT_DEFENSE",
+  "faction": "Orokin",
+  "factionKey": "FC_OROKIN"
+ },
+ "SolNode405": {
+  "name": "Ani (Void)",
+  "type": "Survival",
+  "typeKey": "MT_SURVIVAL",
+  "faction": "Orokin",
+  "factionKey": "FC_OROKIN"
+ },
+ "SolNode408": {
+  "name": "Belenus (Void)",
+  "type": "Defense",
+  "typeKey": "MT_DEFENSE",
+  "faction": "Orokin",
+  "factionKey": "FC_OROKIN"
+ },
+ "SolNode409": {
+  "name": "Mot (Void)",
+  "type": "Survival",
+  "typeKey": "MT_SURVIVAL",
+  "faction": "Orokin",
+  "factionKey": "FC_OROKIN"
+ },
+ "SolNode412": {
+  "name": "Mithra (Void)",
+  "type": "Interception",
+  "typeKey": "MT_TERRITORY",
+  "faction": "Orokin",
+  "factionKey": "FC_OROKIN"
+ },
+ "SolNode42": {
+  "name": "Helene (Saturn)",
+  "type": "Defense",
+  "typeKey": "MT_DEFENSE",
+  "faction": "Grineer",
+  "factionKey": "FC_GRINEER"
+ },
+ "SolNode43": {
+  "name": "Cerberus (Pluto)",
+  "type": "Interception",
+  "typeKey": "MT_TERRITORY",
+  "faction": "Corpus",
+  "factionKey": "FC_CORPUS"
+ },
+ "SolNode450": {
+  "name": "Tyana Pass (Mars)",
+  "type": "Mirror Defense",
+  "typeKey": "",
+  "faction": "Crossfire",
+  "factionKey": ""
+ },
+ "SolNode46": {
+  "name": "Spear (Mars)",
+  "type": "Defense",
+  "typeKey": "MT_DEFENSE",
+  "faction": "Grineer",
+  "factionKey": "FC_GRINEER"
+ },
+ "SolNode6": {
+  "name": "Despina (Neptune)",
+  "type": "Excavation",
+  "typeKey": "MT_EXCAVATE",
+  "faction": "Corpus",
+  "factionKey": "FC_CORPUS"
+ },
+ "SolNode64": {
+  "name": "Umbriel (Uranus)",
+  "type": "Interception",
+  "typeKey": "MT_TERRITORY",
+  "faction": "Grineer",
+  "factionKey": "FC_GRINEER"
+ },
+ "SolNode707": {
+  "name": "Hyf (Deimos)",
+  "type": "Defense",
+  "typeKey": "MT_DEFENSE",
+  "faction": "Infested",
+  "factionKey": "FC_INFESTATION"
+ },
+ "SolNode711": {
+  "name": "Terrorem (Deimos)",
+  "type": "Survival",
+  "typeKey": "MT_SURVIVAL",
+  "faction": "Infested",
+  "factionKey": "FC_INFESTATION"
+ },
+ "SolNode718": {
+  "name": "Cambire (Deimos)",
+  "type": "Alchemy",
+  "typeKey": "MT_ALCHEMY",
+  "faction": "The Murmur",
+  "factionKey": ""
+ },
+ "SolNode719": {
+  "name": "Munio (Deimos)",
+  "type": "Mirror Defense",
+  "typeKey": "",
+  "faction": "The Murmur",
+  "factionKey": ""
+ },
+ "SolNode72": {
+  "name": "Outer Terminus (Pluto)",
+  "type": "Defense",
+  "typeKey": "MT_DEFENSE",
+  "faction": "Corpus",
+  "factionKey": "FC_CORPUS"
+ },
+ "SolNode81": {
+  "name": "Palus (Pluto)",
+  "type": "Survival",
+  "typeKey": "MT_SURVIVAL",
+  "faction": "Corpus",
+  "factionKey": "FC_CORPUS"
+ },
+ "SolNode85": {
+  "name": "Gaia (Earth)",
+  "type": "Interception",
+  "typeKey": "MT_TERRITORY",
+  "faction": "Grineer",
+  "factionKey": "FC_GRINEER"
+ },
+ "SolNode87": {
+  "name": "Ganymede (Jupiter)",
+  "type": "Disruption",
+  "typeKey": "MT_DISRUPTION",
+  "faction": "Corpus",
+  "factionKey": "FC_CORPUS"
+ },
+ "SolNode94": {
+  "name": "Apollodorus (Mercury)",
+  "type": "Survival",
+  "typeKey": "MT_SURVIVAL",
+  "faction": "Infested",
+  "factionKey": "FC_INFESTATION"
+ },
+ "SolNode96": {
+  "name": "Titan (Saturn)",
+  "type": "Survival",
+  "typeKey": "MT_SURVIVAL",
+  "faction": "Grineer",
+  "factionKey": "FC_GRINEER"
+ }
+}

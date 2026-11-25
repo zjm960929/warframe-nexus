@@ -1,0 +1,34 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+const ROOT = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
+const read = (name) => JSON.parse(fs.readFileSync(path.join(ROOT, 'public/locales', name), 'utf8'));
+
+test('Chinese UI copy keeps typographic spacing and punctuation', () => {
+  const copy = read('zh-CN.json');
+  for (const [key, value] of Object.entries(copy)) {
+    assert.ok(!/\s$/.test(value), `${key}: trailing whitespace`);
+    assert.ok(!/\s{2,}/.test(value), `${key}: repeated whitespace`);
+    assert.ok(
+      !/[\u4e00-\u9fff][A-Za-z0-9]|[A-Za-z0-9][\u4e00-\u9fff]/.test(value),
+      `${key}: missing space between Chinese and Latin/number`,
+    );
+    assert.ok(
+      !/[\u4e00-\u9fff][,.;:!?]/.test(value) && !/[,.;:!?][\u4e00-\u9fff]/.test(value),
+      `${key}: ASCII punctuation next to Chinese`,
+    );
+    assert.ok(!/\s+[，。；：！？、）]/.test(value), `${key}: space before Chinese punctuation`);
+  }
+});
+
+test('English UI copy avoids spacing mistakes', () => {
+  const copy = read('en.json');
+  for (const [key, value] of Object.entries(copy)) {
+    assert.ok(!/\s$/.test(value), `${key}: trailing whitespace`);
+    assert.ok(!/\s{2,}/.test(value), `${key}: repeated whitespace`);
+    assert.ok(!/\s+[,.;:!?]/.test(value), `${key}: space before punctuation`);
+  }
+});
