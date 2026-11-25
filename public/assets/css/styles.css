@@ -746,10 +746,11 @@ img, svg {
 .search-form {
   display: flex;
   align-items: center;
-  gap: 0.55rem;
+  gap: 8px;
+  min-block-size: 58px;
   max-width: 760px;
   margin-top: 1.7rem;
-  padding: 0.45rem 0.55rem 0.45rem 0.8rem;
+  padding: 5px 8px 5px 16px;
   border: 1px solid var(--border-strong);
   border-radius: var(--radius);
   background: var(--surface);
@@ -762,16 +763,30 @@ img, svg {
 }
 
 .search-form__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  inline-size: 22px;
+  block-size: 22px;
+  line-height: 0;
   color: var(--text-faint);
+}
+
+.search-form__icon .icon {
+  inline-size: 22px;
+  block-size: 22px;
 }
 
 .search-input {
   flex: 1 1 auto;
   min-width: 0;
-  min-height: 2.8rem;
+  min-block-size: 48px;
+  padding: 0;
   border: 0;
   background: transparent;
   font-size: 1.02rem;
+  line-height: 1.2;
   outline: 0;
 }
 
@@ -2385,6 +2400,23 @@ img, svg {
 @media (max-width: 600px) {
   .home--minimal .tool-grid {
     grid-template-columns: minmax(0, 1fr);
+  }
+
+  .brand {
+    gap: 0.5rem;
+  }
+
+  .brand__name {
+    font-size: 0.9rem;
+  }
+
+  .brand-social {
+    gap: 0;
+  }
+
+  .social-link {
+    width: 1.7rem;
+    height: 1.7rem;
   }
 
   .nav-list a {

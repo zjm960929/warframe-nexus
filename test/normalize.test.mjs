@@ -354,6 +354,31 @@ test('fissures are split into normal, Steel Path, and Void Storms', () => {
   assert.equal(model.counts.activeFissures, 3);
 });
 
+test('fissures are ordered by era within each group', () => {
+  const eras = ['Omnia', 'Axi', 'Lith', 'Requiem', 'Neo', 'Meso'];
+  const raw = fixture();
+  raw.fissures = eras.map((tier, index) => ({
+    id: tier,
+    activation: '2026-11-24T23:00:00.000Z',
+    expiry: '2026-11-25T00:30:00.000Z',
+    node: `${tier} (Void)`,
+    missionType: 'Defense',
+    missionTypeKey: 'Defense',
+    enemy: 'Corrupted',
+    enemyKey: 'Corrupted',
+    tier,
+    tierNum: ['Lith', 'Meso', 'Neo', 'Axi', 'Requiem', 'Omnia'].indexOf(tier) + 1,
+    isHard: false,
+    isStorm: false,
+    order: index,
+  }));
+  const model = normalizeWorldstate(raw, NOW);
+  assert.deepEqual(
+    model.fissures.normal.map((fissure) => fissure.tierKey),
+    ['Lith', 'Meso', 'Neo', 'Axi', 'Requiem', 'Omnia'],
+  );
+});
+
 test('bounties keep configured regions and sort rewards by rarity', () => {
   const model = normalizeWorldstate(fixture(), NOW);
   assert.equal(model.bounties.length, 6);

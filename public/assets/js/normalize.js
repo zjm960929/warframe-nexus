@@ -276,6 +276,16 @@ function normalizeBounties(raw, now) {
   });
 }
 
+const FISSURE_TIER_ORDER = {
+  Lith: 1,
+  Meso: 2,
+  Neo: 3,
+  Axi: 4,
+  Requiem: 5,
+  Omnia: 6,
+  Omni: 6,
+};
+
 function normalizeFissures(raw, now) {
   const all = (Array.isArray(raw.fissures) ? raw.fissures : [])
     .filter((fissure) => fissure && isActive(fissure, now))
@@ -305,7 +315,11 @@ function normalizeFissures(raw, now) {
         remainingMs: remainingMs(fissure.expiry, now) ?? 0,
       };
     })
-    .sort((a, b) => a.remainingMs - b.remainingMs);
+    .sort((a, b) => {
+      const aRank = FISSURE_TIER_ORDER[a.tierKey] || a.tierNum || 99;
+      const bRank = FISSURE_TIER_ORDER[b.tierKey] || b.tierNum || 99;
+      return aRank - bRank || a.remainingMs - b.remainingMs;
+    });
 
   return {
     normal: all.filter((fissure) => !fissure.isStorm && !fissure.isHard),
