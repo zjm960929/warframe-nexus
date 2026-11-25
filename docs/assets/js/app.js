@@ -331,6 +331,12 @@ async function loadArbitrationData() {
   }
 }
 
+function externalApiBase() {
+  const value = document.querySelector('meta[name="wf-nexus-api"]')?.content?.trim();
+  if (!value) return null;
+  return new URL(value, document.baseURI);
+}
+
 async function loadWorldstate(lang) {
   const embedded = globalThis.__WF_NEXUS_EMBEDDED__;
   const staticMode = document.querySelector('meta[name="wf-nexus-mode"]')?.content === 'static'
@@ -346,6 +352,29 @@ async function loadWorldstate(lang) {
       },
     };
   }
+
+  let externalError = null;
+  const apiBase = externalApiBase();
+  if (apiBase) {
+    try {
+      const base = apiBase.href.endsWith('/') ? apiBase.href : `${apiBase.href}/`;
+      const url = new URL('api/worldstate', base);
+      url.searchParams.set('lang', lang);
+      const payload = await fetchJson(url);
+      if (!payload || !payload.data) throw new Error('Malformed external worldstate response');
+      return {
+        raw: payload.data,
+        meta: {
+          ...(payload.meta || {}),
+          lang,
+          static: false,
+        },
+      };
+    } catch (error) {
+      externalError = error;
+    }
+  }
+
   let serverError = null;
   if (!staticMode) {
     try {
@@ -373,7 +402,7 @@ async function loadWorldstate(lang) {
       },
     };
   } catch (staticError) {
-    throw serverError || staticError;
+    throw externalError || serverError || staticError;
   }
 }
 
