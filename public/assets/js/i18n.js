@@ -52,7 +52,7 @@ export function createI18n(lang, messages) {
   }
 
   function formatNumber(value, options = {}) {
-    return new Intl.NumberFormat(locale, options).format(Number(value) || 0);
+    return new Intl.NumberFormat(locale, { useGrouping: false, ...options }).format(Number(value) || 0);
   }
 
   function formatDateTime(value, options = {}) {
@@ -66,7 +66,14 @@ export function createI18n(lang, messages) {
       minute: '2-digit',
       ...options,
     });
-    return formatter.format(date);
+    const formatted = formatter.format(date);
+    if (normalized !== 'zh') return formatted;
+    return formatted
+      .replace(/(\d)(年|月|日)/g, '$1 $2')
+      .replace(/([年月日])(?=\d)/g, '$1 ')
+      .replace(/(日)(?=周|星期)/g, '$1 ')
+      .replace(/\s+/g, ' ')
+      .trim();
   }
 
   function formatClock(value) {

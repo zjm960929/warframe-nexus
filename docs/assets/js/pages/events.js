@@ -10,6 +10,7 @@ import { icon } from '../icons.js';
 import { hasCjk } from '../localize.js';
 
 const LAYOUT_KEY = 'wf-nexus-worldstate-layout';
+const WIDTH_KEY = 'wf-nexus-worldstate-widths';
 
 const MODULE_DEFS = [
   { key: 'cycles', labelKey: 'section.cycles', span: 'flex', preferred: 12, min: 4, max: 12 },
@@ -60,6 +61,34 @@ function saveLayoutOrder(order) {
   }
 }
 
+function loadLayoutWidths() {
+  try {
+    const parsed = JSON.parse(localStorage.getItem(WIDTH_KEY) || 'null');
+    if (!parsed || typeof parsed !== 'object') return {};
+    return Object.fromEntries(
+      Object.entries(parsed)
+        .filter(([key, width]) => {
+          const module = MODULE_BY_KEY.get(key);
+          return module
+            && Number.isInteger(width)
+            && width >= module.min
+            && width <= module.max;
+        })
+        .map(([key, width]) => [key, width]),
+    );
+  } catch {
+    return {};
+  }
+}
+
+function saveLayoutWidths(widths) {
+  try {
+    localStorage.setItem(WIDTH_KEY, JSON.stringify(widths));
+  } catch {
+    // Storage may be unavailable (private mode / file:// restrictions).
+  }
+}
+
 function marked(tag, text, loc, className = '') {
   const node = el(tag, { class: className, text });
   if (loc.isZh && text && !hasCjk(text) && /[A-Za-z]/.test(text)) node.setAttribute('lang', 'en');
@@ -68,6 +97,10 @@ function marked(tag, text, loc, className = '') {
 
 function localized(tag, value, loc, className = '') {
   return marked(tag, loc.text(value), loc, className);
+}
+
+function localizedSentence(tag, value, loc, className = '') {
+  return marked(tag, loc.sentence(value), loc, className);
 }
 
 function localizedNode(value, loc, className = '') {
@@ -196,7 +229,7 @@ function renderNightwave(model, i18n, loc) {
           challenge.reputation > 0 ? badge(i18n.t('nightwave.reputation', { value: i18n.formatNumber(challenge.reputation) }), 'muted') : null,
         ),
       ),
-      localized('p', challenge.description, loc, 'challenge__desc'),
+      localizedSentence('p', challenge.description, loc, 'challenge__desc'),
       challenge.end ? el('div', { class: 'challenge__foot' },
         el('span', { class: 'muted', text: i18n.t('common.endsAt') }),
         timeElement(i18n, challenge.end, 'countdown countdown--small'),
@@ -331,7 +364,7 @@ function renderInvasions(model, i18n, loc) {
         localizedNode(invasion.node, loc, 'invasion-card__node'),
         invasion.vsInfestation ? badge(i18n.t('invasions.vsInfestation'), 'muted') : null,
       ),
-      localized('p', invasion.description, loc, 'invasion-card__desc'),
+      localizedSentence('p', invasion.description, loc, 'invasion-card__desc'),
       el('div', { class: 'invasion-sides' }, sides.map(({ key, data }) => el('div', { class: 'invasion-side' },
         el('span', { class: 'label', text: sideLabel(i18n, key) }),
         el('strong', {}, localized('span', data.faction, loc)),
@@ -345,9 +378,6 @@ function renderInvasions(model, i18n, loc) {
           el('span', { text: `${Math.round(invasion.completion)}%` }),
         ),
         meter(invasion.completion, i18n.t('invasions.progress'), invasion.completion >= 100 ? 'ok' : ''),
-        invasion.requiredRuns
-          ? el('span', { class: 'muted', text: i18n.t(Number(invasion.requiredRuns) === 1 ? 'invasions.requiredOne' : 'invasions.required', { count: i18n.formatNumber(invasion.requiredRuns) }) })
-          : null,
       ),
     );
   }));
@@ -412,7 +442,7 @@ function renderSortieLike({ model, i18n, loc, key, titleKey, emptyKey, bossKey, 
           )
           : null,
         modifier && mission.modifierDescription && (!loc.isZh || hasCjk(loc.text(mission.modifierDescription)))
-          ? localized('p', mission.modifierDescription, loc, 'fine-print')
+          ? localizedSentence('p', mission.modifierDescription, loc, 'fine-print')
           : null,
       ),
     ))),
@@ -528,6 +558,17 @@ export function createEventsPage({ i18n, loc, model = null, meta = null, error =
   let currentModules = null;
   let currentWarning = null;
   let masonryFrame = 0;
+  let widthOverrides = loadLayoutWidths();
+  let editorOpen = false;
+  let dragKey = null;
+  let dragStartOrder = null;
+  let dragSourceNode = null;
+  let dragPointerX = 0;
+  let dragPointerY = 0;
+  let autoScrollFrame = 0;
+  let pointerDragCleanup = null;
+  const AUTO_SCROLL_EDGE = 96;
+  const AUTO_SCROLL_MAX = 8;
 
   const refreshLabel = el('span', { text: i18n.t('events.refresh') });
   const refreshButton = el('button', {
@@ -544,6 +585,11 @@ export function createEventsPage({ i18n, loc, model = null, meta = null, error =
   }, icon('layout', 'icon'), layoutLabel);
 
   const statusHost = el('div', { class: 'live-status', attrs: { role: 'status', 'aria-live': 'polite' } });
+  const serverStartHint = el('span', {
+    class: 'server-start-hint',
+    hidden: true,
+    attrs: { role: 'status', 'aria-live': 'polite' },
+  });
   const body = el('div', { class: 'events-body' });
   const modeBadge = badge(i18n.t('common.live'), 'ok');
   const layoutList = el('ol', { class: 'layout-list' });
@@ -569,7 +615,7 @@ export function createEventsPage({ i18n, loc, model = null, meta = null, error =
     el('div', { class: 'layout-editor__head' },
       el('div', {},
         el('h2', { id: 'layout-title', text: i18n.t('layout.title') }),
-        el('p', { class: 'section-hint', text: i18n.t('layout.hint') }),
+        el('p', { id: 'layout-hint', class: 'section-hint', text: i18n.t('layout.hint') }),
       ),
       el('div', { class: 'layout-editor__actions' }, resetLayoutButton, closeLayoutButton),
     ),
@@ -584,7 +630,7 @@ export function createEventsPage({ i18n, loc, model = null, meta = null, error =
         el('h1', { text: i18n.t('events.title') }),
         modeBadge,
       ),
-      el('div', { class: 'page-heading__actions' }, refreshButton, layoutButton),
+      el('div', { class: 'page-heading__actions' }, refreshButton, serverStartHint, layoutButton),
     ),
     statusHost,
     layoutEditor,
@@ -592,9 +638,14 @@ export function createEventsPage({ i18n, loc, model = null, meta = null, error =
   );
 
   function setEditorOpen(open) {
-    layoutEditor.hidden = !open;
-    layoutButton.setAttribute('aria-expanded', String(open));
-    if (!open) layoutButton.focus({ preventScroll: true });
+    editorOpen = Boolean(open);
+    layoutEditor.hidden = !editorOpen;
+    layoutButton.setAttribute('aria-expanded', String(editorOpen));
+    if (!editorOpen) {
+      endDrag(true);
+      layoutButton.focus({ preventScroll: true });
+    }
+    syncModuleEditing();
   }
 
   layoutButton.addEventListener('click', () => {
@@ -602,35 +653,360 @@ export function createEventsPage({ i18n, loc, model = null, meta = null, error =
   });
   closeLayoutButton.addEventListener('click', () => setEditorOpen(false));
 
+  function onDocumentDragOver(event) {
+    if (!dragKey) return;
+    dragPointerX = Number.isFinite(event.clientX) ? event.clientX : dragPointerX;
+    dragPointerY = Number.isFinite(event.clientY) ? event.clientY : dragPointerY;
+    startAutoScroll();
+  }
+  document.addEventListener('dragover', onDocumentDragOver);
+
   function announceSaved() {
     layoutStatus.textContent = i18n.t('layout.saved');
+  }
+
+  function previewAtPoint() {
+    if (!dragKey) return;
+    const target = document.elementFromPoint(dragPointerX, dragPointerY)?.closest('.module, .layout-item');
+    if (!target) return;
+    const key = target.dataset.moduleKey || target.dataset.layoutKey;
+    if (!key || key === dragKey) return;
+    const rect = target.getBoundingClientRect();
+    const isList = target.classList.contains('layout-item');
+    const after = isList
+      ? dragPointerX > rect.left + rect.width / 2
+      : dragPointerY > rect.top + rect.height / 2;
+    previewReorder(dragKey, key, after);
+  }
+
+  function autoScrollStep() {
+    autoScrollFrame = 0;
+    if (!dragKey) return;
+    let delta = 0;
+    if (dragPointerY > 0 && dragPointerY < AUTO_SCROLL_EDGE) {
+      delta = -Math.max(2, Math.ceil((1 - dragPointerY / AUTO_SCROLL_EDGE) * AUTO_SCROLL_MAX));
+    } else if (dragPointerY > window.innerHeight - AUTO_SCROLL_EDGE) {
+      const distance = Math.max(0, window.innerHeight - dragPointerY);
+      delta = Math.max(2, Math.ceil((1 - distance / AUTO_SCROLL_EDGE) * AUTO_SCROLL_MAX));
+    }
+    if (delta) {
+      const before = window.scrollY;
+      window.scrollBy(0, delta);
+      if (window.scrollY !== before) previewAtPoint();
+    }
+    autoScrollFrame = requestAnimationFrame(autoScrollStep);
+  }
+
+  function startAutoScroll() {
+    if (!autoScrollFrame) autoScrollFrame = requestAnimationFrame(autoScrollStep);
+  }
+
+  function stopAutoScroll() {
+    if (autoScrollFrame) cancelAnimationFrame(autoScrollFrame);
+    autoScrollFrame = 0;
+  }
+
+  function orderWithMove(sourceKey, targetKey, after) {
+    const next = layoutOrder.filter((key) => key !== sourceKey);
+    const targetIndex = next.indexOf(targetKey);
+    if (targetIndex < 0) return null;
+    next.splice(targetIndex + (after ? 1 : 0), 0, sourceKey);
+    return next;
+  }
+
+  function finishAnimations(nodes) {
+    for (const node of nodes) {
+      for (const animation of node.getAnimations?.() || []) {
+        animation.finish();
+      }
+    }
+  }
+
+  function capturePositions(nodes) {
+    return new Map(nodes.map((node) => [node, node.getBoundingClientRect()]));
+  }
+
+  function animatePositions(previous) {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    for (const [node, before] of previous) {
+      if (node === dragSourceNode || typeof node.animate !== 'function') continue;
+      const after = node.getBoundingClientRect();
+      const x = before.left - after.left;
+      const y = before.top - after.top;
+      if (Math.abs(x) < 0.5 && Math.abs(y) < 0.5) continue;
+      node.animate(
+        [
+          { transform: `translate(${x}px, ${y}px)` },
+          { transform: 'translate(0, 0)' },
+        ],
+        { duration: 240, easing: 'cubic-bezier(0.2, 0.8, 0.2, 1)' },
+      );
+    }
+  }
+
+  function reorderChildren(container, orderedNodes, source) {
+    if (!source || !orderedNodes.includes(source)) {
+      for (const node of orderedNodes) container.append(node);
+      return;
+    }
+    const sourceIndex = orderedNodes.indexOf(source);
+    for (const node of orderedNodes.slice(0, sourceIndex)) {
+      container.insertBefore(node, source);
+    }
+    for (const node of orderedNodes.slice(sourceIndex + 1).reverse()) {
+      container.insertBefore(node, source.nextSibling);
+    }
+  }
+
+  function previewReorder(sourceKey, targetKey, after) {
+    const next = orderWithMove(sourceKey, targetKey, after);
+    if (!next || next.join('\u0000') === layoutOrder.join('\u0000')) return;
+    const nodes = [
+      ...[...body.children].filter((node) => node.classList.contains('module')),
+      ...layoutList.children,
+    ];
+    const scrollX = window.scrollX;
+    const scrollY = window.scrollY;
+    finishAnimations(nodes);
+    const previous = capturePositions(nodes);
+    layoutOrder = next;
+
+    // Move existing nodes around the drag source instead of rebuilding the
+    // grid. The source stays connected, so the native drag remains active.
+    const moduleNodes = layoutOrder
+      .map((key) => currentModules?.[key])
+      .filter(Boolean);
+    reorderChildren(body, moduleNodes, dragSourceNode);
+    const itemNodes = layoutOrder
+      .map((key) => layoutList.querySelector(`[data-layout-key="${key}"]`))
+      .filter(Boolean);
+    reorderChildren(layoutList, itemNodes, dragSourceNode);
+    for (const [index, key] of layoutOrder.entries()) {
+      const item = layoutList.querySelector(`[data-layout-key="${key}"]`);
+      const number = item?.querySelector('.layout-item__index');
+      if (number) number.textContent = String(index + 1).padStart(2, '0');
+    }
+    applyMasonry();
+    animatePositions(previous);
+    if (window.scrollX !== scrollX || window.scrollY !== scrollY) {
+      window.scrollTo(scrollX, scrollY);
+    }
+  }
+
+  function savePreview() {
+    if (!dragStartOrder || layoutOrder.join('\u0000') === dragStartOrder.join('\u0000')) return;
+    saveLayoutOrder(layoutOrder);
+    announceSaved();
+  }
+
+  function endDrag(commit = true) {
+    if (commit) savePreview();
+    if (pointerDragCleanup) {
+      const cleanup = pointerDragCleanup;
+      pointerDragCleanup = null;
+      cleanup();
+    }
+    stopAutoScroll();
+    for (const node of document.querySelectorAll('.is-dragging')) {
+      node.classList.remove('is-dragging');
+    }
+    dragKey = null;
+    dragStartOrder = null;
+    dragSourceNode = null;
+  }
+
+  function startDragState(key, node, clientX, clientY) {
+    dragKey = key;
+    dragStartOrder = [...layoutOrder];
+    dragSourceNode = node;
+    dragPointerX = Number.isFinite(clientX) ? clientX : 0;
+    dragPointerY = Number.isFinite(clientY) ? clientY : 0;
+    node.classList.add('is-dragging');
+  }
+
+  function beginDrag(event, key, node) {
+    if (!editorOpen || dragKey) {
+      event.preventDefault();
+      return;
+    }
+    startDragState(key, node, event.clientX, event.clientY);
+    if (event.dataTransfer) {
+      event.dataTransfer.effectAllowed = 'move';
+      event.dataTransfer.setData('text/plain', key);
+    }
+  }
+
+  function startPointerDrag(event, key, node) {
+    if (!editorOpen || dragKey || event.pointerType === 'mouse' || event.button !== 0) return;
+    event.preventDefault();
+    startDragState(key, node, event.clientX, event.clientY);
+    const pointerId = event.pointerId;
+    const rect = node.getBoundingClientRect();
+    const offsetX = event.clientX - rect.left;
+    const offsetY = event.clientY - rect.top;
+    const ghost = node.cloneNode(true);
+    ghost.querySelectorAll('[id]').forEach((child) => child.removeAttribute('id'));
+    ghost.querySelectorAll('.module-drag-handle').forEach((child) => child.remove());
+    ghost.classList.remove('is-dragging');
+    ghost.classList.add('drag-ghost');
+    ghost.setAttribute('aria-hidden', 'true');
+    ghost.inert = true;
+    ghost.style.width = `${rect.width}px`;
+    ghost.style.height = `${rect.height}px`;
+    ghost.style.left = `${rect.left}px`;
+    ghost.style.top = `${rect.top}px`;
+    document.body.append(ghost);
+
+    // Keep the source in the document for the live reorder, but disable
+    // native drag so the touch pointer sequence stays uninterrupted.
+    node.draggable = false;
+    const handle = event.currentTarget;
+    const handleWasDraggable = handle.draggable;
+    handle.draggable = false;
+    try {
+      handle.setPointerCapture?.(pointerId);
+    } catch {
+      // Synthetic pointer events and some older engines have no active capture.
+    }
+
+    const move = (moveEvent) => {
+      if (moveEvent.pointerId !== pointerId) return;
+      moveEvent.preventDefault();
+      dragPointerX = moveEvent.clientX;
+      dragPointerY = moveEvent.clientY;
+      ghost.style.left = `${moveEvent.clientX - offsetX}px`;
+      ghost.style.top = `${moveEvent.clientY - offsetY}px`;
+      startAutoScroll();
+      previewAtPoint();
+    };
+    const end = (endEvent) => {
+      if (endEvent.pointerId !== pointerId) return;
+      endDrag(true);
+    };
+    const cancel = (cancelEvent) => {
+      if (cancelEvent.pointerId !== pointerId) return;
+      endDrag(true);
+    };
+    pointerDragCleanup = () => {
+      document.removeEventListener('pointermove', move);
+      document.removeEventListener('pointerup', end);
+      document.removeEventListener('pointercancel', cancel);
+      ghost.remove();
+      handle.draggable = handleWasDraggable;
+      if (editorOpen) node.draggable = true;
+    };
+    document.addEventListener('pointermove', move, { passive: false });
+    document.addEventListener('pointerup', end);
+    document.addEventListener('pointercancel', cancel);
+  }
+
+  function markDrop(event, node, key) {
+    if (!editorOpen || !dragKey || key === dragKey) return;
+    event.preventDefault();
+    if (event.dataTransfer) event.dataTransfer.dropEffect = 'move';
+    dragPointerX = Number.isFinite(event.clientX) ? event.clientX : dragPointerX;
+    dragPointerY = Number.isFinite(event.clientY) ? event.clientY : dragPointerY;
+    startAutoScroll();
+    const rect = node.getBoundingClientRect();
+    const isList = node.classList.contains('layout-item');
+    const after = isList
+      ? event.clientX > rect.left + rect.width / 2
+      : event.clientY > rect.top + rect.height / 2;
+    previewReorder(dragKey, key, after);
+  }
+
+  function dropOn(event, node, key) {
+    if (!editorOpen || !dragKey) return;
+    event.preventDefault();
+    if (key !== dragKey) {
+      const rect = node.getBoundingClientRect();
+      const isList = node.classList.contains('layout-item');
+      const after = isList
+        ? event.clientX > rect.left + rect.width / 2
+        : event.clientY > rect.top + rect.height / 2;
+      previewReorder(dragKey, key, after);
+    }
+    endDrag(true);
+  }
+
+  function reorderLayout(sourceKey, targetKey, after) {
+    const next = orderWithMove(sourceKey, targetKey, after);
+    if (!next || next.join('\u0000') === layoutOrder.join('\u0000')) return;
+    layoutOrder = next;
+    saveLayoutOrder(layoutOrder);
+    applyLayout();
+    renderLayoutEditor();
+    announceSaved();
+    const item = layoutList.querySelector(`[data-layout-key="${sourceKey}"]`);
+    requestAnimationFrame(() => item?.focus({ preventScroll: true }));
+  }
+
+  function keyboardReorder(event, key) {
+    if (!event.altKey || (event.key !== 'ArrowUp' && event.key !== 'ArrowDown')) return;
+    event.preventDefault();
+    const delta = event.key === 'ArrowUp' ? -1 : 1;
+    const index = layoutOrder.indexOf(key);
+    const targetKey = layoutOrder[index + delta];
+    if (targetKey) reorderLayout(key, targetKey, delta > 0);
+  }
+
+  function widthLabel(width) {
+    return i18n.t({
+      4: 'layout.widthThird',
+      6: 'layout.widthHalf',
+      8: 'layout.widthTwoThirds',
+      12: 'layout.widthFull',
+    }[width] || 'layout.widthAuto');
   }
 
   function renderLayoutEditor() {
     layoutList.replaceChildren(...layoutOrder.map((key, index) => {
       const module = MODULE_BY_KEY.get(key);
       const name = i18n.t(module.labelKey);
-      const up = el('button', {
-        class: 'layout-move',
-        type: 'button',
-        text: '↑',
-        attrs: { 'aria-label': i18n.t('layout.moveUp', { name }) },
-        disabled: index === 0,
-        onClick: () => moveModule(key, -1),
+      const widths = [4, 6, 8, 12].filter((width) => width >= module.min && width <= module.max);
+      const widthSelect = el('select', {
+        class: 'layout-width__select',
+        attrs: { 'aria-label': i18n.t('layout.widthFor', { name }) },
+      },
+        el('option', { value: 'auto', text: i18n.t('layout.widthAuto') }),
+        ...widths.map((width) => el('option', { value: String(width), text: widthLabel(width) })),
+      );
+      widthSelect.value = String(widthOverrides[key] || 'auto');
+      widthSelect.addEventListener('change', () => {
+        if (widthSelect.value === 'auto') delete widthOverrides[key];
+        else widthOverrides[key] = Number(widthSelect.value);
+        saveLayoutWidths(widthOverrides);
+        scheduleMasonry();
+        announceSaved();
       });
-      const down = el('button', {
-        class: 'layout-move',
-        type: 'button',
-        text: '↓',
-        attrs: { 'aria-label': i18n.t('layout.moveDown', { name }) },
-        disabled: index === layoutOrder.length - 1,
-        onClick: () => moveModule(key, 1),
-      });
-      return el('li', { class: 'layout-item', dataset: { layoutKey: key } },
+      const item = el('li', {
+        class: 'layout-item',
+        dataset: { layoutKey: key },
+        tabIndex: 0,
+        draggable: true,
+        attrs: {
+          'aria-label': name,
+          'aria-describedby': 'layout-hint',
+        },
+      },
+        el('span', { class: 'layout-item__grip', attrs: { 'aria-hidden': 'true' } }, icon('drag', 'icon')),
         el('span', { class: 'layout-item__index', text: String(index + 1).padStart(2, '0') }),
         el('span', { class: 'layout-item__name', text: name }),
-        el('span', { class: 'layout-item__actions' }, up, down),
+        el('label', { class: 'layout-width' },
+          el('span', { class: 'visually-hidden', text: i18n.t('layout.widthFor', { name }) }),
+          widthSelect,
+        ),
       );
+      item.querySelector('.layout-item__grip')?.addEventListener(
+        'pointerdown',
+        (event) => startPointerDrag(event, key, item),
+      );
+      item.addEventListener('dragstart', (event) => beginDrag(event, key, item));
+      item.addEventListener('dragend', () => endDrag(true));
+      item.addEventListener('dragover', (event) => markDrop(event, item, key));
+      item.addEventListener('drop', (event) => dropOn(event, item, key));
+      item.addEventListener('keydown', (event) => keyboardReorder(event, key));
+      return item;
     }));
   }
 
@@ -645,6 +1021,11 @@ export function createEventsPage({ i18n, loc, model = null, meta = null, error =
   function widthCandidates(module, columns) {
     if (!module || module.span !== 'flex') {
       return [spanToColumns(module?.span || 'third', columns)];
+    }
+    if (window.matchMedia('(max-width: 900px)').matches) return [columns];
+    const custom = widthOverrides[module.key];
+    if (Number.isInteger(custom)) {
+      return [Math.max(1, Math.min(columns, Math.round((columns * custom) / 12)))];
     }
     const preferred = Math.max(1, Math.round((columns * module.preferred) / 12));
     const minimum = Math.max(1, Math.round((columns * module.min) / 12));
@@ -738,6 +1119,50 @@ export function createEventsPage({ i18n, loc, model = null, meta = null, error =
     }
   }
 
+  function syncModuleEditing() {
+    body.classList.toggle('layout-editing', editorOpen);
+    document.documentElement.classList.toggle('layout-editing', editorOpen);
+    for (const [key, node] of Object.entries(currentModules || {})) {
+      if (!node) continue;
+      const handle = node.querySelector(':scope > .module-drag-handle');
+      if (!editorOpen) {
+        node.draggable = false;
+        node.classList.remove('module--editing', 'is-dragging');
+        handle?.remove();
+        continue;
+      }
+      node.draggable = true;
+      node.classList.add('module--editing');
+      if (node.dataset.dragBound !== '1') {
+        node.addEventListener('dragstart', (event) => beginDrag(event, key, node));
+        node.addEventListener('dragend', () => endDrag(true));
+        node.addEventListener('dragover', (event) => markDrop(event, node, key));
+        node.addEventListener('drop', (event) => dropOn(event, node, key));
+        node.dataset.dragBound = '1';
+      }
+      if (!handle) {
+        const module = MODULE_BY_KEY.get(key);
+        const name = i18n.t(module.labelKey);
+        const nextHandle = el('button', {
+          class: 'module-drag-handle',
+          type: 'button',
+          draggable: true,
+          attrs: {
+            'aria-label': i18n.t('layout.dragHandle', { name }),
+            'aria-describedby': 'layout-hint',
+            title: i18n.t('layout.dragHandle', { name }),
+          },
+        }, icon('drag', 'icon'));
+        nextHandle.addEventListener('keydown', (event) => keyboardReorder(event, key));
+        nextHandle.addEventListener(
+          'pointerdown',
+          (event) => startPointerDrag(event, key, node),
+        );
+        node.prepend(nextHandle);
+      }
+    }
+  }
+
   function applyLayout() {
     if (!currentModules) return;
     body.replaceChildren();
@@ -750,20 +1175,8 @@ export function createEventsPage({ i18n, loc, model = null, meta = null, error =
       node.dataset.moduleKey = key;
       body.append(node);
     }
+    syncModuleEditing();
     scheduleMasonry();
-  }
-
-  function moveModule(key, delta) {
-    const index = layoutOrder.indexOf(key);
-    const target = index + delta;
-    if (index < 0 || target < 0 || target >= layoutOrder.length) return;
-    [layoutOrder[index], layoutOrder[target]] = [layoutOrder[target], layoutOrder[index]];
-    saveLayoutOrder(layoutOrder);
-    applyLayout();
-    renderLayoutEditor();
-    announceSaved();
-    const moved = layoutList.querySelector(`[data-layout-key="${key}"] button:not([disabled])`);
-    moved?.focus({ preventScroll: true });
   }
 
   resetLayoutButton.addEventListener('click', () => {
@@ -783,6 +1196,9 @@ export function createEventsPage({ i18n, loc, model = null, meta = null, error =
 
   function renderStatus() {
     statusHost.replaceChildren();
+    const serverStarting = Boolean(currentMeta?.serverStarting);
+    serverStartHint.hidden = !serverStarting;
+    serverStartHint.textContent = serverStarting ? i18n.t('events.serverStarting') : '';
     const staticMode = Boolean(currentMeta?.static);
     modeBadge.textContent = staticMode ? i18n.t('events.snapshot') : i18n.t('common.live');
     modeBadge.className = `badge badge--${staticMode ? 'blue' : 'ok'}`;
@@ -793,7 +1209,6 @@ export function createEventsPage({ i18n, loc, model = null, meta = null, error =
         fetchedAt ? i18n.t('events.updatedAt', { time: i18n.formatDateTime(fetchedAt) }) : i18n.t('common.loading'),
       ),
       el('span', { class: 'live-status__item muted', text: currentMeta?.static ? i18n.t('events.snapshotNote') : i18n.t('events.autoRefresh') }),
-      el('span', { class: 'live-status__item muted', text: i18n.t('events.dataNote') }),
     ];
     if (currentMeta?.static) items.push(badge(i18n.t('events.snapshot'), 'blue'));
     if (currentMeta?.stale) items.push(badge(i18n.t('events.cached'), 'gold'));
@@ -877,9 +1292,13 @@ export function createEventsPage({ i18n, loc, model = null, meta = null, error =
     update,
     setLoading,
     _cleanup() {
+      endDrag(false);
+      document.removeEventListener('dragover', onDocumentDragOver);
       window.removeEventListener('resize', onResize);
       if (masonryFrame) cancelAnimationFrame(masonryFrame);
       masonryFrame = 0;
+      document.documentElement.classList.remove('layout-editing');
+      body.classList.remove('layout-editing');
     },
   };
 }

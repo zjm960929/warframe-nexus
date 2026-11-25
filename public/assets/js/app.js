@@ -12,7 +12,7 @@ import { renderNotFound, renderPlaceholder } from './pages/placeholder.js';
 
 const THEME_KEY = 'wf-nexus-theme';
 const LANG_KEY = 'wf-nexus-lang';
-const REFRESH_MS = 60_000;
+const REFRESH_MS = 5 * 60_000;
 const FETCH_TIMEOUT_MS = 25_000;
 
 const state = {
@@ -402,6 +402,7 @@ async function loadWorldstate(lang, { fresh = false } = {}) {
         lang,
         stale: false,
         static: true,
+        serverStarting: Boolean(externalError),
       },
     };
   } catch (staticError) {

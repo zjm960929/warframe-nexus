@@ -45,10 +45,29 @@ export function createLocalizer(lang, terms) {
     return output;
   }
 
+  function normalizeChineseCopy(value) {
+    const input = String(value ?? '');
+    if (!isZh || !hasCjk(input)) return input;
+    return input
+      .replace(/([\u3400-\u9fff])([A-Za-z0-9])/g, '$1 $2')
+      .replace(/([A-Za-z0-9])([\u3400-\u9fff])/g, '$1 $2')
+      .replace(/\s+([，。！？；：、）】」』])/g, '$1')
+      .replace(/([（【「『])\s+/g, '$1')
+      .replace(/\(([^()]*)\)/g, '（$1）')
+      .replace(/(\d),(\d)/g, '$1\u0000$2')
+      .replace(/,/g, '，')
+      .replace(/\u0000/g, ',')
+      .replace(/;/g, '；')
+      .replace(/!/g, '！')
+      .replace(/\?/g, '？')
+      .replace(/\s{2,}/g, ' ')
+      .trim();
+  }
+
   function exact(value) {
     if (!isZh) return null;
     const hit = strings[normalizeKey(value)];
-    return hit ? simplify(hit) : null;
+    return hit ? normalizeChineseCopy(simplify(hit)) : null;
   }
 
   function node(value) {
@@ -159,8 +178,8 @@ export function createLocalizer(lang, terms) {
     return simplify(text);
   }
 
-  function finalizeSentence(value) {
-    const text = String(value || '').trim();
+  function sentence(value) {
+    const text = normalizeChineseCopy(String(value || '').trim());
     if (!text) return '';
     if (/[。！？!?…]$/.test(text)) return text;
     return /[\u3400-\u9fff]/u.test(text) ? `${text}。` : `${text}.`;
@@ -202,7 +221,7 @@ export function createLocalizer(lang, terms) {
     if (field === 'description') {
       value = fillTemplate(value, fallback);
       if (!value) return '';
-      value = finalizeSentence(value);
+      value = sentence(value);
     }
     return value;
   }
@@ -214,7 +233,7 @@ export function createLocalizer(lang, terms) {
     if (field === 'description') {
       value = fillTemplate(value, fallback);
       if (!value) return '';
-      value = finalizeSentence(value);
+      value = sentence(value);
     }
     return value;
   }
@@ -223,21 +242,21 @@ export function createLocalizer(lang, terms) {
     const raw = String(value ?? '').trim();
     if (!raw) return '';
     if (!isZh) return raw;
-    if (hasCjk(raw)) return simplify(raw);
+    if (hasCjk(raw)) return normalizeChineseCopy(simplify(raw));
     const direct = exact(raw);
     if (direct) return direct;
     if (/^.+ \([^)]+\)$/.test(raw)) return node(raw);
     if (/^\d+\s*[xX]\s+/.test(raw) || /\bBlueprint\b/i.test(raw) || /\bRelic\b/i.test(raw)) {
       return item(raw);
     }
-    return simplify(raw);
+    return normalizeChineseCopy(simplify(raw));
   }
 
   function reward(rewardValue) {
     if (!rewardValue) return [];
     const output = [];
     if (Number(rewardValue.credits) > 0) {
-      output.push(`${Number(rewardValue.credits).toLocaleString(isZh ? 'zh-CN' : 'en-US')} ${isZh ? '现金' : 'Credits'}`);
+      output.push(`${Number(rewardValue.credits)} ${isZh ? '现金' : 'Credits'}`);
     }
     for (const entry of Array.isArray(rewardValue.items) ? rewardValue.items : []) {
       const name = item(entry.name || entry.label || '');
@@ -263,6 +282,8 @@ export function createLocalizer(lang, terms) {
     state,
     modifier,
     bountyType,
+    normalizeChineseCopy,
+    sentence,
     conquest,
     personal,
     text,

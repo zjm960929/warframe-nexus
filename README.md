@@ -24,11 +24,11 @@ English | [中文](README.zh.md)
 ## Features
 
 - **Minimal home page**: centered title, social links, and a tool search box that filters the available tools.
-- **Worldstate**: seven world clocks, daily and weekly reset countdowns, Darvo's Deal, Nightwave, arbitration, alerts, invasions, events, Sortie, Archon Hunt, Deep Archimedea, Temporal Archimedea, and three fissure modules.
+- **Worldstate**: seven world time displays, daily and weekly reset countdowns, Darvo's Deal, Nightwave, arbitration, alerts, invasions, events, Sortie, Archon Hunt, Deep Archimedea, Temporal Archimedea, and three fissure modules.
 - **Arbitration schedule**: current and next arbitration, a local-time grouped hourly schedule, and 1/3/7/30/90-day views with mission-type and enemy-faction filters.
 - **Readable fissures**: normal fissures, Steel Path fissures, and Void Storms are sorted by era: Lith, Meso, Neo, Axi, Requiem, Omnia.
 - **Bilingual UI**: Chinese and English with saved language preference; light, dark, and system themes.
-- **Custom layout**: reorder worldstate modules with a local layout editor; the order is stored in the browser.
+- **Custom layout**: drag modules in the layout editor or directly on the page while editing, with live placement previews and animated reflow; mouse drags use native drag and touch drags use Pointer Events. Each module also has a width menu (auto, 1/3, 1/2, 2/3, or full). The order and widths are stored in the browser.
 - **Wide-screen masonry**: a responsive 12-column layout that fills gaps instead of leaving holes under short modules.
 
 ## Requirements
@@ -47,7 +47,7 @@ The hosted site can use a permitted Render API for live official data. When that
 
 ### Self-contained file
 
-Open the repository's `index.html` directly in a browser.
+Open the repository's `test.html` directly in a browser.
 
 - The file is approximately 2 MiB and contains CSS, application code, both UI languages, the official term dictionary, a worldstate snapshot, and the static arbitration table.
 - It makes no network requests and uses the build-time snapshot rather than live data.
@@ -110,7 +110,7 @@ npm run build:pages
 npm run build:standalone
 ```
 
-`build:pages` writes the static site to `docs/`. `build:standalone` writes the self-contained `index.html`.
+`build:pages` writes the static site to `docs/`. `build:standalone` writes the self-contained `test.html`.
 
 If the official feed is unavailable during a Pages build, the build reuses the committed `worldstate-*.json` snapshots and continues.
 
@@ -131,7 +131,7 @@ Vercel's Hobby plan is intended for personal, non-commercial projects. Cloud-pro
 - Use the top navigation for **Home**, **Worldstate**, and **Arbitration Schedule**.
 - The home search filters tools by name, description, and keywords; press `/` to focus it.
 - Use the language and theme switches in the header. Preferences are stored locally.
-- On **Worldstate**, use **Customize layout** to reorder modules. Countdowns update each minute; **Refresh data** requests a fresh response.
+- On **Worldstate**, use **Customize layout** to drag modules into a new order. Other modules animate out of the way while you hold the drag; modules on the page can be dragged directly while the editor is open. Use the width menu to resize each module, or press Alt + ↑/↓ with focus. Dragging near the top or bottom edge scrolls the page gradually. Countdowns update each minute, data refreshes every five minutes, and **Refresh data** requests a fresh response.
 - Fissure modules are ordered by era, then by remaining time within the same era.
 - On **Arbitration Schedule**, change the date range and filter by mission type or enemy faction.
 
@@ -156,7 +156,7 @@ api.warframe.com/cdn/worldState.php
 - **Official data only**: the worldstate comes from Digital Extremes' public feed. No third-party worldstate API is used.
 - **No account access**: the project does not ask for a Warframe account, password, token, or game installation.
 - **Cloud egress may be blocked**: GitHub-hosted runners and some cloud providers receive HTTP 403 from the official endpoint. A deployment must test `/api/worldstate` before it is used by Pages.
-- **Render free tier sleeps**: the first request after inactivity can be slow; the frontend falls back to a static snapshot when the API does not answer in time.
+- **Render free tier sleeps**: the first request after inactivity can be slow; the frontend falls back to a static snapshot and shows a “server is starting” hint next to Refresh data.
 - **Static snapshots age**: the self-contained file and Pages fallback are build-time snapshots, not live data.
 - **Arbitration data is static**: the hourly rotation table is bundled and can become outdated if the schedule changes.
 - **No warranty**: this is an unofficial fan project and is not affiliated with Digital Extremes.
@@ -167,7 +167,7 @@ api.warframe.com/cdn/worldState.php
 
 ```text
 warframe-nexus/
-  index.html                 Self-contained build
+  test.html                  Self-contained build
   server.mjs                 Static server + official worldstate proxy
   api/worldstate.mjs         Optional Vercel Function
   render.yaml                Render Web Service blueprint
@@ -208,14 +208,14 @@ npm run build:pages
 npm run build:standalone
 ```
 
-Then open `docs/index.html` through a static server, or open the generated root `index.html` directly.
+Then open `docs/index.html` through a static server, or open the generated root `test.html` directly.
 
 ## Release
 
-The current release is **v0.3.3**.
+The current release is **v0.4.0**.
 
 1. Run `npm test`.
-2. Build `docs/` and `index.html`.
+2. Build `docs/` and `test.html`.
 3. Commit the source and generated artifacts.
 4. Create an annotated tag matching `package.json`.
 5. Push `main` and the tag.

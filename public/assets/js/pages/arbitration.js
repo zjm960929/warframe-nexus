@@ -215,7 +215,14 @@ export function createArbitrationPage({ i18n, loc, schedule = null, error = null
           resolved.current ? metaBadges(loc, resolved.current) : null,
           resolved.current
             ? el('p', { class: 'arb-current__meta' },
-              `${i18n.t('arbitration.startsAt')} ${i18n.formatDateTime(resolved.current.activation)} · ${i18n.t('common.endsAt')} ${i18n.formatDateTime(resolved.current.expiry)}`,
+              el('span', {
+                class: 'arb-current__meta-line',
+                text: `${i18n.t('arbitration.startsAt')} ${i18n.formatDateTime(resolved.current.activation)}`,
+              }),
+              el('span', {
+                class: 'arb-current__meta-line',
+                text: `${i18n.t('common.endsAt')} ${i18n.formatDateTime(resolved.current.expiry)}`,
+              }),
             )
             : null,
         ),
@@ -239,6 +246,7 @@ export function createArbitrationPage({ i18n, loc, schedule = null, error = null
 
   function renderRange() {
     const end = addLocalDays(anchor, rangeDays);
+    const dateRangeSeparator = i18n.lang === 'zh' ? '至 ' : ' – ';
     rangeLabel.textContent = `${i18n.formatDateTime(anchor, {
       weekday: 'short',
       year: 'numeric',
@@ -246,7 +254,7 @@ export function createArbitrationPage({ i18n, loc, schedule = null, error = null
       day: 'numeric',
       hour: undefined,
       minute: undefined,
-    })} – ${i18n.formatDateTime(end, {
+    })}${dateRangeSeparator}${i18n.formatDateTime(end, {
       weekday: 'short',
       year: 'numeric',
       month: 'short',

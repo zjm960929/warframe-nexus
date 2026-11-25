@@ -2,7 +2,7 @@ docs/
 scripts/
 test/
 .github/
-index.html
+test.html
 README.md
 CHANGELOG.md
 THIRD_PARTY_NOTICES.md

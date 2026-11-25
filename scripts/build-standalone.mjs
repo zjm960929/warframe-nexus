@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Build a self-contained `index.html` that can be opened with file:// directly.
+ * Build a self-contained `test.html` that can be opened with file:// directly.
  *
  * It inlines CSS, the compiled application bundle, both UI locales, the
  * Simplified Chinese term dictionary, and the official-data snapshots created
@@ -16,7 +16,7 @@ import { rollup } from 'rollup';
 const ROOT = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
 const PUBLIC_DIR = path.join(ROOT, 'public');
 const DOCS_DIR = path.join(ROOT, 'docs');
-const OUTPUT = path.join(ROOT, 'index.html');
+const OUTPUT = path.join(ROOT, 'test.html');
 
 const readJson = async (file) => JSON.parse(await fs.readFile(file, 'utf8'));
 
