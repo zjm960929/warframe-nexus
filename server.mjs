@@ -73,14 +73,14 @@ async function fetchWorldstateUpstream(lang) {
   return loadOfficialWorldstate(lang);
 }
 
-async function getWorldstate(lang) {
+async function getWorldstate(lang, { fresh = false } = {}) {
   const now = Date.now();
   const cached = memoryCache.get(lang);
-  if (cached && now - cached.meta.fetchedAtMs < API_TTL_MS) {
+  if (!fresh && cached && now - cached.meta.fetchedAtMs < API_TTL_MS) {
     return cached.envelope;
   }
 
-  if (inflight.has(lang)) {
+  if (!fresh && inflight.has(lang)) {
     return inflight.get(lang);
   }
 
@@ -147,6 +147,10 @@ function sendJson(response, status, value) {
   const headers = {
     'Content-Type': 'application/json; charset=utf-8',
     'Cache-Control': 'no-store',
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Methods': 'GET, HEAD, OPTIONS',
+    'Access-Control-Allow-Headers': 'Accept, Content-Type',
+    Vary: 'Origin',
   };
   setSecurityHeaders(response);
   response.writeHead(status, headers);
@@ -223,6 +227,17 @@ const server = http.createServer(async (request, response) => {
   const url = new URL(request.url || '/', `http://${request.headers.host || 'localhost'}`);
   setSecurityHeaders(response);
 
+  if (request.method === 'OPTIONS') {
+    response.setHeader('Access-Control-Allow-Origin', '*');
+    response.setHeader('Access-Control-Allow-Methods', 'GET, HEAD, OPTIONS');
+    response.setHeader('Access-Control-Allow-Headers', 'Accept, Content-Type');
+    response.setHeader('Access-Control-Max-Age', '86400');
+    response.setHeader('Vary', 'Origin');
+    response.writeHead(204);
+    response.end();
+    return;
+  }
+
   if (request.method !== 'GET' && request.method !== 'HEAD') {
     response.writeHead(405, { Allow: 'GET, HEAD' });
     response.end();
@@ -236,8 +251,9 @@ const server = http.createServer(async (request, response) => {
 
   if (url.pathname === '/api/worldstate') {
     const lang = url.searchParams.get('lang') === 'en' ? 'en' : 'zh';
+    const fresh = url.searchParams.get('fresh') === '1';
     try {
-      const envelope = await getWorldstate(lang);
+      const envelope = await getWorldstate(lang, { fresh });
       sendJson(response, 200, envelope);
     } catch (error) {
       console.error(`[worldstate] unavailable: ${error.message}`);

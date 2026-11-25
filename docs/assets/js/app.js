@@ -337,7 +337,7 @@ function externalApiBase() {
   return new URL(value, document.baseURI);
 }
 
-async function loadWorldstate(lang) {
+async function loadWorldstate(lang, { fresh = false } = {}) {
   const embedded = globalThis.__WF_NEXUS_EMBEDDED__;
   const staticMode = document.querySelector('meta[name="wf-nexus-mode"]')?.content === 'static'
     || Boolean(embedded);
@@ -360,6 +360,7 @@ async function loadWorldstate(lang) {
       const base = apiBase.href.endsWith('/') ? apiBase.href : `${apiBase.href}/`;
       const url = new URL('api/worldstate', base);
       url.searchParams.set('lang', lang);
+      if (fresh) url.searchParams.set('fresh', '1');
       const payload = await fetchJson(url);
       if (!payload || !payload.data) throw new Error('Malformed external worldstate response');
       return {
@@ -378,7 +379,9 @@ async function loadWorldstate(lang) {
   let serverError = null;
   if (!staticMode) {
     try {
-      const payload = await fetchJson(new URL(`api/worldstate?lang=${encodeURIComponent(lang)}`, document.baseURI));
+      const url = new URL(`api/worldstate?lang=${encodeURIComponent(lang)}`, document.baseURI);
+      if (fresh) url.searchParams.set('fresh', '1');
+      const payload = await fetchJson(url);
       if (!payload || !payload.data) throw new Error('Malformed worldstate response');
       return { raw: payload.data, meta: payload.meta || { lang, fetchedAt: new Date().toISOString() } };
     } catch (error) {
@@ -413,7 +416,7 @@ async function refreshEvents(manual = false, renderToken = state.renderToken) {
   state.page?.setLoading(true);
   try {
     const [{ raw, meta }, arbitrationSchedule] = await Promise.all([
-      loadWorldstate(state.lang),
+      loadWorldstate(state.lang, { fresh: manual }),
       loadArbitrationData(),
     ]);
     if (renderToken !== state.renderToken) return;

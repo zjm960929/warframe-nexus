@@ -1,11 +1,19 @@
 # Changelog
 
+## [0.3.1] - 2026-11-26
+
+### Added
+
+- `render.yaml`：Render Web Service 蓝图，直接运行现有 Node 服务。
+- Node `/api/worldstate` 增加 CORS 和 OPTIONS 预检，供 GitHub Pages 跨域调用。
+- 手动刷新使用 `fresh=1` 绕过 30 秒缓存。
+
 ## [0.3.0] - 2026-11-26
 
 ### Added
 
 - Vercel Function `api/worldstate.mjs`：从官方 feed 获取并解析数据，提供 CORS。
-- `WF_NEXUS_API_BASE` 配置；Pages 优先请求 Vercel，失败时回退静态快照。
+- `WF_NEXUS_API_BASE` 配置；Pages 优先请求外部 API，失败时回退静态快照。
 
 ## [0.2.1] - 2026-11-26
 

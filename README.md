@@ -2,7 +2,7 @@
 
 一个双语、可自托管的 Warframe 实用工具合集。当前版本完成了**世界状态**页和**仲裁时间表**页；未完成的工具保留直接 URL 占位页，但顶栏只展示已完成页面。
 
-> 当前版本：`0.3.0` · [变更记录](CHANGELOG.md)
+> 当前版本：`0.3.1` · [变更记录](CHANGELOG.md)
 
 - 中文 / English 切换，语言选择保存在浏览器。
 - 明亮 / 黑暗 / 跟随系统三种主题。
@@ -104,6 +104,63 @@ npm start
 - 该解析库默认会为赏金任务补充社区掉落表；`src/official.mjs` 在解析期间拦截所有非 `api.warframe.com` 的请求，因此项目实际只访问官方数据源。
 - 仲裁：`public/data/arbitration-schedule.csv` 是提供的静态每小时轮换表；`public/data/arbitration-nodes.json` 和 `public/data/arbitration-node-meta.json` 由 `npm run build:arbitration` 生成显示名、任务类型与敌人派系。
 - 服务器缓存 30 秒，页面每 60 秒刷新；GitHub Pages 静态模式读取构建时快照。
+
+## 可选：Render 实时 API / 完整站点
+
+项目包含 [`render.yaml`](render.yaml)，可以直接把现有 Node 服务部署为 Render Web Service。
+
+部署后：
+
+- `https://你的服务.onrender.com/` 是完整站点
+- `https://你的服务.onrender.com/api/worldstate?lang=zh` 是实时 API
+- 服务已支持 CORS，GitHub Pages 可以跨域调用
+
+### 部署
+
+1. 打开 <https://render.com>，用 GitHub 账号注册并登录。
+2. 进入 **New → Blueprint**，选择本仓库。
+3. Render 会读取 `render.yaml`，创建免费 Web Service。
+4. 点击 **Deploy**。
+5. 先测试健康检查：
+
+```powershell
+curl.exe -i https://你的服务.onrender.com/api/health
+```
+
+6. 再测试官方数据：
+
+```powershell
+curl.exe -i "https://你的服务.onrender.com/api/worldstate?lang=zh"
+```
+
+返回 HTTP 200 和 `data` 字段，说明 Render 出口可以访问官方 API。
+
+如果 Blueprint 不可用，也可以手动创建 **Web Service**：
+
+```text
+Build Command: npm ci
+Start Command: npm start
+Health Check Path: /api/health
+环境变量：HOST=0.0.0.0
+```
+
+### 让 GitHub Pages 使用 Render
+
+在 GitHub 仓库 **Settings → Secrets and variables → Actions → Variables** 新建：
+
+```text
+名称：WF_NEXUS_API_BASE
+值：https://你的服务.onrender.com
+```
+
+然后重新运行 Pages 工作流。页面会优先请求 Render，失败时回退静态快照。
+
+### 注意
+
+- Render 免费 Web Service 闲置约 15 分钟后休眠，冷启动约 1 分钟。
+- 免费实例约 512 MB 内存、每月 750 实例小时、约 5 GB 出站流量。
+- 常开实例约 **$7/月**。
+- **Render 出口 IP 也可能被官方 API 返回 403**；先测试 `/api/worldstate`，不要直接设置 Pages 变量。
 
 ## 可选：Vercel 实时 API
 
@@ -228,6 +285,7 @@ warframe-nexus/
   server.mjs                静态文件 + 官方世界状态代理/缓存
   api/worldstate.mjs        Vercel Function：官方数据解析 + CORS
   vercel.json               Vercel 函数配置
+  render.yaml               Render Web Service 蓝图
   src/official.mjs          官方 feed 获取、解析、第三方请求拦截
   public/
     index.html
@@ -269,7 +327,7 @@ npm run build:pages
 npm run build:standalone
 ```
 
-提交后推送 `main`，在仓库 Settings → Pages 选择 **GitHub Actions**，工作流会部署 `docs/`。建议创建 `v0.3.0` 标签和对应 GitHub Release。
+提交后推送 `main`，在仓库 Settings → Pages 选择 **GitHub Actions**，工作流会部署 `docs/`。建议创建 `v0.3.1` 标签和对应 GitHub Release。
 
 GitHub 托管 runner 访问官方 feed 可能返回 403。构建脚本会复用仓库中已有的 `worldstate-*.json` 快照并继续部署，避免静态站点因上游不可用而中断。需要更新静态快照时，可在能访问官方源的网络环境执行：
 
