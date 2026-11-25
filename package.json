@@ -8,7 +8,7 @@
   "scripts": {
     "start": "node server.mjs",
     "dev": "node --watch server.mjs",
-    "test": "node --test --test-isolation=none",
+    "test": "node --test",
     "build:terms": "node scripts/build-terms.mjs",
     "build:chars": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/build-char-map.ps1",
     "build:pages": "node scripts/build-pages.mjs",
