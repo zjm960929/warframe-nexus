@@ -40,8 +40,11 @@ export default {
       const upstream = await fetch(OFFICIAL_URL, {
         method: 'GET',
         headers: {
-          Accept: 'application/json',
-          'User-Agent': 'warframe-nexus/0.2.0 (community fan utility)',
+          Accept: 'application/json, text/plain, */*',
+          'Accept-Language': 'en-US,en;q=0.9,zh-CN;q=0.8',
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36',
+          Referer: 'https://www.warframe.com/',
+          Origin: 'https://www.warframe.com',
         },
         cf: { cacheTtl: 0 },
       });
