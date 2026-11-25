@@ -83,13 +83,19 @@ async function main() {
   await fs.mkdir(out, { recursive: true });
   await fs.cp(PUBLIC_DIR, out, { recursive: true });
 
+  const apiBase = (process.env.WF_NEXUS_API_BASE || '').trim();
   const indexPath = path.join(out, 'index.html');
   const indexHtml = await fs.readFile(indexPath, 'utf8');
-  await fs.writeFile(
-    indexPath,
-    indexHtml.replace('content="auto"', 'content="static"'),
-    'utf8',
-  );
+  let builtIndex = indexHtml.replace('content="auto"', 'content="static"');
+  if (apiBase) {
+    const attr = apiBase.replaceAll('&', '&amp;').replaceAll('"', '&quot;');
+    builtIndex = builtIndex.replace(
+      'name="wf-nexus-api" content=""',
+      `name="wf-nexus-api" content="${attr}"`,
+    );
+  }
+  await fs.writeFile(indexPath, builtIndex, 'utf8');
+  console.log(apiBase ? `External API: ${apiBase}` : 'External API: not configured (using static snapshots)');
 
   const buildLabel = raw?.BuildLabel || en.buildLabel || '';
   const writeSnapshot = async (lang, data) => {

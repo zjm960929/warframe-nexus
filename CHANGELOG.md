@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.3.0] - 2026-11-26
+
+### Added
+
+- Vercel Function `api/worldstate.mjs`：从官方 feed 获取并解析数据，提供 CORS。
+- `WF_NEXUS_API_BASE` 配置；Pages 优先请求 Vercel，失败时回退静态快照。
+
 ## [0.2.1] - 2026-11-26
 
 ### Changed

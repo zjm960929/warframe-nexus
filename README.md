@@ -2,7 +2,7 @@
 
 一个双语、可自托管的 Warframe 实用工具合集。当前版本完成了**世界状态**页和**仲裁时间表**页；未完成的工具保留直接 URL 占位页，但顶栏只展示已完成页面。
 
-> 当前版本：`0.2.1` · [变更记录](CHANGELOG.md)
+> 当前版本：`0.3.0` · [变更记录](CHANGELOG.md)
 
 - 中文 / English 切换，语言选择保存在浏览器。
 - 明亮 / 黑暗 / 跟随系统三种主题。
@@ -17,7 +17,8 @@ GitHub Pages 只能托管静态文件，不能运行 Node 代理；而官方世�
 本项目采用两层方案：
 
 1. **本地 / Node 服务器**：`npm start` 启动代理，实时读取官方数据，缓存 30 秒。
-2. **GitHub Pages 静态快照**：`npm run build:pages` 在构建时读取官方数据并生成 `docs/`，页面从 `docs/data/worldstate-*.json` 读取。GitHub Actions 在推送或手动触发时部署；GitHub 托管 runner 访问官方 feed 可能被拒绝，此时复用已有快照。
+2. **GitHub Pages + Vercel API**：将 `api/worldstate.mjs` 部署到 Vercel，Pages 页面在载入和手动刷新时请求 Vercel；Vercel 从官方 API 获取并解析数据。
+3. **GitHub Pages 静态快照**：`npm run build:pages` 在构建时读取官方数据并生成 `docs/`，页面从 `docs/data/worldstate-*.json` 读取。GitHub Actions 在推送或手动触发时部署；GitHub 托管 runner 访问官方 feed 可能被拒绝，此时复用已有快照。
 
 如果你需要 GitHub Pages 上真正的实时数据，需要额外加一个支持 CORS 的代理，让静态页面请求该代理。**仅靠 GitHub Pages 本身做不到**，这点无法绕过。
 
@@ -104,6 +105,51 @@ npm start
 - 仲裁：`public/data/arbitration-schedule.csv` 是提供的静态每小时轮换表；`public/data/arbitration-nodes.json` 和 `public/data/arbitration-node-meta.json` 由 `npm run build:arbitration` 生成显示名、任务类型与敌人派系。
 - 服务器缓存 30 秒，页面每 60 秒刷新；GitHub Pages 静态模式读取构建时快照。
 
+## 可选：Vercel 实时 API
+
+项目包含一个只负责官方数据解析和 CORS 的 Vercel Function：
+
+```text
+api/worldstate.mjs
+```
+
+部署后地址形如：
+
+```text
+https://warframe-nexus.vercel.app/api/worldstate?lang=zh
+```
+
+### 部署
+
+1. 打开 <https://vercel.com/new>，用 GitHub 登录并导入本仓库。
+2. Framework Preset 选择 **Other**，Root Directory 保持仓库根目录。
+3. 不需要修改 Build Command 或 Output Directory，Vercel 会自动识别 `api/`。
+4. 点击 Deploy。
+5. 测试接口：
+
+```powershell
+curl.exe -i "https://你的项目.vercel.app/api/worldstate?lang=zh"
+```
+
+### 切换到 Pages 实时模式
+
+在 GitHub 仓库 **Settings → Secrets and variables → Actions → Variables** 新建：
+
+```text
+名称：WF_NEXUS_API_BASE
+值：https://你的项目.vercel.app
+```
+
+然后重新运行 Pages 工作流。`build:pages` 会把该地址写入页面；页面载入和手动刷新都会请求 Vercel API。
+
+未设置该变量，或 Vercel 请求失败时，页面仍会回退到构建时静态快照。
+
+### 重要限制
+
+- Vercel Hobby 免费计划仅限个人、非商业项目。
+- 函数有冷启动，首次请求可能较慢。
+- **Vercel 的出口 IP 也未必被官方 API 接受**；如果接口返回 502，先看错误详情。若官方返回 403，说明该平台出口被拒绝，不能靠升级套餐解决。
+
 ## GitHub Pages 发布
 
 生成静态发布目录和本地单文件：
@@ -180,6 +226,8 @@ npm run build:chars
 warframe-nexus/
   index.html                自包含离线版（可直接 file:// 打开）
   server.mjs                静态文件 + 官方世界状态代理/缓存
+  api/worldstate.mjs        Vercel Function：官方数据解析 + CORS
+  vercel.json               Vercel 函数配置
   src/official.mjs          官方 feed 获取、解析、第三方请求拦截
   public/
     index.html
@@ -221,7 +269,7 @@ npm run build:pages
 npm run build:standalone
 ```
 
-提交后推送 `main`，在仓库 Settings → Pages 选择 **GitHub Actions**，工作流会部署 `docs/`。建议创建 `v0.2.1` 标签和对应 GitHub Release。
+提交后推送 `main`，在仓库 Settings → Pages 选择 **GitHub Actions**，工作流会部署 `docs/`。建议创建 `v0.3.0` 标签和对应 GitHub Release。
 
 GitHub 托管 runner 访问官方 feed 可能返回 403。构建脚本会复用仓库中已有的 `worldstate-*.json` 快照并继续部署，避免静态站点因上游不可用而中断。需要更新静态快照时，可在能访问官方源的网络环境执行：
 

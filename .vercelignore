@@ -1,0 +1,9 @@
+docs/
+scripts/
+test/
+.github/
+index.html
+README.md
+CHANGELOG.md
+THIRD_PARTY_NOTICES.md
+LICENSE
