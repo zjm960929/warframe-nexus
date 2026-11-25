@@ -1,5 +1,6 @@
 {
-  "generatedAt": "2026-11-25T18:33:17.128Z",
+  "generatedAt": "2026-11-25T18:45:37.615Z",
   "buildLabel": "2026.10.28.09.54/8e7dGXr3Omgob8q-e55qeg",
+  "fallback": false,
   "source": "https://api.warframe.com/cdn/worldState.php"
 }

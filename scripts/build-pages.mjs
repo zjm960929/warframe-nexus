@@ -33,21 +33,51 @@ function parseArgs(argv) {
   return { out };
 }
 
+async function readExistingSnapshots(out) {
+  try {
+    const read = async (lang) => {
+      const text = await fs.readFile(path.join(out, 'data', `worldstate-${lang}.json`), 'utf8');
+      const snapshot = JSON.parse(text);
+      if (!snapshot?.data) throw new Error(`missing ${lang} snapshot data`);
+      return snapshot;
+    };
+    return { en: await read('en'), zh: await read('zh') };
+  } catch {
+    return null;
+  }
+}
+
 async function main() {
   const { out } = parseArgs(process.argv.slice(2));
   if (out === ROOT || out === PUBLIC_DIR) {
     throw new Error('Refusing to write the Pages build over the project root or public/');
   }
 
-  console.log(`Fetching official worldstate: ${OFFICIAL_WORLDSTATE_URL}`);
-  const { rawText, raw } = await fetchOfficialRaw();
-  const fetchedAt = new Date().toISOString();
+  let en;
+  let zh;
+  let raw = null;
+  let fetchedAt;
+  let fallback = false;
 
-  console.log('Parsing official worldstate for en + zh…');
-  const [en, zh] = await Promise.all([
-    parseOfficialWorldstate(rawText, 'en'),
-    parseOfficialWorldstate(rawText, 'zh'),
-  ]);
+  try {
+    console.log(`Fetching official worldstate: ${OFFICIAL_WORLDSTATE_URL}`);
+    const fetched = await fetchOfficialRaw();
+    raw = fetched.raw;
+    fetchedAt = new Date().toISOString();
+    console.log('Parsing official worldstate for en + zh…');
+    [en, zh] = await Promise.all([
+      parseOfficialWorldstate(fetched.rawText, 'en'),
+      parseOfficialWorldstate(fetched.rawText, 'zh'),
+    ]);
+  } catch (error) {
+    const existing = await readExistingSnapshots(out);
+    if (!existing) throw error;
+    en = existing.en.data;
+    zh = existing.zh.data;
+    fetchedAt = existing.en.meta?.fetchedAt || new Date().toISOString();
+    fallback = true;
+    console.warn(`Official feed unavailable (${error.message}); reusing existing snapshots from ${out}`);
+  }
 
   await fs.rm(out, { recursive: true, force: true });
   await fs.mkdir(out, { recursive: true });
@@ -62,7 +92,7 @@ async function main() {
     'utf8',
   );
 
-  const buildLabel = raw.BuildLabel || en.buildLabel || '';
+  const buildLabel = raw?.BuildLabel || en.buildLabel || '';
   const writeSnapshot = async (lang, data) => {
     const snapshot = {
       data,
@@ -71,6 +101,7 @@ async function main() {
         fetchedAt,
         upstream: OFFICIAL_WORLDSTATE_URL,
         static: true,
+        fallback,
         buildLabel,
         parser: 'warframe-worldstate-parser',
       },
@@ -90,6 +121,7 @@ async function main() {
     `${JSON.stringify({
       generatedAt: fetchedAt,
       buildLabel,
+      fallback,
       source: OFFICIAL_WORLDSTATE_URL,
     }, null, 2)}\n`,
     'utf8',

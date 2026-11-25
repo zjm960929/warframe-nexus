@@ -222,6 +222,8 @@ npm run build:standalone
 
 提交后推送 `main`，在仓库 Settings → Pages 选择 **GitHub Actions**，工作流会部署 `docs/` 并按计划刷新静态快照。建议创建 `v0.1.0` 标签和对应 GitHub Release。
 
+如果 Actions 运行环境访问官方 feed 失败，构建脚本会复用仓库中已有的 `worldstate-*.json` 快照并继续部署，避免静态站点因上游临时不可用而中断。
+
 ## 测试
 
 ```bash
