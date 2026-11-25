@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.2.0] - 2026-11-26
+
+### Added
+
+- 可选的 Cloudflare Worker 官方数据代理和 `WF_NEXUS_API_BASE` 实时模式；页面载入与手动刷新可请求官方 API，并在浏览器端解析。
+- 浏览器端 `warframe-worldstate-parser` 打包文件与数据包。
+- 浏览器端 md5/sha256 shim 和第三方许可说明。
+
 ## [0.1.0] - 2026-11-26
 
 首个公开版本。

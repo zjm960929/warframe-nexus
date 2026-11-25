@@ -28,6 +28,8 @@ jobs:
       - name: Run tests
         run: npm test
       - name: Build official-data snapshots and Pages output
+        env:
+          WF_NEXUS_API_BASE: ${{ vars.WF_NEXUS_API_BASE }}
         run: npm run build:pages
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3

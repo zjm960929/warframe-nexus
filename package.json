@@ -1,6 +1,6 @@
 {
   "name": "warframe-nexus",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
   "license": "MIT",
   "type": "module",
@@ -11,19 +11,26 @@
     "test": "node --test",
     "build:terms": "node scripts/build-terms.mjs",
     "build:chars": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/build-char-map.ps1",
-    "build:pages": "node scripts/build-pages.mjs",
-    "build:standalone": "node scripts/build-standalone.mjs",
-    "build:arbitration": "node scripts/build-arbitration-nodes.mjs"
+    "build:live": "node scripts/build-live.mjs",
+    "build:pages": "node scripts/build-live.mjs && node scripts/build-pages.mjs",
+    "build:standalone": "node scripts/build-live.mjs && node scripts/build-standalone.mjs",
+    "build:arbitration": "node scripts/build-arbitration-nodes.mjs",
+    "worker:dev": "npx wrangler dev --config worker/wrangler.toml",
+    "worker:deploy": "npx wrangler deploy --config worker/wrangler.toml"
   },
   "engines": {
     "node": ">=22.18.0"
   },
   "dependencies": {
+    "@noble/hashes": "^2.4.0",
     "reflect-metadata": "^0.2.2",
     "warframe-worldstate-data": "^3.20.0",
     "warframe-worldstate-parser": "^5.5.7"
   },
   "devDependencies": {
+    "@rollup/plugin-commonjs": "^29.0.3",
+    "@rollup/plugin-json": "^6.1.0",
+    "@rollup/plugin-node-resolve": "^16.0.3",
     "rollup": "^4.68.8"
   }
 }

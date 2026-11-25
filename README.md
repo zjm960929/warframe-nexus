@@ -2,7 +2,7 @@
 
 一个双语、可自托管的 Warframe 实用工具合集。当前版本完成了**世界状态**页和**仲裁时间表**页；未完成的工具保留直接 URL 占位页，但顶栏只展示已完成页面。
 
-> 当前版本：`0.1.0` · [变更记录](CHANGELOG.md)
+> 当前版本：`0.2.0` · [变更记录](CHANGELOG.md)
 
 - 中文 / English 切换，语言选择保存在浏览器。
 - 明亮 / 黑暗 / 跟随系统三种主题。
@@ -17,7 +17,8 @@ GitHub Pages 只能托管静态文件，不能运行 Node 代理；而官方世�
 本项目采用两层方案：
 
 1. **本地 / Node 服务器**：`npm start` 启动代理，实时读取官方数据，缓存 30 秒。
-2. **GitHub Pages 静态快照**：`npm run build:pages` 在构建时读取官方数据并生成 `docs/`，页面从 `docs/data/worldstate-*.json` 读取。仓库包含 GitHub Actions 部署工作流，在推送或手动触发时构建并部署；GitHub 托管 runner 访问官方 feed 可能被拒绝，此时构建会复用已有快照。
+2. **GitHub Pages + Cloudflare Worker 实时模式**：`WF_NEXUS_API_BASE` 指向 Worker 后，页面每次进入世界状态或手动刷新都会请求官方 feed，并在浏览器端用 `warframe-worldstate-parser` 解析。
+3. **GitHub Pages 静态快照**：未配置 Worker 时，`npm run build:pages` 在构建时读取官方数据并生成 `docs/`，页面从 `docs/data/worldstate-*.json` 读取。GitHub Actions 在推送或手动触发时部署；GitHub 托管 runner 访问官方 feed 可能被拒绝，此时复用已有快照。
 
 如果你需要 GitHub Pages 上真正的实时数据，需要额外加一个支持 CORS 的代理（例如免费的 Cloudflare Worker），让静态页面请求该代理。**仅靠 GitHub Pages 本身做不到**，这点无法绕过。
 
@@ -27,7 +28,7 @@ GitHub Pages 只能托管静态文件，不能运行 Node 代理；而官方世�
 
 双击根目录的 **`index.html`**，或拖进浏览器即可。
 
-- 这是**自包含单文件**（约 2 MiB）：CSS、应用代码、中英文文案、官方术语表、官方数据快照和静态仲裁表全部内联。
+- 这是**自包含单文件**（约 4 MiB）：CSS、应用代码、中英文文案、官方术语表、官方数据快照、静态仲裁表和浏览器解析器全部内联。
 - 使用的是构建时的静态快照，页面会明确显示“静态快照”，不是实时数据。
 - 适用于本地快速查看布局和功能，不需要安装 Node.js，也不会发出网络请求。
 
@@ -103,6 +104,20 @@ npm start
 - 该解析库默认会为赏金任务补充社区掉落表；`src/official.mjs` 在解析期间拦截所有非 `api.warframe.com` 的请求，因此项目实际只访问官方数据源。
 - 仲裁：`public/data/arbitration-schedule.csv` 是提供的静态每小时轮换表；`public/data/arbitration-nodes.json` 和 `public/data/arbitration-node-meta.json` 由 `npm run build:arbitration` 生成显示名、任务类型与敌人派系。
 - 服务器缓存 30 秒，页面每 60 秒刷新；GitHub Pages 静态模式读取构建时快照。
+
+## 在线实时模式（Cloudflare Worker）
+
+GitHub Pages 的浏览器无法直接请求官方 API（无 CORS）。项目包含一个只负责
+CORS 转发的 Worker，以及浏览器端 `warframe-worldstate-parser` 打包文件。
+
+详细步骤见 [worker/README.md](worker/README.md)，简要流程：
+
+1. 注册 Cloudflare 并执行 `npx wrangler login`。
+2. `npm run worker:deploy`。
+3. 在 GitHub 仓库 Actions Variables 中设置 `WF_NEXUS_API_BASE` 为 Worker 地址。
+4. 重新运行 Pages 工作流。
+
+构建时设置 `WF_NEXUS_API_BASE` 会把页面切到 `live` 模式；未设置时仍使用静态快照。
 
 ## GitHub Pages 发布
 
@@ -181,6 +196,12 @@ warframe-nexus/
   index.html                自包含离线版（可直接 file:// 打开）
   server.mjs                静态文件 + 官方世界状态代理/缓存
   src/official.mjs          官方 feed 获取、解析、第三方请求拦截
+  src/browser/live-parser.js 浏览器解析器入口
+  src/browser/crypto-shim.mjs 浏览器 hash shim
+  worker/
+    src/index.js            Cloudflare Worker：官方 feed 转发 + CORS
+    wrangler.toml           Worker 配置
+    README.md               Worker 注册与部署步骤
   public/
     index.html
     assets/css/styles.css
@@ -189,6 +210,7 @@ warframe-nexus/
       normalize.js          世界状态纯函数归一化
       localize.js           官方术语与数据字段本地化
       i18n.js               界面文案与日期/倒计时格式
+      live-parser.bundle.js 浏览器端官方数据解析器（构建产物）
       pages/events.js       世界状态页
       pages/arbitration.js  仲裁时间表页
       pages/home.js         主页
@@ -199,6 +221,7 @@ warframe-nexus/
     data/arbitration-nodes.json       仲裁节点显示名
     data/arbitration-node-meta.json   仲裁节点任务类型与敌人派系
   scripts/
+    build-live.mjs                    打包浏览器端 worldstate 解析器
     build-pages.mjs                   生成 GitHub Pages 静态目录 + 官方快照
     build-standalone.mjs              把 CSS/JS/数据内联成根目录 index.html
     build-arbitration-nodes.mjs       从仲裁表生成节点显示名、任务类型与敌人派系
@@ -208,10 +231,11 @@ warframe-nexus/
   .github/workflows/pages.yml
   test/                     Node 内置测试
   LICENSE                   MIT 许可证
+  THIRD_PARTY_NOTICES.md    第三方依赖许可
   CHANGELOG.md              版本变更记录
 ```
 
-## 首个版本发布
+## 版本发布
 
 ```bash
 npm ci
@@ -220,7 +244,7 @@ npm run build:pages
 npm run build:standalone
 ```
 
-提交后推送 `main`，在仓库 Settings → Pages 选择 **GitHub Actions**，工作流会部署 `docs/`。建议创建 `v0.1.0` 标签和对应 GitHub Release。
+提交后推送 `main`，在仓库 Settings → Pages 选择 **GitHub Actions**，工作流会部署 `docs/`。建议创建 `v0.2.0` 标签和对应 GitHub Release。
 
 GitHub 托管 runner 访问官方 feed 可能返回 403。构建脚本会复用仓库中已有的 `worldstate-*.json` 快照并继续部署，避免静态站点因上游不可用而中断。需要更新静态快照时，可在能访问官方源的网络环境执行：
 
@@ -255,7 +279,7 @@ npm test
 
 ## 许可证
 
-本项目代码采用 [MIT License](LICENSE)。Warframe 游戏数据、名称与相关资产归 Digital Extremes 所有，不包含在本项目的 MIT 授权范围内。
+本项目代码采用 [MIT License](LICENSE)。第三方依赖与浏览器解析器所包含代码的许可见 [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)。Warframe 游戏数据、名称与相关资产归 Digital Extremes 所有，不包含在本项目的 MIT 授权范围内。
 
 ---
 

@@ -63,6 +63,7 @@ async function main() {
       format: 'iife',
       name: 'WarframeNexus',
       compact: true,
+      inlineDynamicImports: true,
     });
     code = generated.output[0].code;
   } finally {
