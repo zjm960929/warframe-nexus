@@ -17,7 +17,7 @@ GitHub Pages 只能托管静态文件，不能运行 Node 代理；而官方世�
 本项目采用两层方案：
 
 1. **本地 / Node 服务器**：`npm start` 启动代理，实时读取官方数据，缓存 30 秒。
-2. **GitHub Pages 静态快照**：`npm run build:pages` 在构建时读取官方数据并生成 `docs/`，页面从 `docs/data/worldstate-*.json` 读取。仓库包含 GitHub Actions 工作流，可每 10 分钟重新生成并部署一次快照；这不是实时数据，且 Actions 可能延迟。
+2. **GitHub Pages 静态快照**：`npm run build:pages` 在构建时读取官方数据并生成 `docs/`，页面从 `docs/data/worldstate-*.json` 读取。仓库包含 GitHub Actions 部署工作流，在推送或手动触发时构建并部署；GitHub 托管 runner 访问官方 feed 可能被拒绝，此时构建会复用已有快照。
 
 如果你需要 GitHub Pages 上真正的实时数据，需要额外加一个支持 CORS 的代理（例如免费的 Cloudflare Worker），让静态页面请求该代理。**仅靠 GitHub Pages 本身做不到**，这点无法绕过。
 
@@ -220,9 +220,16 @@ npm run build:pages
 npm run build:standalone
 ```
 
-提交后推送 `main`，在仓库 Settings → Pages 选择 **GitHub Actions**，工作流会部署 `docs/` 并按计划刷新静态快照。建议创建 `v0.1.0` 标签和对应 GitHub Release。
+提交后推送 `main`，在仓库 Settings → Pages 选择 **GitHub Actions**，工作流会部署 `docs/`。建议创建 `v0.1.0` 标签和对应 GitHub Release。
 
-如果 Actions 运行环境访问官方 feed 失败，构建脚本会复用仓库中已有的 `worldstate-*.json` 快照并继续部署，避免静态站点因上游临时不可用而中断。
+GitHub 托管 runner 访问官方 feed 可能返回 403。构建脚本会复用仓库中已有的 `worldstate-*.json` 快照并继续部署，避免静态站点因上游不可用而中断。需要更新静态快照时，可在能访问官方源的网络环境执行：
+
+```bash
+npm run build:pages
+npm run build:standalone
+```
+
+然后提交 `docs/` 与根目录 `index.html`。若要让 Actions 自动刷新，需要额外配置可访问官方源的代理。
 
 ## 测试
 
@@ -258,4 +265,4 @@ Warframe Nexus is a bilingual Warframe utility hub. The first release implements
 
 The data source is Digital Extremes' official `api.warframe.com/cdn/worldState.php`, parsed locally with `warframe-worldstate-parser`. Open the root `index.html` directly for a self-contained static snapshot (no npm or server required). Run `npm install && npm start` with Node.js 22.18+ for live data.
 
-GitHub Pages is static hosting and the official endpoint has no CORS headers, so a Pages site cannot fetch live data directly. `npm run build:pages` writes a `docs/` site with official-data snapshots; the included Actions workflow refreshes them every 10 minutes. For true real-time data, host the Node server or put a CORS proxy (such as a Cloudflare Worker) in front of the official feed.
+GitHub Pages is static hosting and the official endpoint has no CORS headers, so a Pages site cannot fetch live data directly. `npm run build:pages` writes a `docs/` site with official-data snapshots; the included Actions workflow deploys on push or manual dispatch. GitHub-hosted runners may receive HTTP 403 from the official feed, in which case the build reuses the committed snapshots. For true real-time data, host the Node server or put a CORS proxy (such as a Cloudflare Worker) in front of the official feed.

@@ -3,10 +3,6 @@ name: Deploy Warframe Nexus to GitHub Pages
 on:
   push:
     branches: [main]
-  schedule:
-    # GitHub Actions scheduled runs cannot provide real-time updates; this
-    # keeps the static snapshots reasonably fresh (subject to Actions delays).
-    - cron: '*/10 * * * *'
   workflow_dispatch:
 
 permissions:
