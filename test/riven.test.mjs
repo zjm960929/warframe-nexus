@@ -5,9 +5,11 @@ import { RIVEN_SPLICE_META, RIVEN_SPLICE_TYPES } from '../public/assets/js/riven
 import {
   formatRivenValue,
   rivenNameFromStats,
+  rivenDisplayNumber,
   rivenRange,
   rivenRollForQuality,
   rivenRollFromDisplay,
+  rivenRollFromSliderRatio,
   rivenValue,
 } from '../public/assets/js/riven.js';
 
@@ -55,6 +57,39 @@ test('Faction damage is formatted as a multiplier', () => {
   const base = RIVEN_TYPES.rifle.WeaponFactionDamageGrineer;
   const value = rivenValue(base, { rank: 8, buffs: 3, curses: 1, roll: 0.9 });
   assert.equal(formatRivenValue('WeaponFactionDamageGrineer', value), 'x1.46');
+});
+
+test('Negative slider ratio follows the displayed range direction', () => {
+  close(rivenRollFromSliderRatio(0), 0.9);
+  close(rivenRollFromSliderRatio(1), 1.1);
+  close(rivenRollFromSliderRatio(0, { negative: true }), 1.1);
+  close(rivenRollFromSliderRatio(1, { negative: true }), 0.9);
+
+  const base = RIVEN_TYPES.rifle.WeaponAmmoMaxMod;
+  const range = rivenRange(base, {
+    rank: 8,
+    buffs: 2,
+    curses: 1,
+    negative: true,
+  });
+  const lowDisplay = rivenDisplayNumber('WeaponAmmoMaxMod', range.min);
+  const highDisplay = rivenDisplayNumber('WeaponAmmoMaxMod', range.max);
+  const sliderMin = rivenValue(base, {
+    rank: 8,
+    buffs: 2,
+    curses: 1,
+    negative: true,
+    roll: rivenRollFromSliderRatio(0, { negative: true }),
+  });
+  const sliderMax = rivenValue(base, {
+    rank: 8,
+    buffs: 2,
+    curses: 1,
+    negative: true,
+    roll: rivenRollFromSliderRatio(1, { negative: true }),
+  });
+  assert.ok(rivenDisplayNumber('WeaponAmmoMaxMod', sliderMin) < rivenDisplayNumber('WeaponAmmoMaxMod', sliderMax));
+  assert.ok(lowDisplay > highDisplay);
 });
 
 test('Negative-only combo stats do not appear as positives', () => {

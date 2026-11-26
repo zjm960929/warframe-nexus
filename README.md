@@ -220,7 +220,7 @@ Then open `docs/index.html` through a static server, or open the generated root 
 
 ## Release
 
-The current release is **v0.5.0**.
+The current release is **v0.5.1**.
 
 1. Run `npm test`.
 2. Build `docs/` and `test.html`.

@@ -52,6 +52,14 @@ export function rivenRange(base, options = {}) {
   };
 }
 
+export function rivenRollFromSliderRatio(ratio, { negative = false } = {}) {
+  const normalized = Math.min(1, Math.max(0, Number.isFinite(Number(ratio)) ? Number(ratio) : 0));
+  // A negative stat's most negative endpoint uses roll 1.1, while its least
+  // negative endpoint uses roll 0.9. Mirror the positive mapping so dragging
+  // toward the higher displayed value never snaps the thumb back.
+  return negative ? 1.1 - normalized * 0.2 : 0.9 + normalized * 0.2;
+}
+
 function signed(value, digits) {
   const amount = Math.abs(Number(value) || 0).toFixed(digits);
   return Number(value) < 0 ? `-${amount}` : `+${amount}`;

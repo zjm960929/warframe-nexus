@@ -10,6 +10,7 @@ import {
   rivenNameFromStats,
   rivenRange,
   rivenRollFromDisplay,
+  rivenRollFromSliderRatio,
   rivenValue,
   statMeta,
 } from '../riven.js';
@@ -1309,7 +1310,7 @@ export function createRivenPage({ i18n }) {
     const min = Number(row.slider.min);
     const max = Number(row.slider.max);
     const ratio = max === min ? 0.5 : (Number(row.slider.value) - min) / (max - min);
-    const roll = 0.9 + Math.min(1, Math.max(0, ratio)) * 0.2;
+    const roll = rivenRollFromSliderRatio(ratio, { negative: row.negative });
     const { buffs, curses } = analysisCounts();
     const raw = rivenValue(statsForType(analysisType.value)[row.select.value], {
       rank: Number(analysisRank.value),
