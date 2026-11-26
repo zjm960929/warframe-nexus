@@ -1,8 +1,9 @@
 services:
   - type: web
-    name: warframe-nexus
+    name: warframe-nexus-zjm
     runtime: node
-    plan: free
+    region: singapore
+    plan: 0.5c-512mb
     buildCommand: npm ci
     startCommand: npm start
     healthCheckPath: /api/health

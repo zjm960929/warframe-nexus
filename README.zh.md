@@ -87,17 +87,19 @@ npm run dev
 
 ### Render
 
-仓库包含 [`render.yaml`](render.yaml)，可把现有 Node 服务器部署为 Render Web Service。
+仓库包含 [`render.yaml`](render.yaml)，可把现有 Node 服务器部署为 Render Web Service。当前线上使用的是手动创建的 Singapore 服务：`https://warframe-nexus-zjm.onrender.com`。
 
 1. 注册 Render 并连接本仓库。
-2. 新建 **Blueprint** 并选择本仓库；也可以手动创建 Web Service：
+2. 手动创建 Web Service：
+   - Region：Singapore
    - Build Command：`npm ci`
    - Start Command：`npm start`
    - Health Check Path：`/api/health`
    - 环境变量：`HOST=0.0.0.0`
+   - 环境变量：`NODE_VERSION=22`
 3. 部署后测试 `/api/health` 与 `/api/worldstate?lang=zh`。
 
-Render 免费 Web Service 闲置约 15 分钟后休眠，再次启动可能需要约一分钟。常开实例约为 **$7/月**。
+Render 免费 Web Service 闲置约 15 分钟后休眠，再次启动可能需要约一分钟。常开计算方案为 `0.5c-512mb`（旧称 `starter`），约为 **$7/月**。可选的 Blueprint 配置位于 `render.yaml`，使用 Singapore 区域和该方案 ID。
 
 如果希望 GitHub Pages 使用 Render，请把仓库变量 `WF_NEXUS_API_BASE` 设置为 Render 服务根地址，然后重新运行 Pages 工作流。
 

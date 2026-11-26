@@ -87,17 +87,19 @@ npm run dev
 
 ### Render
 
-The repository includes [`render.yaml`](render.yaml) for a Render Web Service that runs the existing Node server.
+The repository includes [`render.yaml`](render.yaml) for a Render Web Service that runs the existing Node server. The current deployment is the manually created Singapore service at `https://warframe-nexus-zjm.onrender.com`.
 
 1. Create a Render account and connect the repository.
-2. Create a new **Blueprint** and select this repository, or create a Web Service manually with:
+2. Create a Web Service manually with:
+   - Region: Singapore
    - Build command: `npm ci`
    - Start command: `npm start`
    - Health check path: `/api/health`
    - Environment variable: `HOST=0.0.0.0`
+   - Environment variable: `NODE_VERSION=22`
 3. Deploy and test `/api/health` and `/api/worldstate?lang=zh`.
 
-Render's free Web Service sleeps after about 15 minutes of inactivity and may take about a minute to start again. A paid always-on instance is available for approximately $7/month.
+Render's free Web Service sleeps after about 15 minutes of inactivity and may take about a minute to start again. The paid always-on compute plan is `0.5c-512mb` (formerly called `starter`), approximately $7/month. The optional Blueprint in `render.yaml` uses the Singapore region and that plan ID.
 
 To let GitHub Pages use the Render service, set the repository variable `WF_NEXUS_API_BASE` to the Render service root URL and rerun the Pages workflow.
 
