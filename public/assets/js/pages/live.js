@@ -8,6 +8,8 @@ import {
 } from '../dom.js';
 import { icon } from '../icons.js';
 import { hasCjk } from '../localize.js';
+import { findRivenWeapon } from '../riven-weapons.js';
+import { resolveSteelPathIncursions } from '../steel-path-incursions.js';
 
 const LAYOUT_KEY = 'wf-nexus-worldstate-layout';
 const WIDTH_KEY = 'wf-nexus-worldstate-widths';
@@ -22,12 +24,41 @@ const MODULE_DEFS = [
   { key: 'events', labelKey: 'section.events', span: 'flex', preferred: 4, min: 4, max: 8 },
   { key: 'sortie', labelKey: 'section.sortie', span: 'flex', preferred: 4, min: 4, max: 8 },
   { key: 'archon', labelKey: 'section.archon', span: 'flex', preferred: 4, min: 4, max: 8 },
+  { key: 'circuit', labelKey: 'section.circuit', span: 'flex', preferred: 6, min: 4, max: 8 },
+  { key: 'steelPath', labelKey: 'section.steelPath', span: 'flex', preferred: 6, min: 4, max: 8 },
   { key: 'archimedeaDeep', labelKey: 'section.archimedeaDeep', span: 'flex', preferred: 6, min: 4, max: 8 },
   { key: 'archimedeaTemporal', labelKey: 'section.archimedeaTemporal', span: 'flex', preferred: 6, min: 4, max: 8 },
   { key: 'fissuresNormal', labelKey: 'section.fissuresNormal', span: 'flex', preferred: 4, min: 4, max: 8 },
   { key: 'fissuresSteel', labelKey: 'section.fissuresSteel', span: 'flex', preferred: 4, min: 4, max: 8 },
   { key: 'fissuresStorm', labelKey: 'section.fissuresStorm', span: 'flex', preferred: 4, min: 4, max: 8 },
 ];
+
+const CIRCUIT_ROTATION = {
+  warframes: [
+    { label: '1', names: ['Excalibur', 'Trinity', 'Ember'] },
+    { label: '2', names: ['Loki', 'Mag', 'Rhino'] },
+    { label: '3', names: ['Ash', 'Frost', 'Nyx'] },
+    { label: '4', names: ['Saryn', 'Vauban', 'Nova'] },
+    { label: '5', names: ['Nekros', 'Valkyr', 'Oberon'] },
+    { label: '6', names: ['Hydroid', 'Mirage', 'Limbo'] },
+    { label: '7', names: ['Mesa', 'Chroma', 'Atlas'] },
+    { label: '8', names: ['Ivara', 'Inaros', 'Titania'] },
+    { label: '9', names: ['Nidus', 'Octavia', 'Harrow'] },
+    { label: '10', names: ['Gara', 'Khora', 'Revenant'] },
+    { label: '11', names: ['Garuda', 'Baruuk', 'Hildryn'] },
+  ],
+  incarnons: [
+    { label: 'A', names: ['Braton', 'Lato', 'Skana', 'Paris', 'Kunai'] },
+    { label: 'B', names: ['Boar', 'Gammacor', 'Angstrum', 'Gorgon', 'Anku'] },
+    { label: 'C', names: ['Bo', 'Latron', 'Furis', 'Furax', 'Strun'] },
+    { label: 'D', names: ['Lex', 'Magistar', 'Boltor', 'Bronco', 'Ceramic Dagger'] },
+    { label: 'E', names: ['Torid', 'Dual Toxocyst', 'Dual Ichor', 'Miter', 'Atomos'] },
+    { label: 'F', names: ['Ack & Brunt', 'Soma', 'Vasto', 'Nami Solo', 'Burston'] },
+    { label: 'G', names: ['Zylok', 'Sibear', 'Dread', 'Despair', 'Hate'] },
+    { label: 'H', names: ['Dera', 'Sybaris', 'Cestra', 'Sicarus', 'Okina'] },
+    { label: 'I', names: ['Vectis', 'Stug', 'Ballistica', 'Destreza', 'Obex'] },
+  ],
+};
 
 const DEFAULT_LAYOUT = MODULE_DEFS.map((module) => module.key);
 const MODULE_BY_KEY = new Map(MODULE_DEFS.map((module) => [module.key, module]));
@@ -279,10 +310,9 @@ function renderArbitration(model, i18n, loc) {
     content.append(el('div', { class: 'arbitration-card' },
       el('div', { class: 'arbitration-card__main' },
         el('span', { class: 'muted', text: i18n.t('arbitration.current') }),
-        el('h3', {}, localizedNode(current.node, loc)),
-        el('p', {},
-          badge(i18n.t('arbitration.hourly'), 'blue'),
-          current.type ? ` ${loc.missionType(current.typeKey, current.type)}` : null,
+        el('div', { class: 'arbitration-card__title' },
+          el('h3', {}, localizedNode(current.node, loc)),
+          current.type ? badge(loc.missionType(current.typeKey, current.type), 'blue') : null,
         ),
       ),
       el('div', { class: 'arbitration-card__time' },
@@ -296,6 +326,7 @@ function renderArbitration(model, i18n, loc) {
     content.append(el('div', { class: 'arbitration-next' },
       el('span', { class: 'label', text: i18n.t('arbitration.next') }),
       localizedNode(next.node, loc, 'arbitration-next__node'),
+      next.type ? badge(loc.missionType(next.typeKey, next.type), 'blue') : null,
       el('span', { class: 'muted', text: `${i18n.t('arbitration.startsAt')} ${i18n.formatDateTime(next.activation)}` }),
     ));
   }
@@ -362,9 +393,7 @@ function renderInvasions(model, i18n, loc) {
     return el('article', { class: 'invasion-card' },
       el('div', { class: 'invasion-card__head' },
         localizedNode(invasion.node, loc, 'invasion-card__node'),
-        invasion.vsInfestation ? badge(i18n.t('invasions.vsInfestation'), 'muted') : null,
       ),
-      localizedSentence('p', invasion.description, loc, 'invasion-card__desc'),
       el('div', { class: 'invasion-sides' }, sides.map(({ key, data }) => el('div', { class: 'invasion-side' },
         el('span', { class: 'label', text: sideLabel(i18n, key) }),
         el('strong', {}, localized('span', data.faction, loc)),
@@ -384,13 +413,13 @@ function renderInvasions(model, i18n, loc) {
   return section('invasions', i18n, 'section.invasions', list, { count: model.invasions.length });
 }
 
-function renderEvents(model, i18n, loc) {
+function renderActivities(model, i18n, loc) {
   if (!model.events.length) {
-    return section('events', i18n, 'section.events', emptyState(i18n.t('events.empty')));
+    return section('events', i18n, 'section.events', emptyState(i18n.t('live.empty')));
   }
   const list = el('div', { class: 'stack' }, model.events.map((event) => el('article', { class: 'event-card' },
     el('div', { class: 'event-card__head' },
-      localized('h3', event.title || i18n.t('events.untitled'), loc),
+      localized('h3', event.title || i18n.t('live.untitled'), loc),
       event.end ? timeElement(i18n, event.end, 'countdown countdown--small') : null,
     ),
     el('div', { class: 'event-card__meta' },
@@ -400,13 +429,13 @@ function renderEvents(model, i18n, loc) {
     ),
     event.progress != null ? el('div', {},
       el('div', { class: 'invasion-progress__label' },
-        el('span', { text: i18n.t('events.progress') }),
+        el('span', { text: i18n.t('live.progress') }),
         el('span', { text: `${Math.round(event.progress)}%` }),
       ),
-      meter(event.progress, i18n.t('events.progress')),
+      meter(event.progress, i18n.t('live.progress')),
     ) : null,
     event.rewards.length ? el('div', { class: 'alert-card__reward' },
-      el('span', { class: 'label', text: i18n.t('events.reward') }),
+      el('span', { class: 'label', text: i18n.t('live.reward') }),
       rewardChips(event.rewards),
     ) : null,
   )));
@@ -448,6 +477,163 @@ function renderSortieLike({ model, i18n, loc, key, titleKey, emptyKey, bossKey, 
     ))),
   );
   return section(key, i18n, titleKey, content, { count: data.missions.length });
+}
+
+function circuitChoiceName(loc, name, weapon = false) {
+  const spaced = String(name || '').replace(/([a-z0-9])([A-Z])/g, '$1 $2');
+  if (weapon) {
+    const match = findRivenWeapon(spaced);
+    if (match) return loc.isZh ? match.zh : match.en;
+  }
+  return loc.item(spaced) || String(name || '');
+}
+
+function circuitCanonical(name) {
+  return String(name || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+}
+
+function circuitCurrentGroup(kind, circuit) {
+  const groups = CIRCUIT_ROTATION[kind] || [];
+  const selected = new Set((kind === 'warframes' ? circuit.warframes : circuit.incarnons)
+    .map(circuitCanonical));
+  return groups.find((group) => group.names.length === selected.size
+    && group.names.every((name) => selected.has(circuitCanonical(name)))) || null;
+}
+
+function openCircuitRotation(kind, circuit, i18n, loc) {
+  const groups = CIRCUIT_ROTATION[kind] || [];
+  const current = circuitCurrentGroup(kind, circuit);
+  const titleId = `circuit-rotation-${kind}`;
+  const title = i18n.t(kind === 'warframes' ? 'circuit.warframesRotation' : 'circuit.incarnonsRotation');
+  const dialog = el('dialog', {
+    class: 'circuit-dialog',
+    attrs: { 'aria-labelledby': titleId, closedby: 'any' },
+  },
+    el('div', { class: 'circuit-dialog__head' },
+      el('h1', { id: titleId, text: title }),
+      el('button', {
+        type: 'button',
+        class: 'circuit-dialog__close',
+        text: '×',
+        attrs: { 'aria-label': i18n.t('circuit.close'), autofocus: '' },
+        onclick: () => dialog.close(),
+      }),
+    ),
+    el('div', {
+      class: 'circuit-dialog__body',
+      attrs: { tabindex: '0', role: 'region', 'aria-labelledby': titleId },
+    },
+      el('ol', { class: 'circuit-rotation-list' }, groups.map((group) => {
+        const isCurrent = group === current;
+        return el('li', { class: isCurrent ? 'is-current' : null },
+          el('span', { class: 'circuit-rotation__names' },
+            group.names.map((name) => el('span', {
+              text: circuitChoiceName(loc, name, kind === 'incarnons'),
+            })),
+          ),
+          isCurrent ? badge(i18n.t('circuit.current'), 'gold') : null,
+        );
+      })),
+    ),
+  );
+  dialog.addEventListener('close', () => dialog.remove());
+  document.body.append(dialog);
+  dialog.showModal();
+}
+
+function renderCircuit(model, i18n, loc) {
+  const circuit = model.circuit;
+  if (!circuit || (!circuit.warframes.length && !circuit.incarnons.length)) {
+    return section('circuit', i18n, 'section.circuit', emptyState(i18n.t('circuit.empty')));
+  }
+  const group = (titleKey, items, kind) => el('div', { class: 'circuit-group' },
+    el('div', { class: 'circuit-group__head' },
+      el('h3', { class: 'subheading', text: i18n.t(titleKey) }),
+      el('button', {
+        type: 'button',
+        class: 'circuit-view-button',
+        text: i18n.t('circuit.viewRotation'),
+        onclick: () => openCircuitRotation(kind, circuit, i18n, loc),
+      }),
+    ),
+    items.length
+      ? el('ul', { class: 'circuit-list' }, items.map((name) => el('li', {
+        class: 'circuit-item',
+        text: circuitChoiceName(loc, name, kind === 'incarnons'),
+      })))
+      : emptyState(i18n.t('common.notAvailable')),
+  );
+  const content = el('div', { class: 'circuit-module' },
+    group('circuit.warframes', circuit.warframes, 'warframes'),
+    group('circuit.incarnons', circuit.incarnons, 'incarnons'),
+  );
+  return section('circuit', i18n, 'section.circuit', content, {
+    count: circuit.warframes.length + circuit.incarnons.length,
+  });
+}
+
+function steelPathOffering(loc, item, i18n) {
+  return el('li', {},
+    el('span', { class: 'steel-path-item__name', text: loc.item(item.name) }),
+    el('span', { class: 'steel-path-item__cost', text: i18n.t('steelPath.cost', { cost: item.cost }) }),
+  );
+}
+
+function renderSteelPath(model, i18n, loc) {
+  const steelPath = model.steelPath;
+  if (!steelPath) {
+    return section('steelPath', i18n, 'section.steelPath', emptyState(i18n.t('steelPath.empty')));
+  }
+  const rotation = steelPath.rotation || [];
+  const current = steelPath.currentReward;
+  const schedule = resolveSteelPathIncursions(new Date());
+  const jobs = schedule
+    ? schedule.nodes.map((job) => {
+      const en = job.en || [];
+      const zh = job.zh || en;
+      const zhName = zh[0] || '';
+      const zhBase = zhName.split(' (')[0];
+      const name = loc.isZh && /[\u3400-\u9fff]/u.test(zhBase)
+        ? loc.normalizeChineseCopy(loc.simplify(zhName))
+        : loc.node(en[0] || zhName || job.id);
+      return {
+        name,
+        type: loc.missionType('', en[1] || zh[1] || ''),
+      };
+    })
+    : (steelPath.incursions?.jobs || []).map((job) => ({
+      name: job.node || '',
+      type: job.type || job.missionType || '',
+    }));
+  const rotationBlock = rotation.length
+    ? el('div', { class: 'steel-path-rotation' },
+      el('div', { class: 'steel-path-rotation__head' },
+        el('span', { class: 'label', text: i18n.t('steelPath.rotation') }),
+        steelPath.expiry ? timeElement(i18n, steelPath.expiry, 'countdown countdown--small') : null,
+      ),
+      el('ol', { class: 'steel-path-list' }, rotation.map((item) => {
+        const node = steelPathOffering(loc, item, i18n);
+        if (current && item.name === current.name) node.classList.add('is-current');
+        return node;
+      })),
+    )
+    : null;
+  const incursionBlock = el('div', { class: 'steel-path-incursions' },
+    el('div', { class: 'steel-path-incursions__head' },
+      el('h3', { class: 'subheading', text: i18n.t('steelPath.incursions') }),
+      steelPath.incursions?.expiry ? timeElement(i18n, steelPath.incursions.expiry, 'countdown countdown--small') : null,
+    ),
+    jobs.length
+      ? el('ul', { class: 'steel-path-list steel-path-list--incursions' }, jobs.slice(0, 6).map((job) => el('li', {},
+        el('span', { class: 'steel-path-item__name', text: job.name }),
+        job.type ? el('span', { class: 'muted', text: job.type }) : null,
+      )))
+      : emptyState(i18n.t('steelPath.incursionEmpty')),
+  );
+  return section('steelPath', i18n, 'section.steelPath', el('div', { class: 'steel-path-module' },
+    rotationBlock,
+    incursionBlock,
+  ), { count: rotation.length });
 }
 
 function renderArchimedea(model, i18n, loc, kind) {
@@ -534,7 +720,7 @@ function renderFissureModule(model, i18n, loc, key, itemsKey, titleKey) {
 function renderLoading(i18n) {
   return el('div', { class: 'loading-panel', attrs: { role: 'status' } },
     icon('refresh', 'icon icon--spin'),
-    el('p', { text: i18n.t('events.loading') }),
+    el('p', { text: i18n.t('live.loading') }),
   );
 }
 
@@ -542,14 +728,14 @@ function renderError(i18n, message) {
   return el('div', { class: 'error-panel', attrs: { role: 'alert' } },
     icon('alert', 'icon'),
     el('div', {},
-      el('h2', { text: i18n.t('events.errorTitle') }),
-      el('p', { text: i18n.t('events.errorBody') }),
+      el('h2', { text: i18n.t('live.errorTitle') }),
+      el('p', { text: i18n.t('live.errorBody') }),
       message ? el('p', { class: 'fine-print', text: message }) : null,
     ),
   );
 }
 
-export function createEventsPage({ i18n, loc, model = null, meta = null, error = null, onRefresh }) {
+export function createLivePage({ i18n, loc, model = null, meta = null, error = null, onRefresh }) {
   let currentModel = model;
   let currentMeta = meta;
   let currentError = error;
@@ -570,9 +756,9 @@ export function createEventsPage({ i18n, loc, model = null, meta = null, error =
   const AUTO_SCROLL_EDGE = 96;
   const AUTO_SCROLL_MAX = 8;
 
-  const refreshLabel = el('span', { text: i18n.t('events.refresh') });
+  const refreshLabel = el('span', { text: i18n.t('live.refresh') });
   const refreshButton = el('button', {
-    class: 'button button--primary',
+    class: 'button button--primary live-refresh-button',
     type: 'button',
     onClick: () => onRefresh?.(),
   }, icon('refresh', 'icon'), refreshLabel);
@@ -590,8 +776,7 @@ export function createEventsPage({ i18n, loc, model = null, meta = null, error =
     hidden: true,
     attrs: { role: 'status', 'aria-live': 'polite' },
   });
-  const body = el('div', { class: 'events-body' });
-  const modeBadge = badge(i18n.t('common.live'), 'ok');
+  const body = el('div', { class: 'live-body' });
   const layoutList = el('ol', { class: 'layout-list' });
   const layoutStatus = el('p', { class: 'layout-status', attrs: { role: 'status', 'aria-live': 'polite' } });
 
@@ -623,12 +808,11 @@ export function createEventsPage({ i18n, loc, model = null, meta = null, error =
     layoutStatus,
   );
 
-  const page = el('div', { class: 'events-page' },
-    el('div', { class: 'page-heading page-heading--events' },
-      el('p', { class: 'eyebrow', text: i18n.t('events.eyebrow') }),
+  const page = el('div', { class: 'live-page' },
+    el('div', { class: 'page-heading page-heading--live' },
+      el('p', { class: 'eyebrow', text: i18n.t('live.eyebrow') }),
       el('div', { class: 'page-heading__title' },
-        el('h1', { text: i18n.t('events.title') }),
-        modeBadge,
+        el('h1', { text: i18n.t('live.title') }),
       ),
       el('div', { class: 'page-heading__actions' }, refreshButton, serverStartHint, layoutButton),
     ),
@@ -1191,27 +1375,25 @@ export function createEventsPage({ i18n, loc, model = null, meta = null, error =
     loading = Boolean(value);
     refreshButton.disabled = loading;
     refreshButton.classList.toggle('is-loading', loading);
-    refreshLabel.textContent = loading ? i18n.t('events.refreshing') : i18n.t('events.refresh');
+    refreshLabel.textContent = loading ? i18n.t('live.refreshing') : i18n.t('live.refresh');
   }
 
   function renderStatus() {
     statusHost.replaceChildren();
     const serverStarting = Boolean(currentMeta?.serverStarting);
     serverStartHint.hidden = !serverStarting;
-    serverStartHint.textContent = serverStarting ? i18n.t('events.serverStarting') : '';
+    serverStartHint.textContent = serverStarting ? i18n.t('live.serverStarting') : '';
     const staticMode = Boolean(currentMeta?.static);
-    modeBadge.textContent = staticMode ? i18n.t('events.snapshot') : i18n.t('common.live');
-    modeBadge.className = `badge badge--${staticMode ? 'blue' : 'ok'}`;
     const fetchedAt = currentMeta?.fetchedAt;
     const items = [
       el('span', { class: 'live-status__item' },
         el('span', { class: 'live-dot', attrs: { 'aria-hidden': 'true' } }),
-        fetchedAt ? i18n.t('events.updatedAt', { time: i18n.formatDateTime(fetchedAt) }) : i18n.t('common.loading'),
+        fetchedAt ? i18n.t('live.updatedAt', { time: i18n.formatDateTime(fetchedAt) }) : i18n.t('common.loading'),
       ),
-      el('span', { class: 'live-status__item muted', text: currentMeta?.static ? i18n.t('events.snapshotNote') : i18n.t('events.autoRefresh') }),
+      el('span', { class: 'live-status__item muted', text: currentMeta?.static ? i18n.t('live.snapshotNote') : i18n.t('live.autoRefresh') }),
     ];
-    if (currentMeta?.static) items.push(badge(i18n.t('events.snapshot'), 'blue'));
-    if (currentMeta?.stale) items.push(badge(i18n.t('events.cached'), 'gold'));
+    if (currentMeta?.static) items.push(badge(i18n.t('live.snapshot'), 'blue'));
+    if (currentMeta?.stale) items.push(badge(i18n.t('live.cached'), 'gold'));
     statusHost.append(...items);
   }
 
@@ -1223,7 +1405,7 @@ export function createEventsPage({ i18n, loc, model = null, meta = null, error =
       arbitration: renderArbitration(currentModel, i18n, loc),
       alerts: renderAlerts(currentModel, i18n, loc),
       invasions: renderInvasions(currentModel, i18n, loc),
-      events: renderEvents(currentModel, i18n, loc),
+      events: renderActivities(currentModel, i18n, loc),
       sortie: renderSortieLike({
         model: currentModel,
         i18n,
@@ -1243,6 +1425,8 @@ export function createEventsPage({ i18n, loc, model = null, meta = null, error =
         emptyKey: 'archon.empty',
         bossKey: 'archon.boss',
       }),
+      circuit: renderCircuit(currentModel, i18n, loc),
+      steelPath: renderSteelPath(currentModel, i18n, loc),
       archimedeaDeep: renderArchimedea(currentModel, i18n, loc, 'deep'),
       archimedeaTemporal: renderArchimedea(currentModel, i18n, loc, 'temporal'),
       fissuresNormal: renderFissureModule(currentModel, i18n, loc, 'fissuresNormal', 'normal', 'section.fissuresNormal'),
@@ -1299,6 +1483,7 @@ export function createEventsPage({ i18n, loc, model = null, meta = null, error =
       masonryFrame = 0;
       document.documentElement.classList.remove('layout-editing');
       body.classList.remove('layout-editing');
+      document.querySelectorAll('dialog.circuit-dialog').forEach((dialog) => dialog.close());
     },
   };
 }

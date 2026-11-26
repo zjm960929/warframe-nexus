@@ -6,8 +6,9 @@ import { normalizeWorldstate } from './normalize.js';
 import { parseArbitrationCsv } from './arbitration.js';
 import { icon } from './icons.js';
 import { renderHome } from './pages/home.js';
-import { createEventsPage } from './pages/events.js';
+import { createLivePage } from './pages/live.js';
 import { createArbitrationPage } from './pages/arbitration.js';
+import { createRivenPage } from './pages/riven.js';
 import { renderNotFound, renderPlaceholder } from './pages/placeholder.js';
 
 const THEME_KEY = 'wf-nexus-theme';
@@ -234,7 +235,16 @@ function renderRoute(options = {}) {
     return;
   }
 
-  if (feature.id !== 'events') {
+  if (feature.id === 'riven') {
+    const page = createRivenPage({ i18n: state.i18n });
+    state.page = page;
+    setRouteView(page.node);
+    setDocumentMeta(state.i18n.t('riven.title'), state.i18n.t('feature.riven.desc'));
+    state.pendingSection = null;
+    return;
+  }
+
+  if (feature.id !== 'live') {
     const node = renderPlaceholder({ i18n: state.i18n, feature });
     setRouteView(node);
     setDocumentMeta(state.i18n.t(`feature.${feature.id}.name`), state.i18n.t(`feature.${feature.id}.desc`));
@@ -245,18 +255,18 @@ function renderRoute(options = {}) {
   const cached = state.data.get(state.lang);
   const hasModel = Boolean(cached?.model);
   state.pendingSection = route.section || null;
-  const page = createEventsPage({
+  const page = createLivePage({
     i18n: state.i18n,
     loc: state.loc,
     model: cached?.model || null,
     meta: cached?.meta || null,
     error: cached?.error || null,
-    onRefresh: () => refreshEvents(true),
+    onRefresh: () => refreshLive(true),
   });
   state.page = page;
   setRouteView(page.node, { focus: false });
   if (!hasModel) {
-    refreshEvents(false, token);
+    refreshLive(false, token);
   } else {
     if (state.pendingSection) {
       requestAnimationFrame(() => {
@@ -265,40 +275,28 @@ function renderRoute(options = {}) {
       });
     }
   }
-  setDocumentMeta(state.i18n.t('events.title'), state.i18n.t('feature.events.desc'));
+  setDocumentMeta(state.i18n.t('live.title'), state.i18n.t('feature.live.desc'));
   if (options.focus !== false) focusMain();
 }
 
 async function fetchJson(url, timeoutMs = FETCH_TIMEOUT_MS) {
-  const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), timeoutMs);
-  try {
-    const response = await fetch(url, {
-      signal: controller.signal,
-      cache: 'no-store',
-      headers: { Accept: 'application/json' },
-    });
-    if (!response.ok) throw new Error(`HTTP ${response.status}`);
-    return await response.json();
-  } finally {
-    clearTimeout(timer);
-  }
+  const response = await fetch(url, {
+    signal: AbortSignal.timeout(timeoutMs),
+    cache: 'no-store',
+    headers: { Accept: 'application/json' },
+  });
+  if (!response.ok) throw new Error(`HTTP ${response.status}`);
+  return await response.json();
 }
 
 async function fetchText(url, timeoutMs = FETCH_TIMEOUT_MS) {
-  const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), timeoutMs);
-  try {
-    const response = await fetch(url, {
-      signal: controller.signal,
-      cache: 'no-store',
-      headers: { Accept: 'text/plain' },
-    });
-    if (!response.ok) throw new Error(`HTTP ${response.status}`);
-    return await response.text();
-  } finally {
-    clearTimeout(timer);
-  }
+  const response = await fetch(url, {
+    signal: AbortSignal.timeout(timeoutMs),
+    cache: 'no-store',
+    headers: { Accept: 'text/plain' },
+  });
+  if (!response.ok) throw new Error(`HTTP ${response.status}`);
+  return await response.text();
 }
 
 async function loadArbitrationData() {
@@ -410,9 +408,9 @@ async function loadWorldstate(lang, { fresh = false } = {}) {
   }
 }
 
-async function refreshEvents(manual = false, renderToken = state.renderToken) {
+async function refreshLive(manual = false, renderToken = state.renderToken) {
   if (state.loading) return;
-  if (parseHash().page !== 'events') return;
+  if (parseHash().page !== 'live') return;
   state.loading = true;
   state.page?.setLoading(true);
   try {
@@ -514,19 +512,19 @@ function updateCountdowns() {
 function setupAutoRefresh() {
   setInterval(() => {
     if (document.visibilityState !== 'visible') return;
-    if (parseHash().page !== 'events') return;
+    if (parseHash().page !== 'live') return;
     const cached = state.data.get(state.lang);
     const refreshAfter = cached?.meta?.static ? 5 * 60_000 : REFRESH_MS;
     if (cached && Date.now() - cached.fetchedAt < refreshAfter) return;
-    refreshEvents(false);
+    refreshLive(false);
   }, 15_000);
 
   document.addEventListener('visibilitychange', () => {
     if (document.visibilityState !== 'visible') return;
-    if (parseHash().page !== 'events') return;
+    if (parseHash().page !== 'live') return;
     const cached = state.data.get(state.lang);
     const refreshAfter = cached?.meta?.static ? 5 * 60_000 : REFRESH_MS;
-    if (!cached || Date.now() - cached.fetchedAt >= refreshAfter) refreshEvents(false);
+    if (!cached || Date.now() - cached.fetchedAt >= refreshAfter) refreshLive(false);
   });
 }
 

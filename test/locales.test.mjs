@@ -27,7 +27,7 @@ test('locale values are non-empty strings', () => {
 });
 
 test('every feature has bilingual card copy and keywords', () => {
-  for (const id of ['events', 'arbitration', 'riven', 'glyphs', 'colors', 'messenger', 'drops']) {
+  for (const id of ['live', 'arbitration', 'riven', 'glyphs', 'colors', 'messenger', 'drops']) {
     for (const key of ['name', 'desc', 'keywords']) {
       assert.ok(zh[`feature.${id}.${key}`], `zh feature.${id}.${key}`);
       assert.ok(en[`feature.${id}.${key}`], `en feature.${id}.${key}`);

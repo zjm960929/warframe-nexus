@@ -17,7 +17,7 @@ export function renderPlaceholder({ i18n, feature }) {
       el('p', { text: i18n.t('placeholder.body') }),
       el('p', { class: 'muted', text: i18n.t('placeholder.note') }),
       el('div', { class: 'button-row' },
-        el('a', { class: 'button', href: '#/events', text: i18n.t('nav.events') }),
+        el('a', { class: 'button', href: '#/live', text: i18n.t('nav.live') }),
         el('a', { class: 'button button--ghost', href: '#/', text: i18n.t('common.backHome') }),
       ),
     ),

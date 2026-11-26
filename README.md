@@ -1,6 +1,6 @@
 # Warframe Nexus
 
-A bilingual Warframe utility hub for live worldstate, arbitration schedules, and the small details that are easy to miss between resets.
+A bilingual Warframe utility hub for live worldstate, arbitration schedules, local Riven screenshot analysis, and the small details that are easy to miss between resets.
 
 [![Deploy Pages](https://github.com/zjm960929/warframe-nexus/actions/workflows/pages.yml/badge.svg)](https://github.com/zjm960929/warframe-nexus/actions/workflows/pages.yml)
 [![Node](https://img.shields.io/badge/node-%3E%3D22.18-339933)](https://nodejs.org/)
@@ -23,9 +23,10 @@ English | [中文](README.zh.md)
 
 ## Features
 
-- **Minimal home page**: centered title, social links, and a tool search box that filters the available tools.
-- **Worldstate**: seven world time displays, daily and weekly reset countdowns, Darvo's Deal, Nightwave, arbitration, alerts, invasions, events, Sortie, Archon Hunt, Deep Archimedea, Temporal Archimedea, and three fissure modules.
-- **Arbitration schedule**: current and next arbitration, a local-time grouped hourly schedule, and 1/3/7/30/90-day views with mission-type and enemy-faction filters.
+- **Minimal home page**: centered title, social links, and square tool cards; filtering keeps the title, search box, card size, and layout fixed while matching results stay centered.
+- **Worldstate**: seven world time displays, daily and weekly reset countdowns, Darvo's Deal, Nightwave, arbitration, alerts, invasions, current events, Sortie, Archon Hunt, The Circuit (normal Warframes and Steel Path Incarnon weapons), the Steel Path weekly shop and daily incursions, Deep and Temporal Archimedea, and three fissure modules.
+- **Arbitration schedule**: current and next arbitration, a local-time grouped schedule, 1/3/7/30/90-day views, mission-type and enemy-faction filters, and inline type/faction badges.
+- **Riven calculator**: normal and September spliced stat ranges by weapon type, Riven Mod rank, and stat count, with the fixed 1.20x disposition; the analysis follows the actual selected positive and negative stats. Upload or paste a Riven screenshot for local Tesseract OCR, then edit the detected weapon, attributes, and values before analysis. OCR needs an HTTP-served page because Tesseract uses Worker/WASM assets; use `npm start` or the deployed site rather than opening `test.html` via `file://`. The separate stat-table viewer can inspect any rank and attribute setup without changing the analysis.
 - **Readable fissures**: normal fissures, Steel Path fissures, and Void Storms are sorted by era: Lith, Meso, Neo, Axi, Requiem, Omnia.
 - **Bilingual UI**: Chinese and English with saved language preference; light, dark, and system themes.
 - **Custom layout**: drag modules in the layout editor or directly on the page while editing, with live placement previews and animated reflow; mouse drags use native drag and touch drags use Pointer Events. Each module also has a width menu (auto, 1/3, 1/2, 2/3, or full). The order and widths are stored in the browser.
@@ -49,7 +50,7 @@ The hosted site can use a permitted Render API for live official data. When that
 
 Open the repository's `test.html` directly in a browser.
 
-- The file is approximately 2 MiB and contains CSS, application code, both UI languages, the official term dictionary, a worldstate snapshot, and the static arbitration table.
+- The file is approximately 2.3 MiB and contains CSS, application code, both UI languages, the official term dictionary, a worldstate snapshot, the static arbitration table, the Steel Path incursion schedule, and the Riven weapon index.
 - It makes no network requests and uses the build-time snapshot rather than live data.
 - This is the simplest way to inspect the layout without installing Node.js.
 
@@ -130,12 +131,14 @@ Vercel's Hobby plan is intended for personal, non-commercial projects. Cloud-pro
 
 ## Usage
 
-- Use the top navigation for **Home**, **Worldstate**, and **Arbitration Schedule**.
-- The home search filters tools by name, description, and keywords; press `/` to focus it.
+- Use the top navigation for **Home**, **Worldstate**, **Arbitration Schedule**, and **Riven Calculator**.
+- The home search filters square tool cards by name, description, and keywords; press `/` to focus it. Filtering keeps the centered hero and card sizes fixed.
 - Use the language and theme switches in the header. Preferences are stored locally.
+- On the **Riven Calculator**, upload, drop, or paste a screenshot; local OCR fills the weapon, stats, and values. The analysis uses the actual selected positive and negative stats, and the separate stat-table viewer can inspect other rank/stat combinations without changing the analysis.
 - On **Worldstate**, use **Customize layout** to drag modules into a new order. Other modules animate out of the way while you hold the drag; modules on the page can be dragged directly while the editor is open. Use the width menu to resize each module, or press Alt + ↑/↓ with focus. Dragging near the top or bottom edge scrolls the page gradually. Countdowns update each minute, data refreshes every five minutes, and **Refresh data** requests a fresh response.
+- The Circuit shows this week's three normal Warframes and five Steel Path Incarnon weapons, with full rotation dialogs; the Steel Path module shows the eight-item weekly shop rotation and six daily incursions.
 - Fissure modules are ordered by era, then by remaining time within the same era.
-- On **Arbitration Schedule**, change the date range and filter by mission type or enemy faction.
+- On **Arbitration Schedule**, change the date range and filter by mission type or enemy faction; mission type and faction badges stay inline with the node.
 
 ## How it works
 
@@ -161,6 +164,7 @@ api.warframe.com/cdn/worldState.php
 - **Render free tier sleeps**: the first request after inactivity can be slow; the frontend falls back to a static snapshot and shows a “server is starting” hint next to Refresh data.
 - **Static snapshots age**: the self-contained file and Pages fallback are build-time snapshots, not live data.
 - **Arbitration data is static**: the hourly rotation table is bundled and can become outdated if the schedule changes.
+- **Steel Path incursions are bundled static data**: the six daily missions come from a generated local schedule, not a third-party API.
 - **No warranty**: this is an unofficial fan project and is not affiliated with Digital Extremes.
 
 ## Development
@@ -182,9 +186,11 @@ warframe-nexus/
       normalize.js           Pure worldstate normalization
       localize.js            Official term localization
       i18n.js                UI copy and date/countdown formatting
-      pages/                 Home, worldstate, arbitration, placeholder
+      riven-weapons.js       Official Riven weapon index
+      steel-path-incursions.js  Bundled Steel Path incursion schedule
+      pages/                 Home, worldstate, arbitration, riven, placeholder
     locales/                 en.json and zh-CN.json
-    data/                    Terms and arbitration tables
+    data/                    Terms, arbitration tables, and rotation metadata
   scripts/
     build-pages.mjs          Static Pages build
     build-standalone.mjs     Self-contained build
@@ -201,7 +207,7 @@ npm ci
 npm test
 ```
 
-The Node test suite covers normalization, arbitration selection, localization, bilingual copy consistency, term mappings, and fissure ordering.
+The Node test suite covers normalization, arbitration selection, localization, bilingual copy consistency, term mappings, fissure ordering, Riven scanning, and Riven calculations.
 
 ### Local build smoke test
 
@@ -214,7 +220,7 @@ Then open `docs/index.html` through a static server, or open the generated root 
 
 ## Release
 
-The current release is **v0.4.0**.
+The current release is **v0.5.0**.
 
 1. Run `npm test`.
 2. Build `docs/` and `test.html`.

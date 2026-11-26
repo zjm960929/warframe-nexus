@@ -1,7 +1,7 @@
 export const FEATURES = [
-  { id: 'events', path: 'events', icon: 'events', available: true },
+  { id: 'live', path: 'live', icon: 'live', available: true },
   { id: 'arbitration', path: 'arbitration', icon: 'arbitration', available: true },
-  { id: 'riven', path: 'riven', icon: 'riven' },
+  { id: 'riven', path: 'riven', icon: 'riven', available: true },
   { id: 'glyphs', path: 'glyphs', icon: 'glyphs' },
   { id: 'colors', path: 'colors', icon: 'colors' },
   { id: 'messenger', path: 'messenger', icon: 'messenger' },

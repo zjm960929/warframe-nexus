@@ -66,6 +66,52 @@ export function getWeeklyReset(now = new Date()) {
   return result;
 }
 
+function normalizeCircuit(raw) {
+  if (!raw || !Array.isArray(raw.choices)) return null;
+  const byCategory = new Map(raw.choices.map((entry) => [entry.category, entry.choices || []]));
+  const warframes = byCategory.get('normal') || [];
+  const incarnons = byCategory.get('hard') || [];
+  if (!warframes.length && !incarnons.length) return null;
+  return {
+    activation: raw.activation || null,
+    expiry: raw.expiry || null,
+    state: raw.state || '',
+    warframes,
+    incarnons,
+  };
+}
+
+function normalizeSteelPath(raw) {
+  if (!raw) return null;
+  const normalizeOffering = (item) => ({
+    name: item?.name || '',
+    cost: Number(item?.cost) || 0,
+  });
+  const jobs = Array.isArray(raw.incursions?.jobs)
+    ? raw.incursions.jobs.map((job) => ({
+      id: job.id || '',
+      node: job.node || '',
+      nodeKey: job.nodeKey || '',
+      type: job.type || job.missionType || '',
+      typeKey: job.typeKey || job.missionTypeKey || '',
+      faction: job.faction || '',
+      factionKey: job.factionKey || '',
+      reward: normalizeReward(job.reward),
+    }))
+    : [];
+  return {
+    activation: raw.activation || null,
+    expiry: raw.expiry || null,
+    currentReward: raw.currentReward ? normalizeOffering(raw.currentReward) : null,
+    rotation: Array.isArray(raw.rotation) ? raw.rotation.map(normalizeOffering) : [],
+    incursions: raw.incursions ? {
+      activation: raw.incursions.activation || null,
+      expiry: raw.incursions.expiry || null,
+      jobs,
+    } : null,
+  };
+}
+
 function normalizeCycle(definition, raw, now) {
   if (!raw) return null;
   const start = toDate(raw.activation);
@@ -568,6 +614,8 @@ export function normalizeWorldstate(raw, now = new Date(), options = {}) {
     alerts,
     invasions,
     events,
+    circuit: normalizeCircuit(raw.duviriCycle),
+    steelPath: normalizeSteelPath(raw.steelPath),
     sortie,
     archon,
     archimedeas,

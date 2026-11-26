@@ -169,7 +169,6 @@ export function createArbitrationPage({ i18n, loc, schedule = null, error = null
       el('p', { class: 'eyebrow', text: i18n.t('arbitration.eyebrow') }),
       el('div', { class: 'page-heading__title' },
         el('h1', { text: i18n.t('arbitration.title') }),
-        badge(i18n.t('arbitration.hourly'), 'blue'),
       ),
     ),
     currentHost,
@@ -188,7 +187,7 @@ export function createArbitrationPage({ i18n, loc, schedule = null, error = null
         ? el('div', { class: 'error-panel', attrs: { role: 'alert' } },
           icon('alert', 'icon'),
           el('div', {},
-            el('h2', { text: i18n.t('events.errorTitle') }),
+            el('h2', { text: i18n.t('live.errorTitle') }),
             el('p', { text: i18n.t('arbitration.noSchedule') }),
           ),
         )

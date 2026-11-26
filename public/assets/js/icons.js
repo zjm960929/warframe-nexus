@@ -2,7 +2,7 @@ import { el } from './dom.js';
 
 const ICONS = {
   mark: '<path d="M12 2.5 14.6 9l6.9 3-6.9 3L12 21.5 9.4 15l-6.9-3 6.9-3Z"/><path d="M12 7v10M7.5 12h9"/>',
-  events: '<circle cx="12" cy="12" r="8.5"/><path d="M12 7v5l3.5 2M4.5 4.5 6 6M19.5 4.5 18 6"/>',
+  live: '<circle cx="12" cy="12" r="8.5"/><path d="M12 7v5l3.5 2M4.5 4.5 6 6M19.5 4.5 18 6"/>',
   arbitration: '<path d="M12 3v18M5 7h14M7 7l-3 6h6L7 7Zm10 0-3 6h6l-3-6Z"/><path d="M8 21h8"/>',
   riven: '<path d="m12 3 7 5-2.5 9L12 21l-4.5-4L5 8Z"/><path d="m12 3 1 8 6-3M12 11l-7-3M12 11l-4 6M12 11l4 6"/>',
   glyphs: '<rect x="4" y="5" width="16" height="14" rx="2"/><circle cx="9" cy="10" r="1.5"/><path d="m5 17 5-5 3 3 2-2 4 4"/>',
@@ -21,7 +21,7 @@ const ICONS = {
 };
 
 export function icon(name, className = 'icon') {
-  const markup = ICONS[name] || ICONS.events;
+  const markup = ICONS[name] || ICONS.live;
   const wrapper = el('span', {
     class: className,
     attrs: { 'aria-hidden': 'true', focusable: 'false' },

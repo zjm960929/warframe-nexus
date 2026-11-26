@@ -98,6 +98,7 @@ async function main() {
 
   const html = htmlTemplate
     .replace('content="auto"', 'content="static"')
+    .replace('name="wf-ocr-base" content="./assets/ocr/"', 'name="wf-ocr-base" content="./public/assets/ocr/"')
     .replace(
       '<link rel="stylesheet" href="./assets/css/styles.css">',
       `<style>\n${inlinedCss}\n</style>`,
