@@ -2798,6 +2798,13 @@ body.layout-editing {
   white-space: nowrap;
 }
 
+.arb-row__end--current {
+  color: var(--accent);
+  font-family: var(--font-sans);
+  font-size: 0.72rem;
+  font-weight: 800;
+}
+
 .arb-row .badge {
   justify-self: end;
 }

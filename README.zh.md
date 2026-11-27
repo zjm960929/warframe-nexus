@@ -220,7 +220,7 @@ npm run build:standalone
 
 ## 发布
 
-当前版本为 **v0.7.0**。
+当前版本为 **v0.7.1**。
 
 1. 运行 `npm test`。
 2. 构建 `docs/` 与 `test.html`。

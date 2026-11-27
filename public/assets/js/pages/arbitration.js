@@ -337,10 +337,10 @@ export function createArbitrationPage({ i18n, loc, schedule = null, error = null
               metaBadges(loc, item),
             ),
             el('span', { class: 'arb-row__end' },
-              item.status === 'upcoming'
-                ? timeElement(i18n, item.activation, 'countdown countdown--small')
-                : item.status === 'current'
-                  ? timeElement(i18n, item.expiry, 'countdown countdown--small')
+              item.status === 'current'
+                ? el('span', { class: 'arb-row__end--current', text: i18n.t('arbitration.current') })
+                : item.status === 'upcoming'
+                  ? timeElement(i18n, item.activation, 'countdown countdown--small')
                   : i18n.t('time.ended'),
             ),
           )

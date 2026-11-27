@@ -64,6 +64,7 @@ export function createI18n(lang, messages) {
       day: 'numeric',
       hour: '2-digit',
       minute: '2-digit',
+      hourCycle: 'h23',
       ...options,
     });
     const formatted = formatter.format(date);
@@ -82,6 +83,7 @@ export function createI18n(lang, messages) {
     return new Intl.DateTimeFormat(locale, {
       hour: '2-digit',
       minute: '2-digit',
+      hourCycle: 'h23',
     }).format(date);
   }
 

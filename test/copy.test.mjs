@@ -42,6 +42,15 @@ test('Chinese dynamic copy normalizes spacing, parentheses, and sentence endings
   assert.equal(loc.sentence('测试(括号)'), '测试（括号）。');
 });
 
+test('English times use the 24-hour clock', () => {
+  const i18n = createI18n('en', read('en.json'));
+  const date = new Date(2026, 10, 27, 17, 5);
+  assert.equal(i18n.formatClock(date), '17:05');
+  const formatted = i18n.formatDateTime(date);
+  assert.doesNotMatch(formatted, /\b(?:AM|PM)\b/i);
+  assert.match(formatted, /17:05/);
+});
+
 test('Chinese dates and numbers follow the house style', () => {
   const i18n = createI18n('zh', read('zh-CN.json'));
   assert.match(i18n.formatDateTime(new Date()), /^\d{4} 年 \d{1,2} 月 \d{1,2} 日 \d{2}:\d{2}$/);
