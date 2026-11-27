@@ -26,7 +26,7 @@ English | [中文](README.zh.md)
 - **Minimal home page**: centered title, social links, and square tool cards; filtering keeps the title, search box, card size, and layout fixed while matching results stay centered.
 - **Worldstate**: seven world time displays, daily and weekly reset countdowns, Darvo's Deal, Nightwave, arbitration, alerts, invasions, current events, Sortie, Archon Hunt, The Circuit (normal Warframes and Steel Path Incarnon weapons), the Steel Path weekly shop and daily incursions, Deep and Temporal Archimedea, and three fissure modules.
 - **Arbitration schedule**: current and next arbitration, a local-time grouped schedule, 1/3/7/30/90-day views, mission-type and enemy-faction filters, and inline type/faction badges.
-- **Riven calculator**: normal and September spliced stat ranges by weapon type, Riven Mod rank, and stat count, with the fixed 1.20x disposition; the analysis follows the actual selected positive and negative stats. Upload or paste a Riven screenshot for local Tesseract OCR, then edit the detected weapon, attributes, and values before analysis. OCR needs an HTTP-served page because Tesseract uses Worker/WASM assets; use `npm start` or the deployed site rather than opening `test.html` via `file://`. The separate stat-table viewer can inspect any rank and attribute setup without changing the analysis.
+- **Riven calculator**: normal and September spliced stat ranges by weapon type, Riven Mod rank, and stat count, with the fixed 1.20x disposition; the analysis follows the actual selected positive and negative stats. Upload or paste a Riven screenshot for local Tesseract OCR, then edit the detected weapon, attributes, and values before analysis. OCR needs an HTTP-served page because Tesseract uses Worker/WASM assets; use `npm start` or the deployed site rather than opening `test.html` via `file://`. The analysis mode also shows the matching stat tables below, while the separate **Query attribute values** view can inspect any rank and attribute setup without changing the analysis.
 - **Readable fissures**: normal fissures, Steel Path fissures, and Void Storms are sorted by era: Lith, Meso, Neo, Axi, Requiem, Omnia.
 - **Bilingual UI**: Chinese and English with saved language preference; light, dark, and system themes.
 - **Custom layout**: drag modules in the layout editor or directly on the page while editing, with live placement previews and animated reflow; mouse drags use native drag and touch drags use Pointer Events. Each module also has a width menu (auto, 1/3, 1/2, 2/3, or full). The order and widths are stored in the browser.
@@ -50,7 +50,7 @@ The hosted site can use a permitted Render API for live official data. When that
 
 Open the repository's `test.html` directly in a browser.
 
-- The file is approximately 2.3 MiB and contains CSS, application code, both UI languages, the official term dictionary, a worldstate snapshot, the static arbitration table, the Steel Path incursion schedule, and the Riven weapon index.
+- The file is approximately 2.4 MiB and contains CSS, application code, both UI languages, the official term dictionary, a worldstate snapshot, the static arbitration table, the Steel Path incursion schedule, and the Riven weapon index.
 - It makes no network requests and uses the build-time snapshot rather than live data.
 - This is the simplest way to inspect the layout without installing Node.js.
 
@@ -134,7 +134,7 @@ Vercel's Hobby plan is intended for personal, non-commercial projects. Cloud-pro
 - Use the top navigation for **Home**, **Worldstate**, **Arbitration Schedule**, and **Riven Calculator**.
 - The home search filters square tool cards by name, description, and keywords; press `/` to focus it. Filtering keeps the centered hero and card sizes fixed.
 - Use the language and theme switches in the header. Preferences are stored locally.
-- On the **Riven Calculator**, upload, drop, or paste a screenshot; local OCR fills the weapon, stats, and values. The analysis uses the actual selected positive and negative stats, and the separate stat-table viewer can inspect other rank/stat combinations without changing the analysis.
+- On the **Riven Calculator**, upload, drop, or paste a screenshot; local OCR fills the weapon, stats, and values. The analysis uses the actual selected positive and negative stats, and the separate **Query attribute values** view can inspect other rank/stat combinations without changing the analysis.
 - On **Worldstate**, use **Customize layout** to drag modules into a new order. Other modules animate out of the way while you hold the drag; modules on the page can be dragged directly while the editor is open. Use the width menu to resize each module, or press Alt + ↑/↓ with focus. Dragging near the top or bottom edge scrolls the page gradually. Countdowns update each minute, data refreshes every five minutes, and **Refresh data** requests a fresh response.
 - The Circuit shows this week's three normal Warframes and five Steel Path Incarnon weapons, with full rotation dialogs; the Steel Path module shows the eight-item weekly shop rotation and six daily incursions.
 - Fissure modules are ordered by era, then by remaining time within the same era.
@@ -220,7 +220,7 @@ Then open `docs/index.html` through a static server, or open the generated root 
 
 ## Release
 
-The current release is **v0.5.1**.
+The current release is **v0.6.0**.
 
 1. Run `npm test`.
 2. Build `docs/` and `test.html`.

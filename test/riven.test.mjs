@@ -9,7 +9,9 @@ import {
   rivenRange,
   rivenRollForQuality,
   rivenRollFromDisplay,
+  rivenRollFromQuality,
   rivenRollFromSliderRatio,
+  rivenQualityFromRoll,
   rivenValue,
 } from '../public/assets/js/riven.js';
 
@@ -53,43 +55,91 @@ test('Rifle damage and negative critical chance match the wiki range', () => {
   assert.equal(formatRivenValue('WeaponCritChanceMod', negative), '-121.5%');
 });
 
+test('Shotgun Rivens support the Zoom stat', () => {
+  assert.equal(RIVEN_TYPES.shotgun.WeaponZoomFovMod, 0.004666);
+  const range = rivenRange(RIVEN_TYPES.shotgun.WeaponZoomFovMod, {
+    rank: 8,
+    buffs: 3,
+    curses: 1,
+    roll: 1,
+  });
+  assert.equal(formatRivenValue('WeaponZoomFovMod', range.min), '+42.5%');
+  assert.equal(formatRivenValue('WeaponZoomFovMod', range.max), '+52.0%');
+});
+
+test('Punch through keeps one decimal like the game', () => {
+  const base = RIVEN_TYPES.rifle.WeaponPunctureDepthMod;
+  const range = rivenRange(base, { rank: 8, buffs: 3, curses: 1, roll: 1 });
+  assert.equal(formatRivenValue('WeaponPunctureDepthMod', range.min), '+2.7 米');
+  assert.equal(formatRivenValue('WeaponPunctureDepthMod', range.max), '+3.3 米');
+});
+
+test('Melee range keeps one decimal like the game', () => {
+  const base = RIVEN_TYPES.melee.WeaponMeleeRangeIncMod;
+  const range = rivenRange(base, { rank: 8, buffs: 3, curses: 1, roll: 1 });
+  assert.equal(formatRivenValue('WeaponMeleeRangeIncMod', range.min), '+2.0 米');
+  assert.equal(formatRivenValue('WeaponMeleeRangeIncMod', range.max), '+2.4 米');
+});
+
 test('Faction damage is formatted as a multiplier', () => {
   const base = RIVEN_TYPES.rifle.WeaponFactionDamageGrineer;
   const value = rivenValue(base, { rank: 8, buffs: 3, curses: 1, roll: 0.9 });
   assert.equal(formatRivenValue('WeaponFactionDamageGrineer', value), 'x1.46');
 });
 
-test('Negative slider ratio follows the displayed range direction', () => {
+test('Weapon recoil uses a bad-to-good quality slider', () => {
+  assert.equal(RIVEN_STAT_META.WeaponRecoilReductionMod.sliderQuality, true);
+  close(rivenRollFromQuality(0), 0.9);
+  close(rivenRollFromQuality(100), 1.1);
+  close(rivenRollFromQuality(0, { negative: true }), 1.1);
+  close(rivenRollFromQuality(100, { negative: true }), 0.9);
+  close(rivenQualityFromRoll(0.9), 0);
+  close(rivenQualityFromRoll(1.1), 100);
+  close(rivenQualityFromRoll(1.1, { negative: true }), 0);
+  close(rivenQualityFromRoll(0.9, { negative: true }), 100);
+});
+
+test('Slider ratio follows the displayed range direction', () => {
   close(rivenRollFromSliderRatio(0), 0.9);
   close(rivenRollFromSliderRatio(1), 1.1);
-  close(rivenRollFromSliderRatio(0, { negative: true }), 1.1);
-  close(rivenRollFromSliderRatio(1, { negative: true }), 0.9);
+  close(rivenRollFromSliderRatio(0, { inverted: true }), 1.1);
+  close(rivenRollFromSliderRatio(1, { inverted: true }), 0.9);
 
-  const base = RIVEN_TYPES.rifle.WeaponAmmoMaxMod;
-  const range = rivenRange(base, {
-    rank: 8,
-    buffs: 2,
-    curses: 1,
-    negative: true,
+  const assertSliderEndpoints = (base, tag, options) => {
+    const range = rivenRange(base, options);
+    const low = rivenDisplayNumber(tag, range.min);
+    const high = rivenDisplayNumber(tag, range.max);
+    const inverted = low > high;
+    const sliderMin = rivenValue(base, {
+      ...options,
+      roll: rivenRollFromSliderRatio(0, { inverted }),
+    });
+    const sliderMax = rivenValue(base, {
+      ...options,
+      roll: rivenRollFromSliderRatio(1, { inverted }),
+    });
+    close(rivenDisplayNumber(tag, sliderMin), Math.min(low, high), 0.11);
+    close(rivenDisplayNumber(tag, sliderMax), Math.max(low, high), 0.11);
+  };
+
+  assertSliderEndpoints(RIVEN_TYPES.rifle.WeaponCritChanceMod, 'WeaponCritChanceMod', {
+    rank: 8, buffs: 3, curses: 1,
   });
-  const lowDisplay = rivenDisplayNumber('WeaponAmmoMaxMod', range.min);
-  const highDisplay = rivenDisplayNumber('WeaponAmmoMaxMod', range.max);
-  const sliderMin = rivenValue(base, {
-    rank: 8,
-    buffs: 2,
-    curses: 1,
-    negative: true,
-    roll: rivenRollFromSliderRatio(0, { negative: true }),
+  assertSliderEndpoints(RIVEN_TYPES.rifle.WeaponAmmoMaxMod, 'WeaponAmmoMaxMod', {
+    rank: 8, buffs: 2, curses: 1, negative: true,
   });
-  const sliderMax = rivenValue(base, {
-    rank: 8,
-    buffs: 2,
-    curses: 1,
-    negative: true,
-    roll: rivenRollFromSliderRatio(1, { negative: true }),
+  assertSliderEndpoints(RIVEN_TYPES.rifle.WeaponRecoilReductionMod, 'WeaponRecoilReductionMod', {
+    rank: 8, buffs: 3, curses: 1,
   });
-  assert.ok(rivenDisplayNumber('WeaponAmmoMaxMod', sliderMin) < rivenDisplayNumber('WeaponAmmoMaxMod', sliderMax));
-  assert.ok(lowDisplay > highDisplay);
+  assertSliderEndpoints(RIVEN_TYPES.rifle.WeaponRecoilReductionMod, 'WeaponRecoilReductionMod', {
+    rank: 8, buffs: 3, curses: 1, negative: true,
+  });
+  assertSliderEndpoints(RIVEN_TYPES.melee.WeaponMeleeComboPointsOnHitMod, 'WeaponMeleeComboPointsOnHitMod', {
+    rank: 8, buffs: 3, curses: 1, negative: true,
+  });
+  assertSliderEndpoints(RIVEN_TYPES.rifle.WeaponFactionDamageGrineer, 'WeaponFactionDamageGrineer', {
+    rank: 8, buffs: 3, curses: 1, negative: true,
+  });
 });
 
 test('Negative-only combo stats do not appear as positives', () => {

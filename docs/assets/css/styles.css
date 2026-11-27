@@ -2415,11 +2415,15 @@ body.layout-editing {
 
 .arb-nav-buttons {
   display: flex;
+  align-self: flex-end;
   gap: 0.35rem;
 }
 
 .arb-nav-buttons .button {
+  height: 2.4rem;
   min-width: 2.4rem;
+  min-height: 2.4rem;
+  padding-block: 0;
   padding-inline: 0.65rem;
 }
 
@@ -2971,11 +2975,82 @@ body.layout-editing {
 
 /* Riven calculator */
 
+.riven-stage {
+  display: grid;
+  gap: 1rem;
+}
+
+.riven-stage > .riven-tables {
+  margin-top: 0;
+}
+
 .riven-top {
   display: grid;
   grid-template-columns: minmax(0, 2fr) minmax(18rem, 1fr);
   gap: 1rem;
   align-items: start;
+}
+
+.riven-top.is-viewer {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.riven-top.is-viewer .riven-table-viewer {
+  grid-column: 1 / -1;
+}
+
+.riven-panel-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.6rem 0.75rem;
+  margin-bottom: 0.8rem;
+}
+
+.riven-panel-head h2 {
+  margin: 0;
+  font-size: 1.05rem;
+}
+
+.riven-view-toggle {
+  flex: none;
+  min-height: 2.2rem;
+  padding: 0.35rem 0.7rem;
+  font-size: 0.78rem;
+}
+
+@keyframes riven-stage-in {
+  from {
+    opacity: 0.35;
+    transform: translateY(4px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.riven-stage.is-entering {
+  animation: riven-stage-in 160ms ease-out both;
+}
+
+::view-transition-group(*) {
+  animation-duration: 160ms;
+  animation-timing-function: ease-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .riven-stage.is-entering {
+    animation: none;
+  }
+
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
+  }
 }
 
 .riven-tables {
@@ -3157,6 +3232,7 @@ body.layout-editing {
 .riven-table-wrap {
   max-inline-size: 100%;
   overflow: auto;
+  container-type: inline-size;
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
   background: var(--surface);
@@ -3277,6 +3353,161 @@ body.layout-editing {
 .riven-table__current {
   color: var(--accent);
   font-weight: 700;
+}
+
+.riven-analysis-result .riven-table-wrap {
+  overflow: hidden;
+}
+
+@container (max-width: 30rem) {
+  .riven-table--result {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    overflow: hidden;
+    border-collapse: initial;
+  }
+
+  .riven-table--result colgroup,
+  .riven-table--result thead {
+    display: none;
+  }
+
+  .riven-table--result tbody {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+  }
+
+  .riven-table--result tbody tr {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    width: 100%;
+    min-width: 0;
+    gap: 0.2rem 0.55rem;
+    padding: 0.65rem 0.7rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .riven-table--result tbody tr:last-child {
+    border-bottom: 0;
+  }
+
+  .riven-table--result tbody th[scope="row"] {
+    grid-column: 1 / -1;
+    max-width: 100%;
+    min-width: 0;
+    padding: 0;
+    border: 0;
+    overflow: hidden;
+    font-size: 0.82rem;
+    line-height: 1.35;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .riven-table--result tbody td {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    min-width: 0;
+    max-width: 100%;
+    gap: 0.1rem;
+    padding: 0;
+    border: 0;
+    overflow: hidden;
+    font-size: 0.72rem;
+    text-align: start !important;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .riven-table--result tbody td::before {
+    content: attr(data-label);
+    color: var(--text-muted);
+    font-size: 0.6rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+  }
+
+  .riven-table--result tbody td:last-child {
+    grid-column: 1 / -1;
+  }
+
+  .riven-analysis-result .riven-table--result tbody td:last-child {
+    overflow-wrap: normal;
+    white-space: nowrap;
+  }
+}
+
+@container (max-width: 22.5rem) {
+  .riven-table-wrap {
+    overflow: visible;
+  }
+
+  .riven-table--viewer {
+    display: block;
+    min-width: 0;
+    border-collapse: initial;
+  }
+
+  .riven-table--viewer colgroup,
+  .riven-table--viewer thead {
+    display: none;
+  }
+
+  .riven-table--viewer tbody {
+    display: block;
+  }
+
+  .riven-table--viewer tbody tr {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.2rem 0.55rem;
+    padding: 0.65rem 0.7rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .riven-table--viewer tbody tr:last-child {
+    border-bottom: 0;
+  }
+
+  .riven-table--viewer tbody th[scope="row"] {
+    grid-column: 1 / -1;
+    padding: 0;
+    border: 0;
+    overflow: hidden;
+    font-size: 0.8rem;
+    line-height: 1.35;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .riven-table--viewer tbody td {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.1rem;
+    padding: 0;
+    border: 0;
+    font-size: 0.72rem;
+    text-align: start !important;
+    white-space: nowrap;
+  }
+
+  .riven-table--viewer tbody td::before {
+    content: attr(data-label);
+    color: var(--text-muted);
+    font-size: 0.6rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+  }
+
+  .riven-table--viewer tbody tr.is-selected {
+    box-shadow: inset 3px 0 0 var(--accent);
+  }
 }
 
 .riven-analysis {
@@ -3524,7 +3755,21 @@ body.layout-editing {
 
 .riven-table-viewer__controls {
   display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr) minmax(0, 1.2fr);
+  align-items: end;
   gap: 0.7rem;
+}
+
+@media (max-width: 900px) {
+  .riven-table-viewer__controls {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 600px) {
+  .riven-table-viewer__controls {
+    grid-template-columns: minmax(0, 1fr);
+  }
 }
 
 .riven-table-viewer .riven-select {
@@ -3572,6 +3817,7 @@ body.layout-editing {
   flex: 1;
   gap: 0.35rem;
   min-width: 0;
+  container-type: inline-size;
 }
 
 .riven-analysis__controls .riven-select {
@@ -3593,6 +3839,58 @@ body.layout-editing {
 .riven-switch-group__box .riven-toggle + .riven-toggle {
   padding-left: 0.75rem;
   border-left: 1px solid var(--border);
+}
+
+@container (max-width: 18rem) {
+  .riven-switch-group__box,
+  .riven-basic-settings .riven-switch-group__box {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    height: auto;
+    min-height: 3rem;
+    padding-block: 0.45rem;
+  }
+
+  .riven-switch-group__box .riven-toggle {
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+  .riven-switch-group__box .riven-toggle + .riven-toggle {
+    padding-top: 0.35rem;
+    padding-left: 0;
+    border-top: 1px solid var(--border);
+    border-left: 0;
+  }
+}
+
+/* The value-query controls should reflow instead of forcing one column. */
+.riven-table-viewer .riven-switch-group__box {
+  display: flex;
+  flex-wrap: wrap;
+  height: auto;
+  min-height: 3rem;
+  padding-block: 0.4rem;
+}
+
+.riven-table-viewer .riven-switch-group__box .riven-toggle {
+  flex: 0 1 7rem;
+  width: auto;
+  min-width: 0;
+  gap: 0.25rem;
+  justify-content: flex-start;
+  font-size: 0.66rem;
+}
+
+.riven-table-viewer .riven-switch-group__box .riven-toggle + .riven-toggle {
+  padding-top: 0;
+  padding-left: 0;
+  border-top: 0;
+  border-left: 0;
+}
+
+.riven-table-viewer .riven-switch-group__box .riven-toggle__control {
+  width: 3.1rem;
 }
 
 .riven-reset {
@@ -3759,6 +4057,31 @@ body.layout-editing {
 
 .riven-analysis-input:focus-visible {
   outline: 0;
+}
+
+.riven-sign-toggle {
+  display: grid;
+  flex: none;
+  width: 2.4rem;
+  place-items: center;
+  border: 0;
+  border-inline-start: 1px solid var(--border);
+  background: transparent;
+  color: var(--text-muted);
+  font: inherit;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.riven-sign-toggle:hover {
+  color: var(--accent);
+  background: var(--surface-2);
+}
+
+.riven-sign-toggle:disabled {
+  cursor: default;
+  opacity: 0.4;
 }
 
 .riven-analysis-unit {

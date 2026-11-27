@@ -52,12 +52,21 @@ export function rivenRange(base, options = {}) {
   };
 }
 
-export function rivenRollFromSliderRatio(ratio, { negative = false } = {}) {
+export function rivenRollFromSliderRatio(ratio, { inverted = false } = {}) {
   const normalized = Math.min(1, Math.max(0, Number.isFinite(Number(ratio)) ? Number(ratio) : 0));
-  // A negative stat's most negative endpoint uses roll 1.1, while its least
-  // negative endpoint uses roll 0.9. Mirror the positive mapping so dragging
-  // toward the higher displayed value never snaps the thumb back.
-  return negative ? 1.1 - normalized * 0.2 : 0.9 + normalized * 0.2;
+  // Most stats put roll 0.9 at the lower displayed value and roll 1.1 at the
+  // higher one. A negative value range reverses that order. Mirror the mapping
+  // so the thumb always follows the pointer.
+  return inverted ? 1.1 - normalized * 0.2 : 0.9 + normalized * 0.2;
+}
+
+export function rivenRollFromQuality(quality, { negative = false } = {}) {
+  return rivenRollFromSliderRatio(Number(quality) / 100, { inverted: negative });
+}
+
+export function rivenQualityFromRoll(roll, { negative = false } = {}) {
+  const normalized = Math.min(1, Math.max(0, (Number(roll) - 0.9) / 0.2));
+  return (negative ? 1 - normalized : normalized) * 100;
 }
 
 function signed(value, digits) {
@@ -78,7 +87,7 @@ export function formatRivenValue(tag, value, lang = 'zh') {
     case 'seconds':
       return `${signed(shown, 2)}${units.seconds}`;
     case 'meters':
-      return `${signed(shown, 2)}${units.meters}`;
+      return `${signed(shown, meta?.decimals ?? 2)}${units.meters}`;
     case 'number':
       return signed(shown, 1);
     case 'recoil':
@@ -145,10 +154,12 @@ export function rivenRollFromDisplay(base, tag, display, {
       * (Number(rank) + 1);
   if (!denominator) return null;
   const roll = adjusted / denominator;
-  // Display values are rounded to one decimal place. A value at the exact
-  // 0.90x/1.10x endpoint can invert a fraction outside the range, so clamp
-  // that tiny rounding error instead of showing a false out-of-range warning.
-  const inRange = roll >= 0.9 - 0.02 && roll <= 1.1 + 0.02;
+  // Display values are rounded, so an exact endpoint can invert a fraction
+  // outside the range. Melee range is shown to one decimal while its roll
+  // denominator is small, so allow the larger rounding error without showing
+  // a false out-of-range warning.
+  const tolerance = meta?.kind === 'meters' && meta?.decimals === 1 ? 0.05 : 0.02;
+  const inRange = roll >= 0.9 - tolerance && roll <= 1.1 + tolerance;
   const quality = inRange
     ? Math.min(100, Math.max(0, ((roll - 0.9) / 0.2) * 100))
     : ((roll - 0.9) / 0.2) * 100;

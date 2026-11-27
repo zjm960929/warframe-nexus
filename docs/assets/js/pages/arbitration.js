@@ -176,7 +176,6 @@ export function createArbitrationPage({ i18n, loc, schedule = null, error = null
       controls,
       rangeLabel,
       listHost,
-      el('p', { class: 'fine-print', text: i18n.t('arbitration.dataNote') }),
     ),
   );
 

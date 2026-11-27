@@ -1,15 +1,23 @@
 import { el, sectionHeader } from '../dom.js';
 import { RIVEN_TYPES, RIVEN_TYPE_ORDER } from '../riven-data.js';
 import { RIVEN_SPLICE_TYPES } from '../riven-splice-data.js';
-import { detectRivenType, parseRivenScan } from '../riven-scan.js';
+import {
+  detectRivenType,
+  inferRivenType,
+  normalizeScanEntries,
+  normalizeScanText,
+  parseRivenScan,
+} from '../riven-scan.js';
 import { findRivenWeapon } from '../riven-weapons.js';
 import {
   formatRivenValue,
   rivenDisplayNumber,
   rivenDisplayToRaw,
   rivenNameFromStats,
+  rivenQualityFromRoll,
   rivenRange,
   rivenRollFromDisplay,
+  rivenRollFromQuality,
   rivenRollFromSliderRatio,
   rivenValue,
   statMeta,
@@ -118,7 +126,7 @@ function analysisPlaceholder() {
 }
 
 function renderTable(i18n, captionId, caption, rows) {
-  const table = el('table', { class: 'riven-table' },
+  const table = el('table', { class: 'riven-table riven-table--viewer' },
     el('caption', { id: captionId, class: 'visually-hidden', text: caption }),
     el('colgroup', {},
       el('col', { class: 'riven-col-stat' }),
@@ -188,7 +196,8 @@ export function createRivenPage({ i18n }) {
   );
 
   const top = el('div', { class: 'riven-top' });
-  const tables = el('div', { class: 'riven-tables' });
+  const tables = el('div', { class: 'riven-tables', hidden: true });
+  const stage = el('div', { class: 'riven-stage' }, top, tables);
   const page = el('div', { class: 'riven-page' },
     el('div', { class: 'page-heading' },
       el('p', { class: 'eyebrow', text: i18n.t('riven.eyebrow') }),
@@ -196,13 +205,45 @@ export function createRivenPage({ i18n }) {
         el('h1', { text: i18n.t('riven.title') }),
       ),
     ),
-    top,
-    tables,
+    stage,
   );
 
 
 
   let tableViewerMode = false;
+  let viewerOpen = false;
+
+  function applyViewerState(open) {
+    viewerOpen = open;
+    top.classList.toggle('is-viewer', open);
+    analysisSection.hidden = open;
+    resultColumn.hidden = open;
+    analysisResultPanel.hidden = open;
+    tableViewerPanel.hidden = !open;
+    tableViewerMode = open;
+    renderTables();
+    requestAnimationFrame(() => {
+      (open ? viewerTitle : analysisTitle).focus({ preventScroll: true });
+    });
+  }
+
+  function setViewerOpen(open) {
+    if (viewerOpen === open) return;
+    const reduceMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+    if (!reduceMotion && 'startViewTransition' in Element.prototype) {
+      const transition = stage.startViewTransition(() => applyViewerState(open));
+      transition.ready.catch(() => {});
+      return;
+    }
+    applyViewerState(open);
+    if (reduceMotion) return;
+    stage.classList.remove('is-entering');
+    void stage.offsetWidth;
+    stage.classList.add('is-entering');
+    stage.addEventListener('animationend', () => {
+      stage.classList.remove('is-entering');
+    }, { once: true });
+  }
 
   function tableConfig() {
     if (tableViewerMode) {
@@ -222,7 +263,7 @@ export function createRivenPage({ i18n }) {
   }
 
   function activateAnalysisTables() {
-    if (!tableViewerMode) return;
+    if (viewerOpen || !tableViewerMode) return;
     tableViewerMode = false;
     renderTables();
   }
@@ -262,14 +303,35 @@ export function createRivenPage({ i18n }) {
           roll,
           negative,
         });
+        const minValue = formatRivenValue(tag, range.min, i18n.lang);
+        const maxValue = formatRivenValue(tag, range.max, i18n.lang);
+        const averageValue = formatRivenValue(tag, range.current, i18n.lang);
+        const minLabel = i18n.t('riven.min');
+        const maxLabel = i18n.t('riven.max');
+        const averageLabel = i18n.t('riven.average');
         return el('tr', {
           class: selectedTags.has(tag) ? 'is-selected' : null,
           dataset: { tag },
         },
           el('th', { scope: 'row', text: i18n.t(`riven.stat.${statMeta(tag).key}`) }),
-          el('td', { class: 'riven-table__num', text: formatRivenValue(tag, range.min, i18n.lang) }),
-          el('td', { class: 'riven-table__num', text: formatRivenValue(tag, range.max, i18n.lang) }),
-          el('td', { class: 'riven-table__num riven-table__current', text: formatRivenValue(tag, range.current, i18n.lang) }),
+          el('td', {
+            class: 'riven-table__num',
+            text: minValue,
+            dataset: { label: minLabel },
+            attrs: { 'aria-label': `${minLabel}: ${minValue}` },
+          }),
+          el('td', {
+            class: 'riven-table__num',
+            text: maxValue,
+            dataset: { label: maxLabel },
+            attrs: { 'aria-label': `${maxLabel}: ${maxValue}` },
+          }),
+          el('td', {
+            class: 'riven-table__num riven-table__current',
+            text: averageValue,
+            dataset: { label: averageLabel },
+            attrs: { 'aria-label': `${averageLabel}: ${averageValue}` },
+          }),
         );
       });
   }
@@ -279,7 +341,7 @@ export function createRivenPage({ i18n }) {
     splicedTable.querySelector('tbody').replaceChildren(...statRows(false, true));
     negativeTable.querySelector('tbody').replaceChildren(...statRows(true, false));
     const config = tableConfig();
-    tables.hidden = !config.type || (analysisWarningActive && !tableViewerMode);
+    tables.hidden = !config.type;
     negativePanel.hidden = !config.type || config.curses === 0;
   }
 
@@ -336,7 +398,6 @@ export function createRivenPage({ i18n }) {
   let switchesTouched = false;
 
   const analysisRowsHost = el('div', { class: 'riven-analysis-rows' });
-  let analysisWarningActive = false;
   const analysisResultHost = el('div', {
     class: 'riven-analysis__result',
     attrs: { role: 'status', 'aria-live': 'polite' },
@@ -452,14 +513,28 @@ export function createRivenPage({ i18n }) {
   });
   analysisTop.prepend(scanPanel);
 
+  const analysisTitle = el('h2', {
+    id: 'riven-analysis-title',
+    text: i18n.t('riven.analysis.title'),
+    attrs: { tabindex: '-1' },
+  });
+  const openViewerButton = el('button', {
+    type: 'button',
+    class: 'button button--ghost riven-view-toggle',
+    text: i18n.t('riven.viewer.open'),
+    attrs: { 'aria-controls': 'riven-table-viewer' },
+    onclick: () => setViewerOpen(true),
+  });
   const analysisSection = el('section', {
+    id: 'riven-analysis-panel',
     class: 'panel riven-analysis',
     attrs: { 'aria-labelledby': 'riven-analysis-title' },
   },
-    el('h2', { id: 'riven-analysis-title', text: i18n.t('riven.analysis.title') }),
+    el('div', { class: 'riven-panel-head' }, analysisTitle, openViewerButton),
     analysisForm,
   );
   const analysisResultPanel = el('section', {
+    id: 'riven-analysis-result-panel',
     class: 'panel riven-analysis-result',
     attrs: { 'aria-labelledby': 'riven-analysis-result-title' },
   },
@@ -519,14 +594,25 @@ export function createRivenPage({ i18n }) {
     false,
     () => onViewerControlChange(),
   );
+  const viewerTitle = el('h2', {
+    id: 'riven-table-viewer-title',
+    text: i18n.t('riven.tableViewerTitle'),
+    attrs: { tabindex: '-1' },
+  });
+  const backToAnalysisButton = el('button', {
+    type: 'button',
+    class: 'button button--ghost riven-view-toggle',
+    text: i18n.t('riven.viewer.back'),
+    attrs: { 'aria-controls': 'riven-analysis-panel' },
+    onclick: () => setViewerOpen(false),
+  });
   const tableViewerPanel = el('section', {
+    id: 'riven-table-viewer',
     class: 'panel riven-table-viewer',
+    hidden: true,
     attrs: { 'aria-labelledby': 'riven-table-viewer-title' },
   },
-    el('h2', {
-      id: 'riven-table-viewer-title',
-      text: i18n.t('riven.tableViewerTitle'),
-    }),
+    el('div', { class: 'riven-panel-head' }, viewerTitle, backToAnalysisButton),
     el('div', { class: 'riven-table-viewer__controls' },
       el('label', { class: 'riven-field', for: 'riven-viewer-type' },
         el('span', { class: 'label', text: i18n.t('riven.type') }),
@@ -544,9 +630,8 @@ export function createRivenPage({ i18n }) {
   );
   const resultColumn = el('div', { class: 'riven-top__right' },
     analysisResultPanel,
-    tableViewerPanel,
   );
-  top.append(analysisSection, resultColumn);
+  top.append(analysisSection, resultColumn, tableViewerPanel);
   tables.append(positivePanel, splicedPanel, negativePanel);
 
   function onViewerControlChange() {
@@ -612,8 +697,7 @@ export function createRivenPage({ i18n }) {
   function analysisEmpty(keys = 'riven.analysis.empty') {
     const list = [...new Set(Array.isArray(keys) ? keys : [keys])].filter(Boolean);
     const warning = list.some((key) => key !== 'riven.analysis.empty');
-    analysisWarningActive = warning;
-    tables.hidden = warning || !analysisType.value;
+    tables.hidden = !analysisType.value;
     const box = el('div', {
       class: warning ? 'empty-state riven-result-warning' : 'empty-state',
       attrs: warning ? { role: 'alert', 'aria-live': 'assertive' } : {},
@@ -680,6 +764,31 @@ export function createRivenPage({ i18n }) {
       text: '',
       attrs: { 'aria-hidden': 'true' },
     });
+    const toggleSignValue = () => {
+      if (!select.value || select.value === 'none') return;
+      const current = input.value.trim();
+      if (!current) {
+        input.value = '-';
+      } else if (current.startsWith('-')) {
+        input.value = current.slice(1);
+      } else if (current.startsWith('+')) {
+        input.value = `-${current.slice(1)}`;
+      } else {
+        input.value = `-${current}`;
+      }
+      input.dispatchEvent(new Event('input', { bubbles: true }));
+      input.focus();
+    };
+    const signButton = el('button', {
+      type: 'button',
+      class: 'riven-sign-toggle',
+      text: '±',
+      attrs: {
+        'aria-label': i18n.t('riven.analysis.toggleSign'),
+        title: i18n.t('riven.analysis.toggleSign'),
+      },
+      onclick: toggleSignValue,
+    });
     const slider = el('input', {
       type: 'range',
       id: `${id}-slider`,
@@ -696,6 +805,9 @@ export function createRivenPage({ i18n }) {
       input.readOnly = none;
       input.tabIndex = none ? -1 : 0;
       input.value = none ? '' : input.value;
+      const signable = !none && statMeta(select.value)?.kind !== 'multiplier';
+      signButton.hidden = !signable;
+      signButton.disabled = !signable;
       if (none && document.activeElement === input) input.blur();
       input.closest('.riven-analysis-row')?.classList.toggle('is-none', none);
     };
@@ -733,7 +845,7 @@ export function createRivenPage({ i18n }) {
       index: index + 1,
     });
     const valueLabel = el('span', { class: 'label', text: i18n.t('riven.analysis.value') });
-    const inputWrap = el('span', { class: 'riven-input-wrap' }, input, unit);
+    const inputWrap = el('span', { class: 'riven-input-wrap' }, input, signButton, unit);
     const sliderWrap = el('div', { class: 'riven-analysis-slider-wrap' }, slider);
     const row = {
       node: el('div', { class: 'riven-analysis-row' },
@@ -759,6 +871,7 @@ export function createRivenPage({ i18n }) {
       defaultTag,
       fromSlider: false,
       autoValue: false,
+      sliderInverted: false,
       required: false,
       syncUnit,
       setEnabled(enabled, { manual = false } = {}) {
@@ -864,6 +977,49 @@ export function createRivenPage({ i18n }) {
       if (meta) labels.push([i18n.t(`riven.stat.${meta.key}`), tag]);
     }
     return labels;
+  }
+
+  function scanStatLabelsAll() {
+    return RIVEN_TYPE_ORDER.flatMap((type) => scanStatLabels(type));
+  }
+
+  function scanStatAvailability() {
+    const available = {};
+    for (const type of RIVEN_TYPE_ORDER) {
+      for (const tag of Object.keys(statsForType(type))) {
+        (available[tag] ||= []).push(type);
+      }
+    }
+    return available;
+  }
+
+  function ambiguousScanStatTags() {
+    const labels = new Map();
+    for (const [label, tag] of scanStatLabelsAll()) {
+      const key = normalizeScanText(label).toLowerCase();
+      if (!key) continue;
+      if (!labels.has(key)) labels.set(key, new Set());
+      labels.get(key).add(tag);
+    }
+    const ambiguous = new Set();
+    for (const tags of labels.values()) {
+      if (tags.size > 1) {
+        for (const tag of tags) ambiguous.add(tag);
+      }
+    }
+    return ambiguous;
+  }
+
+  function scanTextWithoutStatLabels(lines, labels) {
+    const normalized = labels
+      .map(([label]) => normalizeScanText(label).toLowerCase())
+      .filter(Boolean);
+    return lines
+      .filter((line) => {
+        const text = normalizeScanText(line).toLowerCase();
+        return !normalized.some((label) => text.includes(label));
+      })
+      .join('\n');
   }
 
   function setAnalysisRow(row, tag, value) {
@@ -1059,20 +1215,40 @@ export function createRivenPage({ i18n }) {
     try {
       const text = await recognizeScan(file);
       const currentType = analysisType.value;
-      let result = parseRivenScan(text, {
-        labels: scanStatLabels(currentType),
-        typeLabels: scanTypeLabels(),
+      const typeLabels = scanTypeLabels();
+      const allStatLabels = scanStatLabelsAll();
+      const broadResult = parseRivenScan(text, {
+        labels: allStatLabels,
+        typeLabels,
       });
-      const textType = detectRivenType(text, scanTypeLabels());
-      const matchedWeaponRaw = findRivenWeapon(result.weapon);
+      const textType = detectRivenType(
+        scanTextWithoutStatLabels(broadResult.raw, allStatLabels),
+        typeLabels,
+      );
+      const matchedWeaponRaw = findRivenWeapon(broadResult.weapon);
       const matchedWeapon = matchedWeaponRaw?.score >= 80 ? matchedWeaponRaw : null;
-      const scanType = matchedWeapon?.type || textType || currentType;
-      if (scanType !== currentType) {
-        result = parseRivenScan(text, {
-          labels: scanStatLabels(scanType),
-          typeLabels: scanTypeLabels(),
-        });
-      }
+      const ambiguousTags = ambiguousScanStatTags();
+      const statTags = [
+        ...broadResult.positive,
+        ...(broadResult.negative ? [broadResult.negative] : []),
+      ]
+        .map((entry) => entry.tag)
+        .filter((tag) => !ambiguousTags.has(tag));
+      const provenType = inferRivenType({
+        statTags,
+        availableTypes: scanStatAvailability(),
+        typeOrder: RIVEN_TYPE_ORDER,
+        preferred: [matchedWeapon?.type, textType, currentType],
+      });
+      const scanType = provenType || matchedWeapon?.type || textType || currentType;
+      let result = parseRivenScan(text, {
+        labels: scanStatLabels(scanType),
+        typeLabels,
+      });
+      result = normalizeScanEntries(result, {
+        getMeta: (tag) => statMeta(tag),
+        getBase: (tag) => statsForType(scanType)[tag],
+      });
       if (RIVEN_TYPE_ORDER.includes(scanType)) {
         analysisType.value = scanType;
         clearTypeWarning();
@@ -1197,7 +1373,11 @@ export function createRivenPage({ i18n }) {
     });
     const first = sliderRound(row.select.value, rivenDisplayNumber(row.select.value, range.min));
     const second = sliderRound(row.select.value, rivenDisplayNumber(row.select.value, range.max));
-    return { min: Math.min(first, second), max: Math.max(first, second) };
+    return {
+      min: Math.min(first, second),
+      max: Math.max(first, second),
+      inverted: first > second,
+    };
   }
 
   function syncRowSlider(row) {
@@ -1206,13 +1386,39 @@ export function createRivenPage({ i18n }) {
       row.slider.min = '0';
       row.slider.max = '100';
       row.slider.value = '50';
+      row.sliderInverted = false;
+      row.slider.removeAttribute('aria-valuetext');
       return;
     }
-    const { min, max } = sliderBounds(row);
+    const meta = statMeta(row.select.value);
+    if (meta?.sliderQuality) {
+      const { buffs, curses } = analysisCounts();
+      const base = statsForType(analysisType.value)[row.select.value];
+      const parsed = rivenRollFromDisplay(base, row.select.value, row.input.value, {
+        rank: Number(analysisRank.value),
+        buffs,
+        curses,
+        negative: row.negative,
+      });
+      row.slider.disabled = false;
+      row.slider.min = '0';
+      row.slider.max = '100';
+      row.slider.step = '1';
+      row.sliderInverted = false;
+      row.slider.value = String(Math.round(
+        parsed ? rivenQualityFromRoll(parsed.roll, { negative: row.negative }) : 50,
+      ));
+      row.slider.setAttribute('aria-valuetext', row.input.value || '');
+      row.fromSlider = false;
+      return;
+    }
+    const { min, max, inverted } = sliderBounds(row);
     row.slider.disabled = false;
     row.slider.min = String(min);
     row.slider.max = String(max);
     row.slider.step = String(sliderStep(row.select.value));
+    row.sliderInverted = inverted;
+    row.slider.removeAttribute('aria-valuetext');
     const raw = rivenDisplayToRaw(row.select.value, row.input.value);
     const current = raw == null ? (min + max) / 2 : rivenDisplayNumber(row.select.value, raw);
     row.slider.value = String(Math.min(max, Math.max(min, current)));
@@ -1299,6 +1505,26 @@ export function createRivenPage({ i18n }) {
 
   function syncSliderFromInput(row) {
     if (!row.select.value || row.select.value === 'none') return;
+    const meta = statMeta(row.select.value);
+    if (meta?.sliderQuality) {
+      const { buffs, curses } = analysisCounts();
+      const parsed = rivenRollFromDisplay(
+        statsForType(analysisType.value)[row.select.value],
+        row.select.value,
+        row.input.value,
+        {
+          rank: Number(analysisRank.value),
+          buffs,
+          curses,
+          negative: row.negative,
+        },
+      );
+      if (!parsed) return;
+      const quality = rivenQualityFromRoll(parsed.roll, { negative: row.negative });
+      row.slider.value = String(Math.round(Math.min(100, Math.max(0, quality))));
+      row.slider.setAttribute('aria-valuetext', row.input.value);
+      return;
+    }
     const raw = rivenDisplayToRaw(row.select.value, row.input.value);
     if (raw == null) return;
     const value = rivenDisplayNumber(row.select.value, raw);
@@ -1307,11 +1533,17 @@ export function createRivenPage({ i18n }) {
 
   function syncInputFromSlider(row) {
     if (!row.select.value || row.select.value === 'none' || row.slider.disabled) return;
-    const min = Number(row.slider.min);
-    const max = Number(row.slider.max);
-    const ratio = max === min ? 0.5 : (Number(row.slider.value) - min) / (max - min);
-    const roll = rivenRollFromSliderRatio(ratio, { negative: row.negative });
+    const meta = statMeta(row.select.value);
     const { buffs, curses } = analysisCounts();
+    const roll = meta?.sliderQuality
+      ? rivenRollFromQuality(Number(row.slider.value), { negative: row.negative })
+      : rivenRollFromSliderRatio(
+        Number(row.slider.max) === Number(row.slider.min)
+          ? 0.5
+          : (Number(row.slider.value) - Number(row.slider.min))
+            / (Number(row.slider.max) - Number(row.slider.min)),
+        { inverted: row.sliderInverted },
+      );
     const raw = rivenValue(statsForType(analysisType.value)[row.select.value], {
       rank: Number(analysisRank.value),
       buffs,
@@ -1320,6 +1552,7 @@ export function createRivenPage({ i18n }) {
       negative: row.negative,
     });
     row.input.value = formatRivenValue(row.select.value, raw, i18n.lang);
+    if (meta?.sliderQuality) row.slider.setAttribute('aria-valuetext', row.input.value);
     row.fromSlider = true;
   }
 
@@ -1375,15 +1608,33 @@ export function createRivenPage({ i18n }) {
       const analysisText = shownDelta == null
         ? '—'
         : `${shownDelta >= 0 ? '+' : ''}${shownDelta.toFixed(1)}%（${analysisBand(shownDelta)}）`;
+      const valueLabel = i18n.t('riven.analysis.value');
+      const averageLabel = i18n.t('riven.average');
+      const analysisLabel = i18n.t('riven.analysis.analysis');
       return el('tr', { class: stat.negative ? 'is-negative' : null },
         el('th', { scope: 'row', text: i18n.t(`riven.stat.${statMeta(stat.tag).key}`) }),
-        el('td', { class: 'riven-table__num', text: stat.input }),
-        el('td', { class: 'riven-table__num', text: averageText }),
-        el('td', { class: 'riven-table__num', text: analysisText }),
+        el('td', {
+          class: 'riven-table__num',
+          text: stat.input,
+          dataset: { label: valueLabel },
+          attrs: { 'aria-label': `${valueLabel}: ${stat.input}` },
+        }),
+        el('td', {
+          class: 'riven-table__num',
+          text: averageText,
+          dataset: { label: averageLabel },
+          attrs: { 'aria-label': `${averageLabel}: ${averageText}` },
+        }),
+        el('td', {
+          class: 'riven-table__num',
+          text: analysisText,
+          dataset: { label: analysisLabel },
+          attrs: { 'aria-label': `${analysisLabel}: ${analysisText}` },
+        }),
       );
     });
     const captionId = 'riven-analysis-caption';
-    const table = el('table', { class: 'riven-table' },
+    const table = el('table', { class: 'riven-table riven-table--result' },
       el('caption', {
         id: captionId,
         class: 'visually-hidden',
@@ -1411,7 +1662,6 @@ export function createRivenPage({ i18n }) {
         el('strong', { class: 'riven-analysis__name', text: name.name }),
       ),
     );
-    analysisWarningActive = false;
     tables.hidden = !analysisType.value;
     analysisResultHost.replaceChildren(summary, el('div', {
       class: 'riven-table-wrap',
