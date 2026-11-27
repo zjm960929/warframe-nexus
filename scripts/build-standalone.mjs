@@ -3,15 +3,17 @@
  * Build a self-contained `test.html` that can be opened with file:// directly.
  *
  * It inlines CSS, the compiled application bundle, both UI locales, the
- * Simplified Chinese term dictionary, and the official-data snapshots created
- * by `npm run build:pages`. The result is deliberately a static snapshot: a
- * file:// page cannot proxy the official feed because browsers block
- * cross-origin and module/file requests in that context.
+ * Simplified Chinese term dictionary, and the official English worldstate
+ * snapshot created by `npm run build:pages`. Chinese is resolved in the
+ * browser from the term dictionary. The result is deliberately a static
+ * snapshot: a file:// page cannot proxy the official feed because browsers
+ * block cross-origin and module/file requests in that context.
  */
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { rollup } from 'rollup';
+import { minify } from 'terser';
 
 const ROOT = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
 const PUBLIC_DIR = path.join(ROOT, 'public');
@@ -28,26 +30,20 @@ function escapeForInlineScript(value) {
 }
 
 async function main() {
-  const snapshotPaths = {
-    en: path.join(DOCS_DIR, 'data', 'worldstate-en.json'),
-    zh: path.join(DOCS_DIR, 'data', 'worldstate-zh.json'),
-  };
-  for (const file of Object.values(snapshotPaths)) {
-    try {
-      await fs.access(file);
-    } catch {
-      throw new Error(`Missing ${file}. Run "npm run build:pages" first.`);
-    }
+  const snapshotPath = path.join(DOCS_DIR, 'data', 'worldstate.json');
+  try {
+    await fs.access(snapshotPath);
+  } catch {
+    throw new Error(`Missing ${snapshotPath}. Run "npm run build:pages" first.`);
   }
 
-  const [htmlTemplate, css, zhLocale, enLocale, terms, snapshotEn, snapshotZh, arbitrationCsv, arbitrationNodes, arbitrationNodeMeta] = await Promise.all([
+  const [htmlTemplate, css, zhLocale, enLocale, terms, snapshot, arbitrationCsv, arbitrationNodes, arbitrationNodeMeta] = await Promise.all([
     fs.readFile(path.join(PUBLIC_DIR, 'index.html'), 'utf8'),
     fs.readFile(path.join(PUBLIC_DIR, 'assets', 'css', 'styles.css'), 'utf8'),
     readJson(path.join(PUBLIC_DIR, 'locales', 'zh-CN.json')),
     readJson(path.join(PUBLIC_DIR, 'locales', 'en.json')),
     readJson(path.join(PUBLIC_DIR, 'data', 'terms.zh.json')),
-    readJson(snapshotPaths.en),
-    readJson(snapshotPaths.zh),
+    readJson(snapshotPath),
     fs.readFile(path.join(PUBLIC_DIR, 'data', 'arbitration-schedule.csv'), 'utf8'),
     readJson(path.join(PUBLIC_DIR, 'data', 'arbitration-nodes.json')),
     readJson(path.join(PUBLIC_DIR, 'data', 'arbitration-node-meta.json')),
@@ -89,7 +85,7 @@ async function main() {
   }
 
   const bundle = await rollup({
-    input: path.join(PUBLIC_DIR, 'assets', 'js', 'app.js'),
+    input: path.join(PUBLIC_DIR, 'js', 'app.js'),
     treeshake: true,
   });
   let code;
@@ -99,7 +95,9 @@ async function main() {
       name: 'WarframeNexus',
       compact: true,
     });
-    code = generated.output[0].code;
+    const minified = await minify(generated.output[0].code);
+    if (!minified.code) throw new Error('Terser returned no standalone bundle');
+    code = minified.code;
   } finally {
     await bundle.close();
   }
@@ -107,7 +105,7 @@ async function main() {
   const embedded = {
     locales: { zh: zhLocale, en: enLocale },
     terms,
-    snapshots: { en: snapshotEn, zh: snapshotZh },
+    snapshot,
     arbitration: {
       csv: arbitrationCsv,
       nodes: arbitrationNodes,
@@ -128,8 +126,8 @@ async function main() {
       `<style>\n${inlinedCss}\n</style>`,
     )
     .replace(
-      '<script type="module" src="./assets/js/app.js"></script>',
-      standaloneScript,
+      '<script type="module" src="./js/app.js"></script>',
+      () => standaloneScript,
     );
 
   if (!html.includes('__WF_NEXUS_EMBEDDED__') || !html.includes('content="static"')) {

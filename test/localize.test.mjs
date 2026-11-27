@@ -3,11 +3,20 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { createLocalizer } from '../public/assets/js/localize.js';
+import { createLocalizer } from '../public/js/localize.js';
 
 const ROOT = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
 const terms = JSON.parse(fs.readFileSync(path.join(ROOT, 'public/data/terms.zh.json'), 'utf8'));
 const loc = createLocalizer('zh', terms);
+
+test('official table translates parser English before falling back', () => {
+  assert.equal(loc.missionType('', 'Defense'), '防御');
+  assert.equal(loc.text('Claim an item from your Foundry.'), '从铸造厂中领取一件物品。');
+  assert.equal(loc.sentence('Help Clem with his weekly mission.'), '帮助 Clem 完成他的周常任务。');
+  assert.equal(loc.sentence('Kill 30 Eximus.'), '击杀 30 名卓越者。');
+  assert.equal(loc.sentence('Complete any 15 missions.'), '完成 15 项任务。');
+  assert.equal(loc.text('This string is not in the official table'), 'This string is not in the official table');
+});
 
 test('Arcocanid legacy key resolves to the official Chinese description', () => {
   const value = loc.conquest(
@@ -24,6 +33,19 @@ test('official templates receive values from the raw description', () => {
   assert.equal(value, '技能持续时间减少 50%。');
   const punctuation = loc.personal('AntiGuard', 'description', 'Warframe and ally Overguard gain reduced by 75%.');
   assert.equal(punctuation, '战甲和友军超宏防护获取量减少 75%。');
+});
+
+test('Steel Path shop names use official terms and spacing', () => {
+  assert.equal(loc.item('Umbra Forma Blueprint'), 'Umbra Forma 蓝图');
+  assert.equal(loc.item('Kitgun Riven Mod'), '组合枪裂罅 Mod');
+  assert.equal(loc.item('50,000 Kuva'), '50,000 赤毒');
+  assert.equal(loc.item('30,000 Endo'), '30,000 内融核心');
+});
+
+test('official Sortie modifier flavors replace parser descriptions', () => {
+  assert.equal(loc.modifierFlavor('Energy Reduction'), '虚空的能量漩涡正流经此处，战甲的能量上限将会减半同时能量再生率也会大幅降低。');
+  assert.equal(loc.modifierFlavor('Enhanced Enemy Shields'), '此处敌人护盾的已经过强化');
+  assert.equal(loc.modifierFlavor('Enemy Physical Enhancement: Slash'), '敌人已获得额外的 切割 伤害和物理抗性强化。');
 });
 
 test('faction fallback resolves names even without a faction key', () => {

@@ -49,6 +49,25 @@ function isUsable(en, zh) {
   return true;
 }
 
+const TEMPLATE_PLACEHOLDER = /\|(?:COUNT|NUM|VAL|VALUE|PERCENT|TIME|AMOUNT)\||\{[^}]+\}/i;
+
+function isTemplateUsable(en, zh) {
+  if (!en || !zh) return false;
+  if (en.length > 400 || zh.length > 400) return false;
+  if (/\[PH\]/i.test(en) || /\[PH\]/i.test(zh)) return false;
+  return TEMPLATE_PLACEHOLDER.test(en) && TEMPLATE_PLACEHOLDER.test(zh);
+}
+
+function addTemplate(map, key, en, zh) {
+  if (!isTemplateUsable(en, zh)) return;
+  const normalized = normalize(en);
+  const score = scoreRow(key, en, zh);
+  const previous = map.get(normalized);
+  if (!previous || score > previous.score) {
+    map.set(normalized, { key, en, zh, score });
+  }
+}
+
 const NAMESPACE_SCORES = [
   [/\/GameModes\//, 140],
   [/\/Missions\/MissionName_/, 135],
@@ -68,6 +87,8 @@ const NAMESPACE_SCORES = [
   [/\/SolarisJobs\//, 115],
   [/\/NightwaveChallenges\//, 105],
   [/\/Conquest\//, 105],
+  [/\/Omega\//, 100],
+  [/\/Consumables\//, 95],
   [/\/CircleOfHell\//, 100],
   [/\/EntratiLab\//, 100],
   [/\/1999\//, 95],
@@ -276,11 +297,13 @@ function main() {
   const rows = parseTsv(args.tsv);
   const all = new Map();
   const allowed = new Map();
+  const templates = new Map();
 
   for (const row of rows) {
-    if (!isUsable(row.en, row.zh)) continue;
     if (NAMESPACE_DENY.some((re) => re.test(row.key))) continue;
     if (!NAMESPACE_SCORES.some(([re]) => re.test(row.key))) continue;
+    addTemplate(templates, row.key, row.en, row.zh);
+    if (!isUsable(row.en, row.zh)) continue;
     addCandidate(all, row.key, row.en, row.zh);
     addCandidate(allowed, row.key, row.en, row.zh);
   }
@@ -323,6 +346,26 @@ function main() {
   const strings = {};
   for (const [key, value] of allowed) {
     strings[key] = value.zh;
+  }
+
+  const templateStrings = {};
+  for (const [key, value] of templates) {
+    templateStrings[key] = { en: value.en, zh: value.zh };
+  }
+
+  const modifierNames = new Map();
+  const modifierFlavors = {};
+  for (const row of rows) {
+    const nameMatch = /\/Sorties\/(SOModifier[^/]+)$/.exec(row.key);
+    if (nameMatch && !/Flavor$/.test(nameMatch[1])) {
+      if (row.en && row.zh) modifierNames.set(nameMatch[1], row);
+      continue;
+    }
+    const flavorMatch = /\/Sorties\/(SOModifier[^/]+)Flavor$/.exec(row.key);
+    if (!flavorMatch) continue;
+    const nameRow = modifierNames.get(flavorMatch[1]);
+    if (!nameRow?.en || !row.zh || row.zh.length > 400) continue;
+    modifierFlavors[normalize(nameRow.en)] = row.zh;
   }
 
   const missionTypes = {};
@@ -442,6 +485,8 @@ function main() {
       note: 'Official Simplified Chinese strings extracted with ee-localization. English fallback is retained when no direct entry exists.',
     },
     strings,
+    templates: templateStrings,
+    modifierFlavors,
     missionTypes,
     bountyTypes,
     conquest,

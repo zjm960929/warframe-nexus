@@ -50,7 +50,7 @@
 
 直接在浏览器打开仓库根目录的 `test.html`。
 
-- 文件约 2.6 MiB，内联 CSS、应用代码、中英文文案、官方术语表、世界状态快照、静态仲裁表、钢铁之路侵袭规划表和裂罅武器索引。
+- 文件约 2.4 MiB，内联 CSS、应用代码、中英文文案、官方术语表、世界状态快照、静态仲裁表、钢铁之路侵袭规划表和裂罅武器索引。
 - 不发出网络请求，使用构建时快照，不读取实时数据。
 - 适合不安装 Node.js、快速查看布局和功能。
 
@@ -115,19 +115,9 @@ npm run build:standalone
 
 `build:pages` 生成 `docs/` 静态站点，`build:standalone` 生成根目录的自包含 `test.html`。
 
-如果 Pages 构建时官方 feed 不可用，构建脚本会复用仓库中已有的 `worldstate-*.json` 快照并继续。
+如果 Pages 构建时官方 feed 不可用，构建脚本会复用仓库中已有的 `worldstate.json` 快照并继续。
 
 可选仓库变量 `WF_NEXUS_API_BASE` 用于配置线上前端的外部 API。变量值应为服务根地址，不要带 `/api/worldstate`；未设置时 Pages 只使用静态快照。
-
-### 可选的 Vercel API
-
-仓库还包含 [`api/worldstate.mjs`](api/worldstate.mjs)，可部署到 Vercel。导入仓库并部署后测试：
-
-```text
-https://your-project.vercel.app/api/worldstate?lang=zh
-```
-
-Vercel Hobby 仅面向个人、非商业项目。云厂商出口 IP 也可能被官方 API 拒绝，因此应先测试接口，再配置 Pages。
 
 ## 使用
 
@@ -152,7 +142,7 @@ api.warframe.com/cdn/worldState.php
 
 - 官方 feed 使用 [`warframe-worldstate-parser`](https://github.com/WFCD/warframe-worldstate-parser) 解析。解析期间，`src/official.mjs` 会拦截所有非官方请求，因此不会使用社区赏金掉落表。
 - 官方端点不返回 CORS 响应头，所以浏览器不直接请求官方 API。
-- GitHub Pages 是静态托管，默认读取 `docs/data/worldstate-*.json`；配置外部 API 后优先请求外部 API。
+- GitHub Pages 是静态托管，默认读取 `docs/data/worldstate.json`；配置外部 API 后优先请求外部 API。
 - 仲裁时间表来自内置的每小时轮换 CSV 和生成的显示元数据，不请求第三方 API。
 - `/api/worldstate` 支持 CORS 和 `fresh=1` 查询参数，用于手动刷新时绕过缓存。
 
@@ -175,13 +165,12 @@ api.warframe.com/cdn/worldState.php
 warframe-nexus/
   test.html                  自包含构建产物
   server.mjs                 静态服务器 + 官方世界状态代理
-  api/worldstate.mjs         可选的 Vercel Function
   render.yaml                Render Web Service 蓝图
   src/official.mjs           官方数据获取、解析和请求拦截
   public/
     index.html
     assets/css/styles.css
-    assets/js/
+    js/
       app.js                 启动、路由、主题、语言、刷新
       normalize.js           世界状态纯函数归一化
       localize.js            官方术语本地化
@@ -220,7 +209,7 @@ npm run build:standalone
 
 ## 发布
 
-当前版本为 **v0.7.1**。
+当前版本为 **v0.7.2**。
 
 1. 运行 `npm test`。
 2. 构建 `docs/` 与 `test.html`。

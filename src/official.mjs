@@ -23,7 +23,7 @@ export async function fetchOfficialRaw({ timeoutMs = DEFAULT_TIMEOUT_MS } = {}) 
     const response = await fetch(OFFICIAL_WORLDSTATE_URL, {
       headers: {
         Accept: 'application/json',
-        'User-Agent': 'warframe-nexus/0.7.1 (community fan utility)',
+        'User-Agent': 'warframe-nexus/0.7.2 (community fan utility)',
       },
       signal: controller.signal,
       cache: 'no-store',
@@ -61,17 +61,17 @@ let parseQueue = Promise.resolve();
 
 /**
  * Parsing temporarily replaces global fetch so the parser cannot call
- * community APIs. Keep parses serialized so concurrent en/zh builds cannot
- * restore the real fetch while another parse is still running.
+ * community APIs. Keep parses serialized so concurrent builds cannot restore the real fetch
+ * while another parse is still running. The parser always runs in English;
+ * UI localization is applied from the official term table.
  */
-export function parseOfficialWorldstate(rawText, lang = 'en') {
-  const task = parseQueue.then(() => parseOfficialWorldstateInternal(rawText, lang));
+export function parseOfficialWorldstate(rawText) {
+  const task = parseQueue.then(() => parseOfficialWorldstateInternal(rawText));
   parseQueue = task.catch(() => {});
   return task;
 }
 
-async function parseOfficialWorldstateInternal(rawText, lang) {
-  const locale = lang === 'zh' ? 'zh' : 'en';
+async function parseOfficialWorldstateInternal(rawText) {
   const originalFetch = globalThis.fetch;
   let blockedRequests = 0;
 
@@ -91,7 +91,7 @@ async function parseOfficialWorldstateInternal(rawText, lang) {
   };
 
   try {
-    const data = await WorldState.build(rawText, { locale, logger: quietLogger });
+    const data = await WorldState.build(rawText, { locale: 'en', logger: quietLogger });
     if (blockedRequests > 0 && process.env.WF_DEBUG === '1') {
       console.info(`[official] blocked ${blockedRequests} non-official lookup request(s)`);
     }
@@ -140,9 +140,9 @@ export function sanitizeWorldstateData(data) {
   return clone;
 }
 
-export async function loadOfficialWorldstate(lang = 'en') {
+export async function loadOfficialWorldstate() {
   const { rawText, upstream } = await fetchOfficialRaw();
-  const data = await parseOfficialWorldstate(rawText, lang);
+  const data = await parseOfficialWorldstate(rawText);
   if (!data || !data.timestamp) {
     throw new Error('official worldstate parser returned no timestamp');
   }

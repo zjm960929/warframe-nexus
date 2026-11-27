@@ -38,7 +38,9 @@ export function createLocalizer(lang, terms) {
   const suffixes = data.suffixes || {};
   const elements = data.elements || {};
   const modifierBases = data.modifierBases || {};
+  const modifierFlavors = data.modifierFlavors || {};
   const charMap = data.charMap || {};
+  const templateEntries = Object.values(data.templates || {});
   const conquestData = data.conquest || { conditions: {}, lab: {}, hex: {}, personal: {} };
 
   function simplify(value) {
@@ -71,8 +73,39 @@ export function createLocalizer(lang, terms) {
 
   function exact(value) {
     if (!isZh) return null;
-    const hit = strings[normalizeKey(value)];
+    const key = normalizeKey(value);
+    const withoutTerminalPunctuation = key.replace(/[.!?]+$/, '').trim();
+    const hit = strings[key]
+      || strings[withoutTerminalPunctuation]
+      || strings[`${withoutTerminalPunctuation}.`];
     return hit ? normalizeChineseCopy(simplify(hit)) : null;
+  }
+
+  function template(value) {
+    if (!isZh || !templateEntries.length) return null;
+    const input = normalizeKey(value)
+      .replace(/\bany\s+(?=\d)/g, '')
+      .replace(/[.!?]+$/, '')
+      .trim();
+    if (!input) return null;
+    for (const entry of templateEntries) {
+      const en = normalizeKey(entry.en)
+        .replace(/\bany\s+(?=\d)/g, '')
+        .replace(/[.!?]+$/, '')
+        .trim();
+      const parts = en.split(/(\|[A-Za-z0-9_]+\||\{[^}]+\})/g);
+      const pattern = `^${parts.map((part) => (
+        /^(\|[A-Za-z0-9_]+\||\{[^}]+\})$/.test(part)
+          ? '(.+?)'
+          : part.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+      )).join('')}$`;
+      const match = new RegExp(pattern, 'i').exec(input);
+      if (!match) continue;
+      let index = 1;
+      const translated = entry.zh.replace(/(\|[A-Za-z0-9_]+\||\{[^}]+\})/g, () => match[index++] || '');
+      if (hasCjk(translated)) return normalizeChineseCopy(simplify(translated));
+    }
+    return null;
   }
 
   function node(value) {
@@ -105,7 +138,7 @@ export function createLocalizer(lang, terms) {
     if (!text) return '';
     if (!isZh) return text;
 
-    const countMatch = /^(\d+)\s*[xX]\s+(.+)$/.exec(text);
+    const countMatch = /^(\d+)\s*[xX×]\s+(.+)$/.exec(text);
     if (countMatch) {
       return `${countMatch[1]} × ${item(countMatch[2])}`;
     }
@@ -120,7 +153,13 @@ export function createLocalizer(lang, terms) {
     if (blueprint) {
       const base = blueprint[1];
       const translated = exact(base) || component(base) || simplify(base);
-      return `${translated}${suffixes.Blueprint || '蓝图'}`;
+      const suffix = suffixes.Blueprint || '蓝图';
+      return `${translated}${/[A-Za-z0-9]$/.test(translated) ? ' ' : ''}${suffix}`;
+    }
+
+    const amount = /^([\d,]+)\s+(.+)$/.exec(text);
+    if (amount && !/^\d+\s*[xX×]\s+/.test(text)) {
+      return `${amount[1]} ${item(amount[2])}`;
     }
 
     const relic = /^(Lith|Meso|Neo|Axi|Requiem)\s+(.+?)\s+Relic$/i.exec(text);
@@ -175,6 +214,12 @@ export function createLocalizer(lang, terms) {
     if (!isZh) return text;
     const direct = exact(text);
     if (direct) return direct;
+    const aliases = {
+      'enhanced enemy armor': 'Augmented Enemy Armor',
+      'enhanced enemy shields': 'Augmented Enemy Shields',
+    };
+    const alias = aliases[normalizeKey(text)];
+    if (alias) return exact(alias) || text;
     const match = /^(Enemy (?:Elemental|Physical) Enhancement):\s*(.+)$/i.exec(text);
     if (match) {
       const base = modifierBases[match[1]] || match[1];
@@ -184,11 +229,32 @@ export function createLocalizer(lang, terms) {
     return simplify(text);
   }
 
+  function modifierFlavor(value) {
+    const text = String(value ?? '').trim();
+    if (!isZh || !text) return null;
+    const [name, detail] = text.split(/:\s*/, 2);
+    const key = normalizeKey(name);
+    const aliases = {
+      'enhanced enemy armor': 'augmented enemy armor',
+      'enhanced enemy shields': 'augmented enemy shields',
+    };
+    let flavor = modifierFlavors[aliases[key] || key];
+    if (!flavor) return null;
+    if (detail) {
+      flavor = flavor
+        .replace(/\|DAMAGE_TYPE\|/gi, elements[detail] || detail)
+        .replace(/\|WEAPON_TYPE\|/gi, detail);
+    }
+    return normalizeChineseCopy(simplify(flavor));
+  }
+
   function sentence(value) {
-    const text = normalizeChineseCopy(simplify(String(value || '').trim()));
+    const raw = String(value || '').trim();
+    const translated = isZh ? (exact(raw) || template(raw)) : null;
+    const text = normalizeChineseCopy(translated || simplify(raw));
     if (!text) return '';
-    if (/[。！？!?…]$/.test(text)) return text;
-    return /[\u3400-\u9fff]/u.test(text) ? `${text}。` : `${text}.`;
+    if (/[\u3002\uFF01\uFF1F\u2026\u201D]$/.test(text)) return text;
+    return /[\u3400-\u9fff]/u.test(text) ? `${text}\u3002` : `${text}.`;
   }
 
   function fillTemplate(template, fallback) {
@@ -251,6 +317,8 @@ export function createLocalizer(lang, terms) {
     if (hasCjk(raw)) return normalizeChineseCopy(simplify(raw));
     const direct = exact(raw);
     if (direct) return direct;
+    const templated = template(raw);
+    if (templated) return templated;
     if (/^.+ \([^)]+\)$/.test(raw)) return node(raw);
     if (/^\d+\s*[xX]\s+/.test(raw) || /\bBlueprint\b/i.test(raw) || /\bRelic\b/i.test(raw)) {
       return item(raw);
@@ -287,6 +355,7 @@ export function createLocalizer(lang, terms) {
     tier,
     state,
     modifier,
+    modifierFlavor,
     bountyType,
     normalizeChineseCopy,
     sentence,

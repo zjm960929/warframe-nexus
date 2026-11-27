@@ -1,5 +1,27 @@
 # Changelog
 
+## [0.7.2] - 2026-11-28
+
+### Changed
+
+- 顶栏支持向下滚动隐藏、向上滚动恢复，并保留键盘焦点、路由切换和减少动态效果处理。
+- 世界状态自动刷新时保留当前滚动位置；移动端仅因视口宽度变化重新排版，避免地址栏高度变化导致跳顶。
+- 仲裁时间表窄屏改为“时间/状态、任务地点、任务类型/派系胶囊”的分层布局，并保留完整派系图标。
+- 世界状态改为由英文 parser 输出，客户端优先使用 ee-localization 官方简中表进行本地化。
+- Pages 静态世界状态合并为单一 `worldstate.json`；不再生成重复的 `worldstate-en.json` / `worldstate-zh.json`。
+- 移除已废弃的 Serverless API、部署配置和相关说明；保留本地 Node 服务与 Render 部署。
+- 官方术语索引新增 189 条模板文本、Sortie 附加条件 flavor 和钢铁之路商店物品命名。
+- 浏览器 JS 从 `assets/js/` 移至 `js/`，Pages 与独立构建使用 Rollup + Terser 压缩。
+- 更新双语 README、版本号、User-Agent 和离线构建。
+
+### Fixed
+
+- 修复 `test.html` 构建时 `$&` 被 `String.replace` 特殊解释，导致压缩 JS 被注入 HTML 并作为正文显示的问题。
+- 修复官方模板文本未收录，导致 Nightwave 挑战描述显示英文的问题。
+- 修复 Sortie 附加条件说明显示 parser 英文的问题。
+- 修复钢铁之路商店物品显示英文、`Umbra Forma蓝图` 缺少空格的问题。
+- 修复钢铁之路商店数量型物品（Kuva、Endo）未本地化的问题。
+
 ## [0.7.1] - 2026-11-27
 
 ### Changed
@@ -160,21 +182,18 @@
 
 ### Added
 
-- Vercel Function `api/worldstate.mjs`：从官方 feed 获取并解析数据，提供 CORS。
 - `WF_NEXUS_API_BASE` 配置；Pages 优先请求外部 API，失败时回退静态快照。
 
 ## [0.2.1] - 2026-11-26
 
 ### Changed
 
-- 移除 Cloudflare Worker、Wrangler 配置、浏览器解析器和 live 模式，恢复 Node / 静态快照架构。
 - 移除浏览器解析器相关的 `@noble/hashes` 和 Rollup 插件依赖。
 
 ## [0.2.0] - 2026-11-26
 
 ### Added
 
-- 可选的 Cloudflare Worker 官方数据代理和 `WF_NEXUS_API_BASE` 实时模式；页面载入与手动刷新可请求官方 API，并在浏览器端解析。
 - 浏览器端 `warframe-worldstate-parser` 打包文件与数据包。
 - 浏览器端 md5/sha256 shim 和第三方许可说明。
 

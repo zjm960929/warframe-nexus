@@ -1,6 +1,6 @@
 {
   "meta": {
-    "generatedAt": "2026-11-25T12:06:34.008Z",
+    "generatedAt": "2026-11-27T17:50:26.556Z",
     "source": "Warframe_zh_en.tsv",
     "note": "Official Simplified Chinese strings extracted with ee-localization. English fallback is retained when no direct entry exists."
   },
@@ -1305,6 +1305,28 @@
     "+40 melee starting combo": "+40 近战初始连击",
     "+300% status chance": "+300% 触发几率",
     "+300% weak point multiplier": "+300% 弱点倍率",
+    "lures the wolf out of hiding. one-time use gear item that can only be used in locations where the assassin would normally appear.": "吸引「恶狼」现身的物品。为一次性道具，仅能使用在刺客一般会出没的场景中。",
+    "wolf beacon": "恶狼信标",
+    "vasca curative": "噬血治疗剂",
+    "deploying": "部署中",
+    "disabled": "已禁用",
+    "this item is disabled for the mission.": "此物品因任务要求而被禁用。",
+    "test forma": "TEST FORMA",
+    "modifies a stance slot on a melee weapon to be compatible with any mod polarity.": "改变近战武器上的架式槽位以与任何 Mod 的极性相容。",
+    "stance forma": "架式 Forma",
+    "umbra forma": "Umbra Forma",
+    "botanist": "植物学家",
+    "riven": "裂罅",
+    "aya": "阿耶精华",
+    "desert skate specter": "沙漠鳐鱼魅影",
+    "deploys a desert skate unit to fight for you.": "设置一个为你战斗的沙漠鳐鱼魅影。",
+    "deploys a clone of the stalker to fight for you.": "部署一名追猎者分身为你作战。",
+    "stalker specter": "追猎者魅影",
+    "a collection of three stance formas.": "内含 3 个架式 Forma 的组合包。",
+    "stance forma bundle": "架式 Forma 组合包",
+    "deploys a clone of the surge eximus to fight for you.": "部署一名电涌卓越者分身为你作战。",
+    "surge eximus specter": "电涌卓越者魅影",
+    "vasca kavat starter kit": "噬血型库娃初心者套装",
     "elementa arcocanid": "元素弧犬",
     "cryonic arcocanid": "低温弧犬",
     "galvanic arcocanid": "电击弧犬",
@@ -8476,6 +8498,150 @@
     "venus bounty hunter": "金星赏金猎人",
     "start bounties by either talking to eudico in fortuna or going directly to the orb vallis and finding a solaris contact to speak to.": "通过与福尔图娜的 Eudico 交谈，或是直接前往奥布山谷，并找到可与之交谈的索拉里斯联系人来开始赏金任务。",
     "void net": "虚空之网",
+    "parci": "parci",
+    "pia": "pia",
+    "locti": "locti",
+    "tor": "tor",
+    "prola": "prola",
+    "go": "go",
+    "fraga": "fraga",
+    "tus": "tus",
+    "resi": "resi",
+    "nte": "nte",
+    "tori": "tori",
+    "uti": "uti",
+    "tia": "tia",
+    "arma": "arma",
+    "tin": "tin",
+    "tempi": "tempi",
+    "nem": "nem",
+    "manti": "manti",
+    "tron": "tron",
+    "cori": "cori",
+    "or": "or",
+    "crita": "crita",
+    "cron": "cron",
+    "acri": "acri",
+    "tis": "tis",
+    "visi": "visi",
+    "ata": "ata",
+    "vexi": "vexi",
+    "tio": "tio",
+    "igni": "igni",
+    "croni": "croni",
+    "dra": "dra",
+    "pha": "pha",
+    "ince": "ince",
+    "vus": "vus",
+    "geli": "geli",
+    "do": "do",
+    "cali": "cali",
+    "fel": "fel",
+    "perfri": "perfri",
+    "era": "era",
+    "argi": "argi",
+    "con": "con",
+    "termi": "termi",
+    "pio": "pio",
+    "robi": "robi",
+    "ndo": "ndo",
+    "veri": "veri",
+    "lus": "lus",
+    "auxi": "auxi",
+    "rro": "rro",
+    "magna": "magna",
+    "ton": "ton",
+    "pura": "pura",
+    "ada": "ada",
+    "magni": "magni",
+    "bra": "bra",
+    "ampi": "ampi",
+    "bin": "bin",
+    "laci": "laci",
+    "nus": "nus",
+    "forti": "forti",
+    "us": "us",
+    "para": "para",
+    "um": "um",
+    "exi": "exi",
+    "cta": "cta",
+    "sati": "sati",
+    "can": "can",
+    "archgun riven mod": "曲翼枪械裂罅 Mod",
+    "kitgun riven mod": "组合枪裂罅 Mod",
+    "melee riven mod": "近战裂罅 Mod",
+    "companion weapon riven mod": "同伴武器裂罅 Mod",
+    "pistol riven mod": "手枪裂罅 Mod",
+    "activate or equip this riven to reveal its unveiling challenge": "激活或装备这个裂罅 Mod 来揭开它的挑战",
+    "cycle riven into current selection?": "循环裂罅到当前的选择？",
+    "riven cycling": "裂罅循环",
+    "rifle riven mod": "步枪裂罅 Mod",
+    "a riven mod compatible with weapons used by robotic companions": "与机械式同伴所使用的武器相容的一张裂罅 Mod",
+    "shotgun riven mod": "霰弹枪裂罅 Mod",
+    "veiled": "尚未揭开",
+    "zaw riven mod": "Zaw 裂罅 Mod",
+    "effi": "effi",
+    "tas": "tas",
+    "defi": "defi",
+    "so": "so",
+    "deci": "deci",
+    "des": "des",
+    "conci": "conci",
+    "nak": "nak",
+    "lexi": "lexi",
+    "nok": "nok",
+    "insi": "insi",
+    "cak": "cak",
+    "radi": "radi",
+    "lo": "lo",
+    "zeti": "zeti",
+    "mag": "mag",
+    "feva": "feva",
+    "tak": "tak",
+    "exsi": "exsi",
+    "llo": "llo",
+    "proci": "proci",
+    "lam": "lam",
+    "sci": "sci",
+    "sus": "sus",
+    "pleci": "pleci",
+    "nent": "nent",
+    "reci": "reci",
+    "cul": "cul",
+    "hexa": "hexa",
+    "dex": "dex",
+    "plaga": "plaga",
+    "mna": "mna",
+    "muti": "muti",
+    "gia": "gia",
+    "toxi": "toxi",
+    "tox": "tox",
+    "ammo efficiency": "Ammo Efficiency",
+    "blast damage": "Blast Damage",
+    "corrosive damage": "Corrosive Damage",
+    "damage vs orokin": "Damage vs Orokin",
+    "damage vs scaldra": "Damage vs Scaldra",
+    "damage vs techrot": "Damage vs Techrot",
+    "gas damage": "Gas Damage",
+    "magazine reload while holstered": "Magazine Reload While Holstered",
+    "magnetic damage": "Magnetic Damage",
+    "heavy attack windup speed": "Heavy Attack Windup Speed",
+    "heavy attack damage": "Heavy Attack Damage",
+    "parry angle": "Parry Angle",
+    "slam damage": "Slam Damage",
+    "radiation damage": "Radiation Damage",
+    "status damage": "Status Damage",
+    "viral damage": "Viral Damage",
+    "weak point critical chance": "Weak Point Critical Chance",
+    "weak point damage": "Weak Point Damage",
+    "cari": "cari",
+    "sco": "sco",
+    "exiti": "exiti",
+    "eus": "eus",
+    "eni": "eni",
+    "vo": "vo",
+    "hera": "hera",
+    "lis": "lis",
     "team up with your fellow tenno to take down three massive eidolons.": "与你的 Tenno 战友一起击倒三只巨型夜灵。",
     "eidolon cull": "夜灵剔除",
     "a grineer leader will only show their face if we disrupt grineer operations across several fronts.": "一名 Grineer 领导者只会在我们干扰其多处前线行动的时候现身。",
@@ -9866,6 +10032,781 @@
     "you have undone the worst that the void could do, and humanity is within reach.": "你已经复原了虚空所做的一切坏事，并且人性近在咫尺。",
     "angel": "大天使",
     "you have become the savior both of the zariman and of her last remaining crew.": "你成为了「扎里曼号」和她仅存船员的救星。"
+  },
+  "templates": {
+    "<timer> chemistry resets in |time|": {
+      "en": "<TIMER> Chemistry resets in |TIME|",
+      "zh": "<TIMER> 好感度重置倒计时：|TIME|"
+    },
+    "next season: |time|": {
+      "en": "Next Season: |TIME|",
+      "zh": "下一个季节：|TIME|"
+    },
+    "total: |open_color||value||close_color|": {
+      "en": "Total: |OPEN_COLOR||VALUE||CLOSE_COLOR|",
+      "zh": "总计：|OPEN_COLOR||VALUE||CLOSE_COLOR|"
+    },
+    "use efervon charges: |count| remaining": {
+      "en": "Use Efervon Charges: |COUNT| Remaining",
+      "zh": "使用艾弗旺炸药：剩余 |COUNT| 个"
+    },
+    "stock: |open_color||num||close_color|": {
+      "en": "Stock: |OPEN_COLOR||NUM||CLOSE_COLOR|",
+      "zh": "库存：|OPEN_COLOR||NUM||CLOSE_COLOR|"
+    },
+    "for your security, this window will close in |time|": {
+      "en": "For your security, this window will close in |TIME|",
+      "zh": "为了您的安全，此窗口将在 |TIME|后关闭。"
+    },
+    "xtra cheese active: |time|": {
+      "en": "Xtra Cheese active: |TIME|",
+      "zh": "超多芝士已激活：|TIME|"
+    },
+    "xtra cheese starts in: |time|": {
+      "en": "Xtra Cheese starts in: |TIME|",
+      "zh": "超多芝士激活倒计时：|TIME|"
+    },
+    "complete this mission |count| time to unlock |target|": {
+      "en": "Complete this mission |COUNT| time to unlock |TARGET|",
+      "zh": "完成此任务 |COUNT| 次即可解锁|TARGET|"
+    },
+    "complete this mission |count| times to unlock |target|": {
+      "en": "Complete this mission |COUNT| times to unlock |TARGET|",
+      "zh": "完成此任务 |COUNT| 次即可解锁|TARGET|"
+    },
+    "|open_bold|memories have been reset|close_bold|\\n|open_color|next reset in: |close_color||time|": {
+      "en": "|OPEN_BOLD|MEMORIES HAVE BEEN RESET|CLOSE_BOLD|\\n|OPEN_COLOR|Next Reset in: |CLOSE_COLOR||TIME|",
+      "zh": "|OPEN_BOLD|记忆已重置|CLOSE_BOLD|\\n|OPEN_COLOR|下次重置时间：|CLOSE_COLOR||TIME|"
+    },
+    "infernum |num|": {
+      "en": "INFERNUM |NUM|",
+      "zh": "炼狱 |NUM|"
+    },
+    "|type|: act |num|": {
+      "en": "|TYPE|: Act |NUM|",
+      "zh": "|TYPE|：行动 |NUM|"
+    },
+    "conditions refresh in:\\n|open_color|<timer><b>|time|</b>|close_color|": {
+      "en": "Conditions refresh in:\\n|OPEN_COLOR|<TIMER><b>|TIME|</b>|CLOSE_COLOR|",
+      "zh": "条件刷新倒计时：\\n|OPEN_COLOR|<TIMER><b>|TIME|</b>|CLOSE_COLOR|"
+    },
+    "complete |name| with at least |open_color||num||close_color| research points to receive one of the following:": {
+      "en": "Complete |NAME| with at least |OPEN_COLOR||NUM||CLOSE_COLOR| Research Points to receive one of the following: ",
+      "zh": "完成|NAME|，研究点数至少为 |OPEN_COLOR||NUM||CLOSE_COLOR| 即可获得以下奖励之一： "
+    },
+    "|num| stacks": {
+      "en": "|NUM| Stacks",
+      "zh": "|NUM| 层"
+    },
+    "blast radius of weapons with radial attacks is set to |val|m.": {
+      "en": "Blast radius of weapons with radial attacks is set to |val|m.",
+      "zh": "具有范围攻击的武器爆炸半径固定为 |val| 米。"
+    },
+    "casting an ability reduces armor by |percent|% for 10s.": {
+      "en": "Casting an ability reduces armor by |PERCENT|% for 10s.",
+      "zh": "施放技能会使护甲降低 |PERCENT|%，持续 10 秒。"
+    },
+    "ability range reduced by |val|%.": {
+      "en": "Ability range reduced by |val|%.",
+      "zh": "技能范围减少 |val|%。"
+    },
+    "shield recharge delay increased |val|%.": {
+      "en": "Shield recharge delay increased |val|%.",
+      "zh": "护盾充能延迟增加 |val|%。"
+    },
+    "ability durations reduced by |val|%.": {
+      "en": "Ability durations reduced by |val|%.",
+      "zh": "技能持续时间减少 |val|%。"
+    },
+    "rogue necramech eximus defeated. mission timer reduced by |amount|s.": {
+      "en": "Rogue Necramech Eximus defeated. Mission Timer reduced by |AMOUNT|s.",
+      "zh": "暴戾殁世机甲卓越者被击败。任务计时器减少 |AMOUNT| 秒。"
+    },
+    "activated (mission |num|)": {
+      "en": "Activated (Mission |NUM|)",
+      "zh": "已激活（任务 |NUM|）"
+    },
+    "mission |num|": {
+      "en": "Mission |NUM|",
+      "zh": "任务 |NUM|"
+    },
+    "activate |count| lohk surges": {
+      "en": "Activate |COUNT| Lohk Surges",
+      "zh": "激活 |COUNT| 个虚空泉脉"
+    },
+    "hit |count| enemies with electric amphors": {
+      "en": "Hit |COUNT| enemies with Electric Amphors",
+      "zh": "使用电击元素瓶击中 |COUNT| 名敌人"
+    },
+    "hit |count| enemies with fire amphors": {
+      "en": "Hit |COUNT| enemies with Fire Amphors",
+      "zh": "使用火焰元素瓶击中 |COUNT| 名敌人"
+    },
+    "hit |count| enemies with cold amphors": {
+      "en": "Hit |COUNT| enemies with Cold Amphors",
+      "zh": "使用冰冻元素瓶击中 |COUNT| 名敌人"
+    },
+    "hit |count| enemies with toxin amphors": {
+      "en": "Hit |COUNT| enemies with Toxin Amphors",
+      "zh": "使用毒素元素瓶击中 |COUNT| 名敌人"
+    },
+    "collect |count| murmur eyes": {
+      "en": "Collect |COUNT| Murmur Eyes",
+      "zh": "收集 |COUNT| 个低语者之眼"
+    },
+    "collect vosphene glyphs to active |count| defenses": {
+      "en": "Collect Vosphene Glyphs to active |COUNT| defenses",
+      "zh": "收集荧音浮印以激活 |COUNT| 次防御力量"
+    },
+    "destroy |count| decorations": {
+      "en": "Destroy |COUNT| decorations",
+      "zh": "摧毁 |COUNT| 个装饰物"
+    },
+    "destroy |count| demolisher limbs": {
+      "en": "Destroy |COUNT| Demolisher limbs",
+      "zh": "摧毁 |COUNT| 个爆破型殁世机甲的四肢"
+    },
+    "kill |count| flying murmur enemies": {
+      "en": "Kill |COUNT| flying Murmur enemies",
+      "zh": "杀死 |COUNT| 个飞行的低语者敌人"
+    },
+    "eliminate |count| murmur enemies": {
+      "en": "Eliminate |COUNT| Murmur enemies",
+      "zh": "消灭 |COUNT| 名低语者敌人"
+    },
+    "douse |count| enemies with vitriol": {
+      "en": "Douse |COUNT| enemies with Vitriol",
+      "zh": "用硫酸泼向 |COUNT| 名敌人"
+    },
+    "eliminate |count| rogue voidrigs": {
+      "en": "Eliminate |COUNT| Rogue Voidrigs",
+      "zh": "消灭 |COUNT| 名暴戾虚空锐将"
+    },
+    "find |count| murmur sarcophages": {
+      "en": "Find |COUNT| Murmur Sarcophages",
+      "zh": "找到 |COUNT| 个低语者石棺"
+    },
+    "destroy |count| culverin weak points": {
+      "en": "Destroy |COUNT| Culverin weak points",
+      "zh": "摧毁 |COUNT| 个重型炮兵的弱点"
+    },
+    "cascading fragmentation increased! |amount| stacks": {
+      "en": "Cascading Fragmentation Increased! |AMOUNT| stacks",
+      "zh": "链式崩解增加！层数：|AMOUNT|"
+    },
+    "|value| remains": {
+      "en": "|VALUE| REMAINS",
+      "zh": "剩余 |VALUE|"
+    },
+    "murex wave inbound: |value|": {
+      "en": "MUREX WAVE INBOUND: |VALUE|",
+      "zh": "骨螺战舰波次逼近：|VALUE|"
+    },
+    "manifests decrypted: |count|": {
+      "en": "Manifests Decrypted: |COUNT|",
+      "zh": "已解密清单：|COUNT|"
+    },
+    "manifests decrypted: |count| of |total|": {
+      "en": "Manifests Decrypted: |COUNT| of |TOTAL|",
+      "zh": "已解密清单：|COUNT| / |TOTAL|"
+    },
+    "kill |count| ravenous void angels": {
+      "en": "Kill |COUNT| Ravenous Void Angels",
+      "zh": "击杀 |COUNT| 名贪婪虚空天使"
+    },
+    "activate |count| exolizers": {
+      "en": "Activate |COUNT| Exolizers",
+      "zh": "激活 |COUNT| 个无垢装置"
+    },
+    "close |count| ruptures": {
+      "en": "Close |COUNT| Ruptures",
+      "zh": "封闭 |COUNT| 个裂口"
+    },
+    "converts secondary ammo pickups to |percent|% of ammo pick up.": {
+      "en": "Converts Secondary ammo pickups to |PERCENT|% of Ammo Pick Up.",
+      "zh": "将拾取的次要武器弹药转换为 |PERCENT|% 弹药拾取。"
+    },
+    "the kavat unleashes a blood-curdling roar, striking fear into |count| enemies within |range|m for |duration|s.": {
+      "en": "The Kavat unleashes a blood-curdling roar, striking fear into |COUNT| enemies within |RANGE|m for |DURATION|s.",
+      "zh": "库娃发出令人毛骨悚然的吼叫，对 |RANGE| 米范围的|COUNT| 名敌人心中烙下长达|DURATION| 秒的恐惧。"
+    },
+    "a vicious attack dealing |percent|% damage that sunders armor by |armour|% and rends flesh.": {
+      "en": "A vicious attack dealing |PERCENT|% damage that sunders armor by |ARMOUR|% and rends flesh.",
+      "zh": "造成 |PERCENT|% 伤害并破除 |ARMOUR|% 护甲和撕裂肉体的一次恶毒攻击。"
+    },
+    "when its master is bleeding out, the vasca kavat sacrifices <lower_is_better>|val|% of its health to raise them.": {
+      "en": "When its Master is bleeding out, the Vasca Kavat sacrifices <LOWER_IS_BETTER>|VAL|% of its Health to raise them.",
+      "zh": "当主人出血濒死时，噬血型库娃会牺牲它 <LOWER_IS_BETTER>|VAL|% 的生命值来救起他们。"
+    },
+    "energy shell augment: energy shell applies to allies within |val|m.": {
+      "en": "Energy Shell Augment: Energy Shell applies to allies within |val|m.",
+      "zh": "能量护罩强化：能量护罩能作用在 |val| 米范围内的队友身上。"
+    },
+    "|amount| minutes |type|": {
+      "en": "|AMOUNT| MINUTES |TYPE|",
+      "zh": "|AMOUNT| 分钟 |TYPE|"
+    },
+    "|amount| uses |type|": {
+      "en": "|AMOUNT| USES |TYPE|",
+      "zh": "|AMOUNT| 使用次数 |TYPE|"
+    },
+    "the kubrow cries out with a blood-curdling howl that strikes fear into |count| enemies within |range|m for |duration|s.": {
+      "en": "The kubrow cries out with a blood-curdling howl that strikes fear into |COUNT| enemies within |RANGE|m for |DURATION|s.",
+      "zh": "库狛发出令人毛骨悚然的嚎叫，对 |RANGE| 米范围的|COUNT| 名敌人心中烙下长达|DURATION| 秒的恐惧。"
+    },
+    "the kubrow rushes at |count| enemies within |range|m, dealing damage and knocking them over.": {
+      "en": "The Kubrow rushes at |COUNT| enemies within |RANGE|m, dealing damage and knocking them over.",
+      "zh": "库狛冲向 |RANGE| 米范围内的 |COUNT| 个敌人，造成伤害并将其击倒。"
+    },
+    "|val|% chance for the pet to pry open a locked locker.": {
+      "en": "|val|% chance for the pet to pry open a locked locker.",
+      "zh": "宠物有 |val|% 的机会打开锁住的储物柜。"
+    },
+    "|item| x |num| blueprint": {
+      "en": "|ITEM| x |NUM| Blueprint",
+      "zh": "|ITEM| x |NUM| 蓝图"
+    },
+    "|item| x |num|": {
+      "en": "|ITEM| x |NUM|",
+      "zh": "|ITEM| × |NUM|"
+    },
+    "|item| x |num| research": {
+      "en": "|ITEM| x |NUM| RESEARCH",
+      "zh": "|ITEM| 研究 x |NUM|"
+    },
+    "converts primary ammo pickups to |percent|% of ammo pick up.": {
+      "en": "Converts Primary ammo pickups to |PERCENT|% of Ammo Pick Up.",
+      "zh": "将拾取的主要武器弹药转换为 |PERCENT|% 弹药拾取。"
+    },
+    "energy orbs reduce sentinel recovery timer by |time|s. djinn recovers with |overshields| overshields per energy orb collected. djinn's max overshields increase by |overshieldcap|.": {
+      "en": "Energy Orbs reduce Sentinel Recovery timer by |TIME|s. Djinn recovers with |OVERSHIELDS| Overshields per Energy Orb collected. Djinn's max Overshields increase by |OVERSHIELDCAP|.",
+      "zh": "能量球可减少 |TIME| 秒守护恢复倒计时。每收集一个能量球，引灵会恢复 |OVERSHIELDS| 过载护盾。引灵的最大过载护盾增加 |OVERSHIELDCAP|。"
+    },
+    "sentinel incapacitates itself to revive its downed owner to |percent|% health and shields in <lower_is_better>|time|s. sentinel recovery timer increases by |penalty|s.": {
+      "en": "Sentinel incapacitates itself to revive its downed owner to |PERCENT|% health and shields in <LOWER_IS_BETTER>|TIME|s. Sentinel Recovery timer increases by |PENALTY|s.",
+      "zh": "守护使自己失去战斗能力，在 <LOWER_IS_BETTER>|TIME| 秒内复活其倒地的主人，使其恢复 |PERCENT|% 的生命值和护盾。守护恢复倒计时增加 |PENALTY| 秒。"
+    },
+    "cosmic crush augment: the black hole saps the area of heat, freezing enemies in range. enemies near the black hole are completely frozen for |val|s.": {
+      "en": "Cosmic Crush Augment: The black hole saps the area of heat, freezing enemies in range. Enemies near the black hole are completely frozen for |val|s.",
+      "zh": "星体震荡强化：黑洞可以削弱范围内的热能并完全冻结附近的敌人 |val| 秒。"
+    },
+    "health pickups give |val|% energy. energy pickups give |val|% health.": {
+      "en": "Health pickups give |val|% Energy. Energy pickups give |val|% Health.",
+      "zh": "拾取生命球额外获得 |val|% 能量。拾取能量球额外获得 |val|% 生命。"
+    },
+    "|open_color||val||close_color| health": {
+      "en": "|OPEN_COLOR||val||CLOSE_COLOR| Health",
+      "zh": "|OPEN_COLOR||val||CLOSE_COLOR| 生命值"
+    },
+    "kill |count| enemies while aim gliding": {
+      "en": "Kill |COUNT| Enemies while Aim Gliding",
+      "zh": "飞身瞄准时击杀 |COUNT| 名敌人"
+    },
+    "bullet jump |count| times.": {
+      "en": "Bullet Jump |COUNT| times.",
+      "zh": "旋身飞跃 |COUNT| 次。"
+    },
+    "scan |count| objects or enemies.": {
+      "en": "Scan |COUNT| Objects or Enemies.",
+      "zh": "扫描 |COUNT| 次物件或敌人。"
+    },
+    "pick up |count| credits.": {
+      "en": "Pick up |COUNT| Credits.",
+      "zh": "拾取 |COUNT| 现金。"
+    },
+    "collect |count| resources": {
+      "en": "Collect |COUNT| Resources",
+      "zh": "收集 |COUNT| 个资源"
+    },
+    "kill |count| enemies with ground slams.": {
+      "en": "Kill |COUNT| enemies with ground slams.",
+      "zh": "使用震地攻击击杀 |COUNT| 名敌人。"
+    },
+    "kill |count| enemies while riding a k-drive, kaithe, velocipod, or atomicycle.": {
+      "en": "Kill |COUNT| enemies while riding a K-Drive, Kaithe, Velocipod, or Atomicycle.",
+      "zh": "骑乘 K 式悬浮板、绝灵骥、迅敏节虫或原子摩托车时击杀 |COUNT| 名敌人。"
+    },
+    "kill |count| enemies with abilities.": {
+      "en": "Kill |COUNT| Enemies with Abilities.",
+      "zh": "使用技能击杀 |COUNT| 名敌人。"
+    },
+    "kill |count| enemies with <dt_explosion>blast damage.": {
+      "en": "Kill |COUNT| Enemies with <DT_EXPLOSION>Blast Damage.",
+      "zh": "使用<DT_EXPLOSION>爆炸伤害击杀 |COUNT| 名敌人。"
+    },
+    "kill |count| enemies with <dt_corrosive>corrosive damage.": {
+      "en": "Kill |COUNT| Enemies with <DT_CORROSIVE>Corrosive Damage.",
+      "zh": "使用<DT_CORROSIVE>腐蚀伤害击杀 |COUNT| 名敌人。"
+    },
+    "kill |count| enemies with <dt_electricity>electricity damage.": {
+      "en": "Kill |COUNT| Enemies with <DT_ELECTRICITY>Electricity Damage.",
+      "zh": "使用<DT_ELECTRICITY>电击伤害击杀 |COUNT| 名敌人。"
+    },
+    "kill |count| enemies with finishers.": {
+      "en": "Kill |COUNT| Enemies with Finishers.",
+      "zh": "处决击杀 |COUNT| 名敌人。"
+    },
+    "kill |count| enemies with <dt_fire>heat damage.": {
+      "en": "Kill |COUNT| Enemies with <DT_FIRE>Heat Damage.",
+      "zh": "使用<DT_FIRE>火焰伤害击杀 |COUNT| 名敌人。"
+    },
+    "kill |count| enemies with <dt_freeze>cold damage.": {
+      "en": "Kill |COUNT| Enemies with <DT_FREEZE>Cold Damage.",
+      "zh": "使用<DT_FREEZE>冰冻伤害击杀 |COUNT| 名敌人。"
+    },
+    "kill |count| enemies with <dt_gas>gas damage.": {
+      "en": "Kill |COUNT| Enemies with <DT_GAS>Gas Damage.",
+      "zh": "使用<DT_GAS>毒气伤害击杀 |COUNT| 名敌人。"
+    },
+    "kill |count| enemies with headshots.": {
+      "en": "Kill |COUNT| Enemies with Headshots.",
+      "zh": "爆头击杀 |COUNT| 名敌人。"
+    },
+    "kill |count| enemies with <dt_magnetic>magnetic damage.": {
+      "en": "Kill |COUNT| Enemies with <DT_MAGNETIC>Magnetic Damage.",
+      "zh": "使用<DT_MAGNETIC>磁力伤害击杀 |COUNT| 名敌人。"
+    },
+    "kill |count| enemies with a melee weapon.": {
+      "en": "Kill |COUNT| Enemies with a Melee Weapon.",
+      "zh": "使用近战武器击杀 |COUNT| 名敌人。"
+    },
+    "kill |count| enemies with <dt_poison>toxin damage.": {
+      "en": "Kill |COUNT| Enemies with <DT_POISON>Toxin Damage.",
+      "zh": "使用<DT_POISON>毒素伤害击杀 |COUNT| 名敌人。"
+    },
+    "kill |count| enemies with a primary weapon.": {
+      "en": "Kill |COUNT| Enemies with a Primary Weapon.",
+      "zh": "使用主要武器击杀 |COUNT| 名敌人。"
+    },
+    "kill |count| enemies with <dt_radiation>radiation damage.": {
+      "en": "Kill |COUNT| Enemies with <DT_RADIATION>Radiation Damage.",
+      "zh": "使用<DT_RADIATION>辐射伤害击杀 |COUNT| 名敌人。"
+    },
+    "kill |count| enemies with a secondary weapon.": {
+      "en": "Kill |COUNT| Enemies with a Secondary Weapon.",
+      "zh": "使用次要武器击杀 |COUNT| 名敌人。"
+    },
+    "kill |count| enemies with <dt_viral>viral damage.": {
+      "en": "Kill |COUNT| Enemies with <DT_VIRAL>Viral Damage.",
+      "zh": "使用<DT_VIRAL>病毒伤害击杀 |COUNT| 名敌人。"
+    },
+    "kill |count| enemies.": {
+      "en": "Kill |COUNT| Enemies.",
+      "zh": "击杀 |COUNT| 名敌人。"
+    },
+    "open |count| lockers.": {
+      "en": "Open |COUNT| Lockers.",
+      "zh": "打开 |COUNT| 个储物柜。"
+    },
+    "pick up |count| energy orbs.": {
+      "en": "Pick up |COUNT| Energy Orbs.",
+      "zh": "拾取 |COUNT| 个能量球。"
+    },
+    "find |count| syndicate medallions. you can search by yourself or with a squad.": {
+      "en": "Find |COUNT| Syndicate Medallions. You can search by yourself or with a squad.",
+      "zh": "找到 |COUNT| 集团奖章。可以自己搜索，也可以组队搜索。"
+    },
+    "pick up |count| mods.": {
+      "en": "Pick up |COUNT| Mods.",
+      "zh": "拾取 |COUNT| 个 Mod。"
+    },
+    "mark |count| mods or resources.": {
+      "en": "Mark |COUNT| Mods or Resources.",
+      "zh": "标记 |COUNT| 个 Mod 或资源。"
+    },
+    "play |count| emote.": {
+      "en": "Play |COUNT| Emote.",
+      "zh": "使用 |COUNT| 个表情动作。"
+    },
+    "kill |count| enemies while sliding.": {
+      "en": "Kill |COUNT| Enemies while Sliding.",
+      "zh": "滑行时击杀 |COUNT| 名敌人。"
+    },
+    "hack |count| consoles.": {
+      "en": "Hack |COUNT| Consoles.",
+      "zh": "入侵 |COUNT| 个控制台。"
+    },
+    "kill |count| enemies using a necramech while hovering.": {
+      "en": "Kill |COUNT| enemies using a Necramech while hovering.",
+      "zh": "使用殁世机甲在空中悬浮时击杀 |COUNT| 名敌人。"
+    },
+    "kill |count| drones or ospreys with your melee weapon.": {
+      "en": "Kill |COUNT| Drones or Ospreys with your Melee Weapon.",
+      "zh": "使用近战武器击杀 |COUNT| 架无人机或鱼鹰。"
+    },
+    "complete |count| mod transmutations": {
+      "en": "Complete |COUNT| Mod Transmutations",
+      "zh": "完成 |COUNT| 次 Mod 转换"
+    },
+    "kill |count| enemies with a primary bow.": {
+      "en": "Kill |COUNT| enemies with a Primary Bow.",
+      "zh": "使用主要弓箭击杀 |COUNT| 名敌人。"
+    },
+    "catch |count| rare fish in the plains of eidolon.": {
+      "en": "Catch |COUNT| Rare Fish in the Plains of Eidolon.",
+      "zh": "在夜灵平野捕捉 |COUNT| 条稀有鱼。"
+    },
+    "catch |count| rare servofish in the orb vallis.": {
+      "en": "Catch |COUNT| Rare Servofish in the Orb Vallis.",
+      "zh": "在奥布山谷捕捉 |COUNT| 条稀有伺服鱼。"
+    },
+    "collect |count| resources from duviri": {
+      "en": "Collect |COUNT| resources from Duviri",
+      "zh": "从双衍王境收集 |COUNT| 个资源"
+    },
+    "complete |count| assassination missions.": {
+      "en": "Complete |COUNT| Assassination missions.",
+      "zh": "完成 |COUNT| 项刺杀任务。"
+    },
+    "complete |count| capture missions.": {
+      "en": "Complete |COUNT| Capture missions.",
+      "zh": "完成 |COUNT| 项捕获任务。"
+    },
+    "complete |count| conduits in disruption": {
+      "en": "Complete |COUNT| Conduits in Disruption",
+      "zh": "在中断任务中完成 |COUNT| 个导管"
+    },
+    "complete |count| exterminate missions.": {
+      "en": "Complete |COUNT| Exterminate missions.",
+      "zh": "完成 |COUNT| 项歼灭任务。"
+    },
+    "complete |count| invasion missions of any type.": {
+      "en": "Complete |COUNT| Invasion missions of any type.",
+      "zh": "完成 |COUNT| 项任何类型的入侵任务。"
+    },
+    "complete |count| kuva siphon missions": {
+      "en": "Complete |COUNT| Kuva Siphon Missions",
+      "zh": "完成 |COUNT| 个赤毒虹吸器任务"
+    },
+    "complete |count| mobile defense missions.": {
+      "en": "Complete |COUNT| Mobile Defense missions.",
+      "zh": "完成 |COUNT| 项移动防御任务。"
+    },
+    "complete |count| nightmare missions of any type.": {
+      "en": "Complete |COUNT| Nightmare missions of any type.",
+      "zh": "完成 |COUNT| 项任何类型的噩梦任务。"
+    },
+    "complete |count| rescue missions.": {
+      "en": "Complete |COUNT| Rescue missions.",
+      "zh": "完成 |COUNT| 项救援任务。"
+    },
+    "complete |count| sabotage missions.": {
+      "en": "Complete |COUNT| Sabotage missions.",
+      "zh": "完成 |COUNT| 项破坏任务。"
+    },
+    "complete |count| sortie.": {
+      "en": "Complete |COUNT| Sortie.",
+      "zh": "完成 |COUNT| 次突击。"
+    },
+    "complete |count| spy missions.": {
+      "en": "Complete |COUNT| Spy missions.",
+      "zh": "完成 |COUNT| 项间谍任务。"
+    },
+    "complete |count| syndicate missions.": {
+      "en": "Complete |COUNT| Syndicate missions.",
+      "zh": "完成 |COUNT| 项集团任务。"
+    },
+    "complete |count| void armageddon missions.": {
+      "en": "Complete |COUNT| Void Armageddon missions.",
+      "zh": "完成 |COUNT| 场虚空决战任务。"
+    },
+    "gild |count| modular items": {
+      "en": "Gild |COUNT| Modular Items",
+      "zh": "镀金 |COUNT| 个模块物品"
+    },
+    "open one of each era/tier of relic (lith, meso, neo, axi) |count|.": {
+      "en": "Open one of each era/tier of Relic (Lith, Meso, Neo, Axi) |COUNT|.",
+      "zh": "开启每个类型 |COUNT| 的遗物（古纪、前纪、中纪、后纪）。"
+    },
+    "open one of each era/tier of relic (|req_voidt1|, |req_voidt2|, |req_voidt3|, |req_voidt4|, |req_voidt5|) |count|.": {
+      "en": "Open one of each era/tier of Relic (|Req_VoidT1|, |Req_VoidT2|, |Req_VoidT3|, |Req_VoidT4|, |Req_VoidT5|) |COUNT|.",
+      "zh": "打开每个纪元/等级的遗物（|Req_VoidT1|，|Req_VoidT2|，|Req_VoidT3|，|Req_VoidT4|，|Req_VoidT5|）|COUNT|。"
+    },
+    "complete the perita rebellion with |count| or more orders completed.": {
+      "en": "Complete The Perita Rebellion with |COUNT| or more orders completed.",
+      "zh": "完成佩里塔叛乱，并且完成至少 |COUNT| 个命令。"
+    },
+    "activate the incarnon form of any incarnon weapon in-mission |count| times": {
+      "en": "Activate the Incarnon Form of any Incarnon weapon in-mission |COUNT| times",
+      "zh": "在任务中激活任意灵化武器的灵化形态 |COUNT| 次"
+    },
+    "collect |count| different types of resources.": {
+      "en": "Collect |COUNT| different types of resources.",
+      "zh": "收集 |COUNT| 种不同类型的资源。"
+    },
+    "complete |count| sorties.": {
+      "en": "Complete |COUNT| Sorties.",
+      "zh": "完成 |COUNT| 次突击。"
+    },
+    "complete |count| different steel path missions.": {
+      "en": "Complete |COUNT| different Steel Path Missions.",
+      "zh": "完成 |COUNT| 场不同的钢铁之路任务。"
+    },
+    "complete |count| successful conversions in the alchemy game mode.": {
+      "en": "Complete |COUNT| successful Conversions in the Alchemy game mode.",
+      "zh": "在元素转换游戏模式中完成 |COUNT| 次成功转换。"
+    },
+    "complete |count| zones of elite sanctuary onslaught.": {
+      "en": "Complete |COUNT| Zones of Elite Sanctuary Onslaught.",
+      "zh": "完成 |COUNT| 个精英级圣殿突袭区域。"
+    },
+    "complete |count| void armageddon rounds.": {
+      "en": "Complete |COUNT| Void Armageddon rounds.",
+      "zh": "完成 |COUNT| 场虚空决战回合。"
+    },
+    "defeat |count| void angels in the zariman.": {
+      "en": "Defeat |COUNT| Void Angels in the Zariman. ",
+      "zh": "在扎里曼号上击杀 |COUNT| 个虚空天使。 "
+    },
+    "close |count| ruptures in void flood": {
+      "en": "Close |COUNT| Ruptures in Void Flood",
+      "zh": "在虚空洪流中封闭 |COUNT| 个裂口"
+    },
+    "collect |count| mushrooms from the deepmines.": {
+      "en": "Collect |COUNT| mushrooms from the Deepmines.",
+      "zh": "从深矿中收集 |COUNT| 个蘑菇。"
+    },
+    "kill |count| enemies on the steel path.": {
+      "en": "Kill |COUNT| Enemies on The Steel Path.",
+      "zh": "在钢铁之路击杀 |COUNT| 名敌人。"
+    },
+    "kill |count| eximus.": {
+      "en": "Kill |COUNT| Eximus.",
+      "zh": "击杀 |COUNT| 名卓越者。"
+    },
+    "complete |count| halls of ascension on lua.": {
+      "en": "Complete |COUNT| Halls of Ascension on Lua.",
+      "zh": "完成 |COUNT| 间月球上的晋升大厅。"
+    },
+    "complete |count| railjack missions": {
+      "en": "Complete |COUNT| Railjack Missions",
+      "zh": "完成 |COUNT| 项航道星舰任务"
+    },
+    "kill |count| enemies using a necramech without getting destroyed.": {
+      "en": "Kill |COUNT| enemies using a Necramech without getting destroyed.",
+      "zh": "使用殁世机甲击杀 |COUNT| 名敌人并且不被摧毁。"
+    },
+    "destroy |count| necramech vault guardians.": {
+      "en": "Destroy |COUNT| Necramech vault guardians.",
+      "zh": "消灭 |COUNT| 名隔离库殁世机甲守卫。"
+    },
+    "unlock |count| relics": {
+      "en": "Unlock |COUNT| Relics",
+      "zh": "解开 |COUNT| 个遗物"
+    },
+    "complete |count| bounties in the zariman.": {
+      "en": "Complete |COUNT| Bounties in the Zariman.",
+      "zh": "在扎里曼号完成 |COUNT| 次赏金任务。"
+    },
+    "complete |count| void flood missions.": {
+      "en": "Complete |COUNT| Void Flood missions.",
+      "zh": "完成 |COUNT| 场虚空洪流任务。"
+    },
+    "fly your kaithe for |count| meters": {
+      "en": "Fly your Kaithe for |COUNT| meters",
+      "zh": "驾驭绝灵骥飞行 |COUNT| 米"
+    },
+    "collect |count| decrees in a single duviri session, or run of the circuit.": {
+      "en": "Collect |COUNT| Decrees in a single Duviri session, or run of The Circuit.",
+      "zh": "在单次双衍王境进程或无尽回廊中收集 |COUNT| 个王令。"
+    },
+    "kill |count| enemies with an archgun": {
+      "en": "Kill |COUNT| enemies with an Archgun",
+      "zh": "使用曲翼枪械击杀 |COUNT| 名敌人"
+    },
+    "kill |count| enemies with a necramech.": {
+      "en": "Kill |COUNT| enemies with a Necramech.",
+      "zh": "使用殁世机甲击杀 |COUNT| 名敌人。"
+    },
+    "kill |count| enemies with head shots.": {
+      "en": "Kill |COUNT| Enemies with head shots.",
+      "zh": "爆头击杀 |COUNT| 名敌人。"
+    },
+    "gain a total of |count| standing across all syndicate factions.": {
+      "en": "Gain a total of |COUNT| Standing across all Syndicate factions.",
+      "zh": "获得 |COUNT| 任意集团的声望。"
+    },
+    "mine |count| rare gems or ore in the plains of eidolon.": {
+      "en": "Mine |COUNT| Rare Gems or Ore in the Plains of Eidolon.",
+      "zh": "在夜灵平野中开采到 |COUNT| 次稀有宝石或矿石。"
+    },
+    "mine |count| rare gems or ore in the orb vallis.": {
+      "en": "Mine |COUNT| Rare Gems or Ore in the Orb Vallis.",
+      "zh": "在奥布山谷中开采到 |COUNT| 次稀有宝石或矿石。"
+    },
+    "collect |count| vome or fass residue in the cambion drift.": {
+      "en": "Collect |COUNT| Vome or Fass Residue in the Cambion Drift.",
+      "zh": "在魔胎之境中收集 |COUNT| 个\"秩序\"或\"混乱\"的残留物。"
+    },
+    "complete |count| different perfect animal captures in orb vallis.": {
+      "en": "Complete |COUNT| different Perfect Animal Captures in Orb Vallis.",
+      "zh": "在奥布山谷完成 |COUNT| 个不同动物的完美捕获。"
+    },
+    "complete |count| missions": {
+      "en": "Complete |COUNT| missions",
+      "zh": "完成 |COUNT| 项任务"
+    },
+    "pick up |count| rare mods": {
+      "en": "Pick up |COUNT| Rare Mods",
+      "zh": "拾取 |COUNT| 个稀有 Mod"
+    },
+    "complete |count| bounties in the plains of eidolon.": {
+      "en": "Complete |COUNT| Bounties in the Plains of Eidolon.",
+      "zh": "在夜灵平野完成 |COUNT| 个赏金任务。"
+    },
+    "kill |count| enemies with a primary rifle.": {
+      "en": "Kill |COUNT| enemies with a Primary Rifle.",
+      "zh": "使用主要步枪击杀 |COUNT| 名敌人。"
+    },
+    "find |count| caches across any mission.": {
+      "en": "Find |COUNT| caches across any mission.",
+      "zh": "在任意任务中找到 |COUNT| 个储藏箱。"
+    },
+    "complete |count| zones of sanctuary onslaught.": {
+      "en": "Complete |COUNT| Zones of Sanctuary Onslaught.",
+      "zh": "完成 |COUNT| 个圣殿突袭的区域。"
+    },
+    "kill |count| enemies with a primary shotgun.": {
+      "en": "Kill |COUNT| enemies with a Primary Shotgun.",
+      "zh": "使用主要霰弹枪击杀 |COUNT| 名敌人。"
+    },
+    "complete |count| scans for cephalon simaris.": {
+      "en": "Complete |COUNT| Scans for Cephalon Simaris.",
+      "zh": "完成 |COUNT| 个中枢 Simaris 的扫描。"
+    },
+    "kill |count| dax enemies in duviri": {
+      "en": "Kill |COUNT| Dax enemies in Duviri",
+      "zh": "在双衍王境击杀 |COUNT| 名禁卫敌人"
+    },
+    "kill |count| enemies with a primary sniper rifle.": {
+      "en": "Kill |COUNT| enemies with a Primary Sniper Rifle.",
+      "zh": "使用主要狙击步枪击杀 |COUNT| 名敌人。"
+    },
+    "unlock |count| dragon key vaults on deimos.": {
+      "en": "Unlock |COUNT| Dragon Key vaults on Deimos.",
+      "zh": "解锁 |COUNT| 个火卫二龙钥宝库。"
+    },
+    "complete |count| bounties in the orb vallis.": {
+      "en": "Complete |COUNT| Bounties in the Orb Vallis.",
+      "zh": "在奥布山谷完成 |COUNT| 个赏金任务。"
+    },
+    "collect |count| void traces.": {
+      "en": "Collect |COUNT| Void Traces.",
+      "zh": "收集 |COUNT| 个虚空光体。"
+    },
+    "complete |count| different bounties in the zariman.": {
+      "en": "Complete |COUNT| different Bounties in the Zariman.",
+      "zh": "在扎里曼号完成 |COUNT| 项不同的赏金任务。"
+    },
+    "refine |quality| (|num|<luminous>)": {
+      "en": "REFINE |QUALITY| (|NUM|<LUMINOUS>)",
+      "zh": "精炼 |QUALITY|（|NUM|<LUMINOUS>）"
+    },
+    "radiant |count|": {
+      "en": "RADIANT |COUNT|",
+      "zh": "光辉 |COUNT|"
+    },
+    "|count| relics opened": {
+      "en": "|COUNT| RELICS OPENED",
+      "zh": "|COUNT| 已经打开的遗物数"
+    },
+    "|val| 'truth'": {
+      "en": "|val| 'Truth'",
+      "zh": "|val| '真相'"
+    },
+    "|val| 'entropy'": {
+      "en": "|val| 'Entropy'",
+      "zh": "|val| '熵数'"
+    },
+    "daily cap (|time|)": {
+      "en": "DAILY CAP (|TIME|)",
+      "zh": "每日上限 (|TIME|)"
+    },
+    "synthesize: |target| x |num|": {
+      "en": "Synthesize: |TARGET| x |NUM|",
+      "zh": "结合目标：|TARGET| x |NUM|"
+    },
+    "|val| remaining": {
+      "en": "|VAL| Remaining",
+      "zh": "剩余 |VAL|"
+    },
+    "extra standing possible today (|time|)": {
+      "en": "Extra Standing Possible Today (|TIME|)",
+      "zh": "今天可能获得的额外声望 (|TIME|)"
+    },
+    "|val| remaining (|val2|)": {
+      "en": "|VAL| Remaining (|VAL2|)",
+      "zh": "剩余 |VAL|（|VAL2|）"
+    },
+    "this reward has already been earned. you will receive |item_name| x |count| instead.": {
+      "en": "This reward has already been earned. You will receive |ITEM_NAME| x |COUNT| instead.",
+      "zh": "这件奖励已被获取。你将收到 |ITEM_NAME| x |COUNT| 作为替代奖励。"
+    },
+    "purchase |amount|": {
+      "en": "PURCHASE |AMOUNT|",
+      "zh": "购买 |AMOUNT|"
+    },
+    "|val| 'justice'": {
+      "en": "|val| 'Justice'",
+      "zh": "|val| '正义'"
+    },
+    "|val| 'purity'": {
+      "en": "|val| 'Purity'",
+      "zh": "|val| '纯净'"
+    },
+    "ends in <timer>|time|": {
+      "en": "Ends in <TIMER>|TIME|",
+      "zh": "将在 <TIMER>|TIME| 后结束"
+    },
+    "|val| 'sequence'": {
+      "en": "|val| 'Sequence'",
+      "zh": "|val| '数列'"
+    },
+    "|val| 'blight'": {
+      "en": "|val| 'Blight'",
+      "zh": "|val| '毁坏'"
+    },
+    "<reputation> |val|": {
+      "en": "<REPUTATION> |VAL|",
+      "zh": "<REPUTATION> |VAL|"
+    },
+    "<reputation> |val| (|val2|)": {
+      "en": "<REPUTATION> |VAL| (|VAL2|)",
+      "zh": "<REPUTATION> |VAL| (|VAL2|)"
+    },
+    "|num| needed": {
+      "en": "|NUM| NEEDED",
+      "zh": "需要 |NUM|"
+    },
+    "and |num| others": {
+      "en": "and |NUM| others",
+      "zh": "还有其他 |NUM| 个"
+    },
+    "|itemname|: |modifier_name| +|amount|%": {
+      "en": "|ITEMNAME|: |MODIFIER_NAME| +|AMOUNT|%",
+      "zh": "|ITEMNAME|：|MODIFIER_NAME| +|AMOUNT|%"
+    },
+    "|amount| standing received!": {
+      "en": "|AMOUNT| Standing received!",
+      "zh": "已收到|AMOUNT| 声望！"
+    }
+  },
+  "modifierFlavors": {
+    "augmented enemy armor": "此处敌人的护甲已经过强化",
+    "augmented enemy shields": "此处敌人护盾的已经过强化",
+    "enemy |damage_type| damage": "此处敌人已获得 |DAMAGE_TYPE| 伤害及素质强化。",
+    "enemy elemental enhancement": "敌人已获得额外的 |DAMAGE_TYPE| 伤害和元素抗性强化。",
+    "enemy physical enhancement": "敌人已获得额外的 |DAMAGE_TYPE| 伤害和物理抗性强化。",
+    "energy reduction": "虚空的能量漩涡正流经此处，战甲的能量上限将会减半同时能量再生率也会大幅降低。",
+    "eximus stronghold": "敌人的大型卓越者部队正驻扎在此处，务必小心谨慎。",
+    "extreme cold": "此处的环境状况温度极低，将会影响移动能力。",
+    "fire": "船舰上发生火灾；高温将损害生命与恢复速率。",
+    "dense fog": "此处垄罩在迷雾之中；可见度将会大幅降低。",
+    "low gravity": "重力稳定器受到损伤，G力将低于最佳设定。",
+    "cryogenic leakage": "这艘船上的低温核心发生故障，导致极度低温。而这将会减少你的护盾量。",
+    "electromagnetic anomalies": "当地目前正在经历严重的电磁干扰。磁力异常将会干扰整个任务。",
+    "impeded shield recharge": "此处的离子干扰现象会明显降低你的护盾恢复速率。",
+    "|weapon_type| only": "此处的机械干扰装置可以使大多数武器失效。因此|WEAPON_TYPE|类型的武器是你的唯一选择。"
   },
   "missionTypes": {
     "Alchemy": "元素转换",

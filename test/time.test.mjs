@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { DARVO_CYCLE_MS, darvoFallbackToken, sortieFallbackToken } from '../public/assets/js/time.js';
+import { DARVO_CYCLE_MS, darvoFallbackToken, sortieFallbackToken } from '../public/js/time.js';
 
 test('Sortie fallback rolls over at noon Toronto time in winter', () => {
   assert.equal(sortieFallbackToken(new Date('2026-01-15T17:00:00.000Z')), 'sortie:2026-01-15');

@@ -50,7 +50,7 @@ The hosted site can use a permitted Render API for live official data. When that
 
 Open the repository's `test.html` directly in a browser.
 
-- The file is approximately 2.6 MiB and contains CSS, application code, both UI languages, the official term dictionary, a worldstate snapshot, the static arbitration table, the Steel Path incursion schedule, and the Riven weapon index.
+- The file is approximately 2.4 MiB and contains CSS, application code, both UI languages, the official term dictionary, a worldstate snapshot, the static arbitration table, the Steel Path incursion schedule, and the Riven weapon index.
 - It makes no network requests and uses the build-time snapshot rather than live data.
 - This is the simplest way to inspect the layout without installing Node.js.
 
@@ -115,19 +115,9 @@ npm run build:standalone
 
 `build:pages` writes the static site to `docs/`. `build:standalone` writes the self-contained `test.html`.
 
-If the official feed is unavailable during a Pages build, the build reuses the committed `worldstate-*.json` snapshots and continues.
+If the official feed is unavailable during a Pages build, the build reuses the committed `worldstate.json` snapshot and continues.
 
 The optional repository variable `WF_NEXUS_API_BASE` configures the external API used by the hosted frontend. The variable should be the service root URL, without `/api/worldstate`. When it is absent, Pages uses static snapshots only.
-
-### Optional Vercel API
-
-The repository also contains [`api/worldstate.mjs`](api/worldstate.mjs) for Vercel. Import the repository into Vercel, deploy, then test:
-
-```text
-https://your-project.vercel.app/api/worldstate?lang=zh
-```
-
-Vercel's Hobby plan is intended for personal, non-commercial projects. Cloud-provider egress may be rejected by the official API, so test the endpoint before configuring Pages.
 
 ## Usage
 
@@ -152,7 +142,7 @@ api.warframe.com/cdn/worldState.php
 
 - The official feed is parsed with [`warframe-worldstate-parser`](https://github.com/WFCD/warframe-worldstate-parser). During parsing, `src/official.mjs` blocks every non-official request, so optional community bounty enrichment is never used.
 - The browser never calls the official endpoint directly because it does not send CORS headers.
-- GitHub Pages is static, so it reads `docs/data/worldstate-*.json` unless an external API is configured.
+- GitHub Pages is static, so it reads `docs/data/worldstate.json` unless an external API is configured.
 - The arbitration timetable is a bundled hourly CSV plus generated display metadata; it is not a third-party API.
 - The `/api/worldstate` endpoint supports CORS and a `fresh=1` query parameter for an explicit refresh.
 
@@ -175,13 +165,12 @@ api.warframe.com/cdn/worldState.php
 warframe-nexus/
   test.html                  Self-contained build
   server.mjs                 Static server + official worldstate proxy
-  api/worldstate.mjs         Optional Vercel Function
   render.yaml                Render Web Service blueprint
   src/official.mjs           Official fetch, parse, and request guard
   public/
     index.html
     assets/css/styles.css
-    assets/js/
+    js/
       app.js                 Startup, routing, theme, language, refresh
       normalize.js           Pure worldstate normalization
       localize.js            Official term localization
@@ -220,7 +209,7 @@ Then open `docs/index.html` through a static server, or open the generated root 
 
 ## Release
 
-The current release is **v0.7.1**.
+The current release is **v0.7.2**.
 
 1. Run `npm test`.
 2. Build `docs/` and `test.html`.

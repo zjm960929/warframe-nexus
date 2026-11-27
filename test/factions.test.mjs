@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { factionSlug, factionVariant } from '../public/assets/js/factions.js';
+import { factionSlug, factionVariant } from '../public/js/factions.js';
 
 test('Kuva Fortress Grineer resolve to the Kuva variant', () => {
   const item = { factionKey: 'FC_GRINEER', faction: 'Grineer' };

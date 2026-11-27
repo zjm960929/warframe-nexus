@@ -3,8 +3,8 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { createI18n } from '../public/assets/js/i18n.js';
-import { createLocalizer } from '../public/assets/js/localize.js';
+import { createI18n } from '../public/js/i18n.js';
+import { createLocalizer } from '../public/js/localize.js';
 
 const ROOT = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
 const read = (name) => JSON.parse(fs.readFileSync(path.join(ROOT, 'public/locales', name), 'utf8'));

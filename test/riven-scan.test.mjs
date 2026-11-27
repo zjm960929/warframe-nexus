@@ -1,9 +1,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { inferRivenType, normalizeScanEntries, parseRivenScan } from '../public/assets/js/riven-scan.js';
-import { findRivenWeapon } from '../public/assets/js/riven-weapons.js';
-import { RIVEN_STAT_META, RIVEN_TYPES, RIVEN_TYPE_ORDER } from '../public/assets/js/riven-data.js';
-import { RIVEN_SPLICE_META, RIVEN_SPLICE_TYPES } from '../public/assets/js/riven-splice-data.js';
+import { inferRivenType, normalizeScanEntries, parseRivenScan } from '../public/js/riven-scan.js';
+import { findRivenWeapon } from '../public/js/riven-weapons.js';
+import { RIVEN_STAT_META, RIVEN_TYPES, RIVEN_TYPE_ORDER } from '../public/js/riven-data.js';
+import { RIVEN_SPLICE_META, RIVEN_SPLICE_TYPES } from '../public/js/riven-splice-data.js';
 
 const statTypes = {};
 for (const type of RIVEN_TYPE_ORDER) {

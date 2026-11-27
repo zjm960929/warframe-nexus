@@ -4,7 +4,7 @@ import {
   getArbitrationRange,
   parseArbitrationCsv,
   resolveArbitration,
-} from '../public/assets/js/arbitration.js';
+} from '../public/js/arbitration.js';
 
 const base = Date.UTC(2026, 10, 25, 10, 30, 0) / 1000;
 const schedule = {

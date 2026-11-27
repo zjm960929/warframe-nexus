@@ -4,7 +4,7 @@ import {
   getDailyReset,
   getWeeklyReset,
   normalizeWorldstate,
-} from '../public/assets/js/normalize.js';
+} from '../public/js/normalize.js';
 
 const NOW = new Date('2026-11-25T00:00:00.000Z');
 

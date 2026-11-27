@@ -4,13 +4,17 @@
  *
  * GitHub Pages cannot call the official Warframe endpoint directly because the
  * endpoint does not send CORS headers. This script fetches the official feed
- * once at build time, parses it with the open-source worldstate parser, and
- * writes static snapshots used by the Pages deployment. A GitHub Actions
- * workflow can run this on a schedule to keep the snapshots reasonably fresh.
+ * once at build time, parses it with the open-source worldstate parser in
+ * English, and writes a single static snapshot used by the Pages deployment.
+ * Chinese is resolved in the browser from the committed term dictionary. A
+ * GitHub Actions workflow can run this on a schedule to keep it reasonably
+ * fresh.
  */
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { rollup } from 'rollup';
+import { minify } from 'terser';
 import {
   fetchOfficialRaw,
   OFFICIAL_WORLDSTATE_URL,
@@ -33,15 +37,12 @@ function parseArgs(argv) {
   return { out };
 }
 
-async function readExistingSnapshots(out) {
+async function readExistingSnapshot(out) {
   try {
-    const read = async (lang) => {
-      const text = await fs.readFile(path.join(out, 'data', `worldstate-${lang}.json`), 'utf8');
-      const snapshot = JSON.parse(text);
-      if (!snapshot?.data) throw new Error(`missing ${lang} snapshot data`);
-      return snapshot;
-    };
-    return { en: await read('en'), zh: await read('zh') };
+    const text = await fs.readFile(path.join(out, 'data', 'worldstate.json'), 'utf8');
+    const snapshot = JSON.parse(text);
+    if (!snapshot?.data) throw new Error('missing worldstate snapshot data');
+    return snapshot;
   } catch {
     return null;
   }
@@ -53,8 +54,7 @@ async function main() {
     throw new Error('Refusing to write the Pages build over the project root or public/');
   }
 
-  let en;
-  let zh;
+  let data;
   let raw = null;
   let fetchedAt;
   let fallback = false;
@@ -64,24 +64,37 @@ async function main() {
     const fetched = await fetchOfficialRaw();
     raw = fetched.raw;
     fetchedAt = new Date().toISOString();
-    console.log('Parsing official worldstate for en + zh…');
-    [en, zh] = await Promise.all([
-      parseOfficialWorldstate(fetched.rawText, 'en'),
-      parseOfficialWorldstate(fetched.rawText, 'zh'),
-    ]);
+    console.log('Parsing official worldstate once in English…');
+    data = await parseOfficialWorldstate(fetched.rawText);
   } catch (error) {
-    const existing = await readExistingSnapshots(out);
+    const existing = await readExistingSnapshot(out);
     if (!existing) throw error;
-    en = existing.en.data;
-    zh = existing.zh.data;
-    fetchedAt = existing.en.meta?.fetchedAt || new Date().toISOString();
+    data = existing.data;
+    fetchedAt = existing.meta?.fetchedAt || new Date().toISOString();
     fallback = true;
-    console.warn(`Official feed unavailable (${error.message}); reusing existing snapshots from ${out}`);
+    console.warn(`Official feed unavailable (${error.message}); reusing existing snapshot from ${out}`);
   }
 
   await fs.rm(out, { recursive: true, force: true });
   await fs.mkdir(out, { recursive: true });
   await fs.cp(PUBLIC_DIR, out, { recursive: true });
+
+  async function bundleWeb() {
+    const bundle = await rollup({
+      input: path.join(PUBLIC_DIR, 'js', 'app.js'),
+      treeshake: true,
+    });
+    try {
+      const generated = await bundle.generate({ format: 'es' });
+      const minified = await minify(generated.output[0].code);
+      if (!minified.code) throw new Error('Terser returned no web bundle');
+      await fs.writeFile(path.join(out, 'js', 'app.js'), minified.code, 'utf8');
+      console.log('Bundled and minified docs/js/app.js');
+    } finally {
+      await bundle.close();
+    }
+  }
+  await bundleWeb();
 
   const apiBase = (process.env.WF_NEXUS_API_BASE || '').trim();
   const indexPath = path.join(out, 'index.html');
@@ -97,29 +110,25 @@ async function main() {
   await fs.writeFile(indexPath, builtIndex, 'utf8');
   console.log(apiBase ? `External API: ${apiBase}` : 'External API: not configured (using static snapshots)');
 
-  const buildLabel = raw?.BuildLabel || en.buildLabel || '';
-  const writeSnapshot = async (lang, data) => {
-    const snapshot = {
-      data,
-      meta: {
-        lang,
-        fetchedAt,
-        upstream: OFFICIAL_WORLDSTATE_URL,
-        static: true,
-        fallback,
-        buildLabel,
-        parser: 'warframe-worldstate-parser',
-      },
-    };
-    await fs.writeFile(
-      path.join(out, 'data', `worldstate-${lang}.json`),
-      `${JSON.stringify(snapshot)}\n`,
-      'utf8',
-    );
+  const buildLabel = raw?.BuildLabel || data.buildLabel || '';
+  const snapshot = {
+    data,
+    meta: {
+      fetchedAt,
+      upstream: OFFICIAL_WORLDSTATE_URL,
+      static: true,
+      fallback,
+      buildLabel,
+      parser: 'warframe-worldstate-parser',
+      dataLanguage: 'en',
+      localization: 'terms.zh.json',
+    },
   };
-
-  await writeSnapshot('en', en);
-  await writeSnapshot('zh', zh);
+  await fs.writeFile(
+    path.join(out, 'data', 'worldstate.json'),
+    `${JSON.stringify(snapshot)}\n`,
+    'utf8',
+  );
 
   await fs.writeFile(
     path.join(out, 'data', 'build.json'),

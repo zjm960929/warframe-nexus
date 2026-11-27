@@ -1,7 +1,0 @@
-{
-  "functions": {
-    "api/worldstate.mjs": {
-      "maxDuration": 60
-    }
-  }
-}

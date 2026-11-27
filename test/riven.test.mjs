@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { RIVEN_DISPOSITION, RIVEN_STAT_META, RIVEN_TYPES } from '../public/assets/js/riven-data.js';
-import { RIVEN_SPLICE_META, RIVEN_SPLICE_TYPES } from '../public/assets/js/riven-splice-data.js';
+import { RIVEN_DISPOSITION, RIVEN_STAT_META, RIVEN_TYPES } from '../public/js/riven-data.js';
+import { RIVEN_SPLICE_META, RIVEN_SPLICE_TYPES } from '../public/js/riven-splice-data.js';
 import {
   formatRivenValue,
   rivenNameFromStats,
@@ -13,7 +13,7 @@ import {
   rivenRollFromSliderRatio,
   rivenQualityFromRoll,
   rivenValue,
-} from '../public/assets/js/riven.js';
+} from '../public/js/riven.js';
 
 const close = (actual, expected, epsilon = 0.002) => {
   assert.ok(Math.abs(actual - expected) <= epsilon, `${actual} != ${expected}`);

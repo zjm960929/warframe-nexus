@@ -69,10 +69,6 @@ async function writeDiskCache(lang, envelope) {
   }
 }
 
-async function fetchWorldstateUpstream(lang) {
-  return loadOfficialWorldstate(lang);
-}
-
 async function getWorldstate(lang, { fresh = false } = {}) {
   const now = Date.now();
   const cached = memoryCache.get(lang);
@@ -86,10 +82,12 @@ async function getWorldstate(lang, { fresh = false } = {}) {
 
   const task = (async () => {
     try {
-      const { data, upstream } = await fetchWorldstateUpstream(lang);
+      const { data, upstream } = await loadOfficialWorldstate();
       const fetchedAtMs = Date.now();
       const envelope = jsonEnvelope(data, {
         lang,
+        dataLanguage: 'en',
+        localization: 'terms.zh.json',
         fetchedAt: new Date(fetchedAtMs).toISOString(),
         fetchedAtMs,
         upstream,

@@ -645,8 +645,8 @@ function renderSortieLike({ model, i18n, loc, key, titleKey, emptyKey, bossKey, 
             el('span', { text: loc.modifier(mission.modifier) }),
           )
           : null,
-        modifier && mission.modifierDescription && (!loc.isZh || hasCjk(loc.text(mission.modifierDescription)))
-          ? localizedSentence('p', mission.modifierDescription, loc, 'fine-print')
+        modifier && (mission.modifierDescription || loc.modifierFlavor(mission.modifier))
+          ? localizedSentence('p', loc.modifierFlavor(mission.modifier) || mission.modifierDescription, loc, 'fine-print')
           : null,
       ),
     ))),
@@ -1870,7 +1870,8 @@ export function createLivePage({ i18n, loc, model = null, meta = null, error = n
     attachModuleActions();
   }
 
-  function renderBody() {
+  function renderBody({ preserveScroll = false } = {}) {
+    const scrollY = preserveScroll && body.isConnected ? window.scrollY : null;
     body.replaceChildren();
     currentModules = null;
     currentWarning = null;
@@ -1887,6 +1888,10 @@ export function createLivePage({ i18n, loc, model = null, meta = null, error = n
     buildModules();
     restoreCompletedModules();
     applyLayout();
+    if (scrollY != null) {
+      const maxScroll = Math.max(0, document.documentElement.scrollHeight - window.innerHeight);
+      window.scrollTo(0, Math.min(scrollY, maxScroll));
+    }
   }
 
   function update(next = {}) {
@@ -1895,10 +1900,15 @@ export function createLivePage({ i18n, loc, model = null, meta = null, error = n
     if ('error' in next) currentError = next.error;
     if ('loading' in next) setLoading(next.loading);
     renderStatus();
-    renderBody();
+    renderBody({ preserveScroll: true });
   }
 
-  const onResize = () => scheduleMasonry();
+  let masonryWidth = window.innerWidth;
+  const onResize = () => {
+    if (window.innerWidth === masonryWidth) return;
+    masonryWidth = window.innerWidth;
+    scheduleMasonry();
+  };
   window.addEventListener('resize', onResize, { passive: true });
   if (document.fonts?.ready) {
     document.fonts.ready.then(scheduleMasonry).catch(() => {});
