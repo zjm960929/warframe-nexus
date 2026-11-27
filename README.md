@@ -29,7 +29,7 @@ English | [中文](README.zh.md)
 - **Riven calculator**: normal and September spliced stat ranges by weapon type, Riven Mod rank, and stat count, with the fixed 1.20x disposition; the analysis follows the actual selected positive and negative stats. Upload or paste a Riven screenshot for local Tesseract OCR, then edit the detected weapon, attributes, and values before analysis. OCR needs an HTTP-served page because Tesseract uses Worker/WASM assets; use `npm start` or the deployed site rather than opening `test.html` via `file://`. The analysis mode also shows the matching stat tables below, while the separate **Query attribute values** view can inspect any rank and attribute setup without changing the analysis.
 - **Readable fissures**: normal fissures, Steel Path fissures, and Void Storms are sorted by era: Lith, Meso, Neo, Axi, Requiem, Omnia.
 - **Bilingual UI**: Chinese and English with saved language preference; light, dark, and system themes.
-- **Custom layout**: drag modules in the layout editor or directly on the page while editing, with live placement previews and animated reflow; mouse drags use native drag and touch drags use Pointer Events. Each module also has a width menu (auto, 1/3, 1/2, 2/3, or full). The order and widths are stored in the browser.
+- **Custom layout**: drag modules in the layout editor or directly on the page while editing, with live placement previews and animated reflow; mouse drags use native drag and touch drags use Pointer Events. Hidden-module actions, per-module visibility, completed-module temporary hiding, automatic restoration after content refresh, and show-completed/show-all/reset controls are saved in the browser. Each module also has a width menu (auto, 1/3, 1/2, 2/3, or full).
 - **Wide-screen masonry**: a responsive 12-column layout that fills gaps instead of leaving holes under short modules.
 
 ## Requirements
@@ -50,7 +50,7 @@ The hosted site can use a permitted Render API for live official data. When that
 
 Open the repository's `test.html` directly in a browser.
 
-- The file is approximately 2.4 MiB and contains CSS, application code, both UI languages, the official term dictionary, a worldstate snapshot, the static arbitration table, the Steel Path incursion schedule, and the Riven weapon index.
+- The file is approximately 2.6 MiB and contains CSS, application code, both UI languages, the official term dictionary, a worldstate snapshot, the static arbitration table, the Steel Path incursion schedule, and the Riven weapon index.
 - It makes no network requests and uses the build-time snapshot rather than live data.
 - This is the simplest way to inspect the layout without installing Node.js.
 
@@ -220,7 +220,7 @@ Then open `docs/index.html` through a static server, or open the generated root 
 
 ## Release
 
-The current release is **v0.6.0**.
+The current release is **v0.7.0**.
 
 1. Run `npm test`.
 2. Build `docs/` and `test.html`.

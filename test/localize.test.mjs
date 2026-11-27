@@ -40,6 +40,18 @@ test('Veil nodes use the full Proxima region name', () => {
   assert.equal(loc.node('弗雷沙（面纱）'), '弗雷沙（面纱比邻星域）');
 });
 
+test('Sortie modifier descriptions are converted to Simplified Chinese', () => {
+  assert.equal(
+    loc.sentence('此任務中只能使用次要武器，其他類型的武器將會自動被換掉'),
+    '此任务中只能使用次要武器，其他类型的武器将会自动被换掉。',
+  );
+});
+
+test('Kuva Fortress nodes use the official Chinese region name', () => {
+  assert.equal(loc.node('Taveuni (Kuva 要塞)'), 'Taveuni（赤毒要塞）');
+  assert.equal(loc.node('Taveuni (Kuva Fortress)'), 'Taveuni（赤毒要塞）');
+});
+
 test('templates with unavailable values still render explanatory copy', () => {
   const value = loc.personal('AoeDebuff', 'description', '[PH] Aoe Debuff Desc');
   assert.equal(value, '具有范围攻击的武器爆炸半径固定为（官方数值未提供）米。');

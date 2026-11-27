@@ -316,7 +316,8 @@ test('static arbitration schedule fills current and next arbitration', () => {
   assert.equal(model.arbitration.node, 'Hepit (Void)');
   assert.ok(model.arbitration.end, 'current arbitration must have an end timestamp');
   assert.equal(model.nextArbitration.node, 'Taranis (Void)');
-  assert.equal(model.arbitrationUpcoming[0].node, 'Ani (Void)');
+  assert.equal(model.arbitrationUpcoming[0].node, 'Taranis (Void)');
+  assert.equal(model.arbitrationUpcoming[1].node, 'Ani (Void)');
 });
 
 test('expired alerts and completed invasions are removed', () => {

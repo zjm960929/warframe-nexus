@@ -5,6 +5,7 @@ import {
   timeElement,
 } from '../dom.js';
 import { getArbitrationRange, resolveArbitration } from '../arbitration.js';
+import { factionLabel, factionMark } from '../factions.js';
 import { icon } from '../icons.js';
 import { hasCjk } from '../localize.js';
 
@@ -64,20 +65,12 @@ function missionTypeLabel(loc, item) {
     || item.type;
 }
 
-function factionLabel(loc, item) {
-  if (!item.factionKey && !item.faction) return '';
-  if (!loc.isZh) return item.faction || '';
-  return loc.faction(item.factionKey, item.faction).trim()
-    || loc.text(item.faction).trim()
-    || item.faction;
-}
-
 function metaBadges(loc, item) {
   const badges = [];
   const type = missionTypeLabel(loc, item);
   if (type) badges.push(badge(type, 'blue'));
-  const faction = factionLabel(loc, item);
-  if (faction) badges.push(badge(faction, 'muted'));
+  const faction = factionMark(loc, item, { className: 'badge badge--muted' });
+  if (faction) badges.push(faction);
   return badges.length ? el('span', { class: 'arb-tags' }, badges) : null;
 }
 
@@ -329,10 +322,8 @@ export function createArbitrationPage({ i18n, loc, schedule = null, error = null
           el('h2', { text: heading }),
           badge(i18n.t(group.length === 1 ? 'arbitration.oneEntry' : 'arbitration.total', { count: group.length }), 'muted'),
         ),
-        el('ol', { class: 'arb-list' }, group.map((item) => {
-          const statusKey = `arbitration.status.${item.status}`;
-          const variant = item.status === 'current' ? 'ok' : item.status === 'past' ? 'muted' : 'blue';
-          return el('li', {
+        el('ol', { class: 'arb-list' }, group.map((item) => (
+          el('li', {
             class: `arb-row${item.status === 'current' ? ' arb-row--current' : ''}${item.status === 'past' ? ' arb-row--past' : ''}`,
             attrs: item.status === 'current' ? { 'aria-current': 'time' } : {},
           },
@@ -346,11 +337,14 @@ export function createArbitrationPage({ i18n, loc, schedule = null, error = null
               metaBadges(loc, item),
             ),
             el('span', { class: 'arb-row__end' },
-              `${i18n.formatClock(item.expiry)}`,
+              item.status === 'upcoming'
+                ? timeElement(i18n, item.activation, 'countdown countdown--small')
+                : item.status === 'current'
+                  ? timeElement(i18n, item.expiry, 'countdown countdown--small')
+                  : i18n.t('time.ended'),
             ),
-            badge(i18n.t(statusKey), variant),
-          );
-        })),
+          )
+        ))),
       ));
     }
     listHost.append(fragment);

@@ -59,10 +59,34 @@ async function main() {
     path.join(PUBLIC_DIR, 'assets', 'icons', 'github-invertocat.svg'),
     'utf8',
   );
-  const inlinedCss = css.replaceAll(
+  let inlinedCss = css.replaceAll(
     'url("../icons/github-invertocat.svg")',
     `url("data:image/svg+xml,${encodeURIComponent(githubMarkup)}")`,
   );
+
+  for (const faction of [
+    'grineer', 'corpus', 'infested', 'orokin',
+    'narmer', 'murmur', 'sentient', 'amalgam',
+    'deimos', 'kuva', 'scaldra', 'techrot',
+  ]) {
+    const icon = await fs.readFile(
+      path.join(PUBLIC_DIR, 'assets', 'icons', 'factions', `${faction}.png`),
+    );
+    inlinedCss = inlinedCss.replaceAll(
+      `url("../icons/factions/${faction}.png")`,
+      `url("data:image/png;base64,${icon.toString('base64')}")`,
+    );
+  }
+
+  for (const shard of ['azure', 'amber', 'crimson']) {
+    const icon = await fs.readFile(
+      path.join(PUBLIC_DIR, 'assets', 'icons', 'shards', `${shard}.png`),
+    );
+    inlinedCss = inlinedCss.replaceAll(
+      `url("../icons/shards/${shard}.png")`,
+      `url("data:image/png;base64,${icon.toString('base64')}")`,
+    );
+  }
 
   const bundle = await rollup({
     input: path.join(PUBLIC_DIR, 'assets', 'js', 'app.js'),

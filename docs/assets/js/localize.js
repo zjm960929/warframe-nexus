@@ -18,6 +18,11 @@ export function hasCjk(value) {
   return /[\u3400-\u9fff]/u.test(String(value ?? ''));
 }
 
+const REGION_ALIASES = new Map([
+  ['kuva 要塞', '赤毒要塞'],
+  ['kuva fortress', '赤毒要塞'],
+]);
+
 export function createLocalizer(lang, terms) {
   const isZh = lang === 'zh';
   const data = terms || {};
@@ -81,7 +86,8 @@ export function createLocalizer(lang, terms) {
     const region = match[2].trim();
     const translatedBase = nodes[normalizeKey(base)] || exact(base) || simplify(base);
     const regionKey = /^(veil|面纱)$/i.test(region) ? 'Veil Proxima' : normalizeKey(region);
-    const translatedRegion = regions[regionKey] || regions[region] || exact(regionKey) || simplify(regionKey);
+    const translatedRegion = regions[regionKey] || regions[region]
+      || REGION_ALIASES.get(regionKey) || exact(regionKey) || simplify(regionKey);
     return `${translatedBase}（${translatedRegion}）`;
   }
 
@@ -179,7 +185,7 @@ export function createLocalizer(lang, terms) {
   }
 
   function sentence(value) {
-    const text = normalizeChineseCopy(String(value || '').trim());
+    const text = normalizeChineseCopy(simplify(String(value || '').trim()));
     if (!text) return '';
     if (/[。！？!?…]$/.test(text)) return text;
     return /[\u3400-\u9fff]/u.test(text) ? `${text}。` : `${text}.`;

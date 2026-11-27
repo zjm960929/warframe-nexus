@@ -434,6 +434,7 @@ export function normalizeWorldstate(raw, now = new Date(), options = {}) {
   const darvo = darvoRaw && (!darvoRaw.expiry || remainingMs(darvoRaw.expiry, now) > 0)
     ? {
       item: darvoRaw.item || '',
+      activation: darvoRaw.activation || '',
       discount: Number(darvoRaw.discount) || 0,
       originalPrice: Number(darvoRaw.originalPrice) || 0,
       salePrice: Number(darvoRaw.salePrice) || 0,
@@ -535,10 +536,16 @@ export function normalizeWorldstate(raw, now = new Date(), options = {}) {
   const nextArbitration = scheduledArbitration?.next
     ? { ...scheduledArbitration.next, end: scheduledArbitration.next.expiry }
     : null;
-  const arbitrationUpcoming = (scheduledArbitration?.upcoming || []).map((item) => ({
-    ...item,
-    end: item.expiry,
-  }));
+  const arbitrationUpcoming = [
+    ...(scheduledArbitration?.next ? [{
+      ...scheduledArbitration.next,
+      end: scheduledArbitration.next.expiry,
+    }] : []),
+    ...(scheduledArbitration?.upcoming || []).map((item) => ({
+      ...item,
+      end: item.expiry,
+    })),
+  ];
 
   const bounties = normalizeBounties(raw, now);
   const fissures = normalizeFissures(raw, now);

@@ -6,31 +6,65 @@ import {
   sectionHeader,
   timeElement,
 } from '../dom.js';
+import { factionMark } from '../factions.js';
 import { icon } from '../icons.js';
 import { hasCjk } from '../localize.js';
 import { findRivenWeapon } from '../riven-weapons.js';
+import { darvoFallbackToken, sortieFallbackToken } from '../time.js';
 import { resolveSteelPathIncursions } from '../steel-path-incursions.js';
 
 const LAYOUT_KEY = 'wf-nexus-worldstate-layout';
 const WIDTH_KEY = 'wf-nexus-worldstate-widths';
+const HIDDEN_KEY = 'wf-nexus-worldstate-hidden';
+const COMPLETED_KEY = 'wf-nexus-worldstate-completed';
+const LAYOUT_VERSION_KEY = 'wf-nexus-worldstate-layout-version';
+const LAYOUT_VERSION = '5';
+
+const COMPLETABLE_MODULES = new Set([
+  'arbitration', 'sortie', 'archon', 'nightwave', 'circuit',
+  'archimedeaDeep', 'archimedeaTemporal', 'steelPathShop', 'steelPathIncursions', 'darvo',
+]);
 
 const MODULE_DEFS = [
   { key: 'cycles', labelKey: 'section.cycles', span: 'flex', preferred: 12, min: 4, max: 12 },
-  { key: 'darvo', labelKey: 'section.darvo', span: 'flex', preferred: 4, min: 4, max: 8 },
-  { key: 'nightwave', labelKey: 'section.nightwave', span: 'flex', preferred: 8, min: 4, max: 8 },
-  { key: 'arbitration', labelKey: 'section.arbitration', span: 'flex', preferred: 4, min: 4, max: 8 },
+  { key: 'events', labelKey: 'section.events', span: 'flex', preferred: 12, min: 4, max: 12 },
   { key: 'alerts', labelKey: 'section.alerts', span: 'flex', preferred: 4, min: 4, max: 8 },
   { key: 'invasions', labelKey: 'section.invasions', span: 'flex', preferred: 4, min: 4, max: 8 },
-  { key: 'events', labelKey: 'section.events', span: 'flex', preferred: 4, min: 4, max: 8 },
+  { key: 'arbitration', labelKey: 'section.arbitration', span: 'flex', preferred: 4, min: 4, max: 8 },
   { key: 'sortie', labelKey: 'section.sortie', span: 'flex', preferred: 4, min: 4, max: 8 },
   { key: 'archon', labelKey: 'section.archon', span: 'flex', preferred: 4, min: 4, max: 8 },
-  { key: 'circuit', labelKey: 'section.circuit', span: 'flex', preferred: 6, min: 4, max: 8 },
-  { key: 'steelPath', labelKey: 'section.steelPath', span: 'flex', preferred: 6, min: 4, max: 8 },
-  { key: 'archimedeaDeep', labelKey: 'section.archimedeaDeep', span: 'flex', preferred: 6, min: 4, max: 8 },
-  { key: 'archimedeaTemporal', labelKey: 'section.archimedeaTemporal', span: 'flex', preferred: 6, min: 4, max: 8 },
   { key: 'fissuresNormal', labelKey: 'section.fissuresNormal', span: 'flex', preferred: 4, min: 4, max: 8 },
   { key: 'fissuresSteel', labelKey: 'section.fissuresSteel', span: 'flex', preferred: 4, min: 4, max: 8 },
   { key: 'fissuresStorm', labelKey: 'section.fissuresStorm', span: 'flex', preferred: 4, min: 4, max: 8 },
+  { key: 'nightwave', labelKey: 'section.nightwave', span: 'flex', preferred: 4, min: 4, max: 8 },
+  { key: 'circuit', labelKey: 'section.circuit', span: 'flex', preferred: 4, min: 4, max: 8 },
+  { key: 'archimedeaDeep', labelKey: 'section.archimedeaDeep', span: 'flex', preferred: 4, min: 4, max: 8 },
+  { key: 'archimedeaTemporal', labelKey: 'section.archimedeaTemporal', span: 'flex', preferred: 4, min: 4, max: 8 },
+  { key: 'steelPathIncursions', labelKey: 'section.steelPathIncursions', span: 'flex', preferred: 4, min: 4, max: 8 },
+  { key: 'steelPathShop', labelKey: 'section.steelPathShop', span: 'flex', preferred: 4, min: 4, max: 8 },
+  { key: 'darvo', labelKey: 'section.darvo', span: 'flex', preferred: 4, min: 4, max: 8 },
+];
+
+const LEGACY_DEFAULT_LAYOUT = [
+  'cycles', 'darvo', 'nightwave', 'arbitration', 'alerts', 'invasions', 'events',
+  'sortie', 'archon', 'circuit', 'steelPath', 'archimedeaDeep', 'archimedeaTemporal',
+  'fissuresNormal', 'fissuresSteel', 'fissuresStorm',
+];
+
+const PREVIOUS_DEFAULT_LAYOUT = [
+  'cycles', 'arbitration', 'sortie', 'archon',
+  'fissuresNormal', 'fissuresSteel', 'fissuresStorm',
+  'alerts', 'invasions', 'events', 'nightwave', 'circuit',
+  'archimedeaDeep', 'archimedeaTemporal',
+  'steelPathIncursions', 'steelPathShop', 'darvo',
+];
+
+const PREVIOUS_DEFAULT_LAYOUT_V3 = [
+  'cycles', 'events', 'arbitration', 'sortie', 'archon',
+  'fissuresNormal', 'fissuresSteel', 'fissuresStorm',
+  'alerts', 'invasions', 'nightwave', 'circuit',
+  'archimedeaDeep', 'archimedeaTemporal',
+  'steelPathIncursions', 'steelPathShop', 'darvo',
 ];
 
 const CIRCUIT_ROTATION = {
@@ -67,17 +101,44 @@ const MASONRY_ROW_HEIGHT = 8;
 function loadLayoutOrder() {
   try {
     const parsed = JSON.parse(localStorage.getItem(LAYOUT_KEY) || 'null');
-    if (!Array.isArray(parsed)) return [...DEFAULT_LAYOUT];
+    if (!Array.isArray(parsed)) {
+      const next = [...DEFAULT_LAYOUT];
+      saveLayoutOrder(next);
+      return next;
+    }
     const expanded = [];
     for (const key of parsed) {
       if (key === 'archimedea') expanded.push('archimedeaDeep', 'archimedeaTemporal');
       else if (key === 'fissures') expanded.push('fissuresNormal', 'fissuresSteel', 'fissuresStorm');
+      else if (key === 'steelPath') expanded.push('steelPathIncursions', 'steelPathShop');
       else expanded.push(key);
     }
     const valid = expanded.filter((key) => MODULE_BY_KEY.has(key));
     for (const key of DEFAULT_LAYOUT) {
       if (!valid.includes(key)) valid.push(key);
     }
+    const expandDefault = (keys) => keys.flatMap((key) => {
+      if (key === 'archimedea') return ['archimedeaDeep', 'archimedeaTemporal'];
+      if (key === 'fissures') return ['fissuresNormal', 'fissuresSteel', 'fissuresStorm'];
+      if (key === 'steelPath') return ['steelPathIncursions', 'steelPathShop'];
+      return [key];
+    });
+    const version = localStorage.getItem(LAYOUT_VERSION_KEY);
+    const knownDefaults = [
+      PREVIOUS_DEFAULT_LAYOUT_V3,
+      PREVIOUS_DEFAULT_LAYOUT,
+      expandDefault(LEGACY_DEFAULT_LAYOUT),
+    ];
+    const isKnownDefault = knownDefaults.some(
+      (layout) => valid.join('\u0000') === layout.join('\u0000'),
+    );
+    if (version !== LAYOUT_VERSION && isKnownDefault) {
+      localStorage.removeItem(WIDTH_KEY);
+      const next = [...DEFAULT_LAYOUT];
+      saveLayoutOrder(next);
+      return next;
+    }
+    localStorage.setItem(LAYOUT_VERSION_KEY, LAYOUT_VERSION);
     return valid;
   } catch {
     return [...DEFAULT_LAYOUT];
@@ -87,6 +148,7 @@ function loadLayoutOrder() {
 function saveLayoutOrder(order) {
   try {
     localStorage.setItem(LAYOUT_KEY, JSON.stringify(order));
+    localStorage.setItem(LAYOUT_VERSION_KEY, LAYOUT_VERSION);
   } catch {
     // Storage may be unavailable (private mode / file:// restrictions).
   }
@@ -118,6 +180,94 @@ function saveLayoutWidths(widths) {
   } catch {
     // Storage may be unavailable (private mode / file:// restrictions).
   }
+}
+
+function loadHiddenModules() {
+  try {
+    const parsed = JSON.parse(localStorage.getItem(HIDDEN_KEY) || '[]');
+    if (!Array.isArray(parsed)) return new Set();
+    return new Set(parsed.filter((key) => MODULE_BY_KEY.has(key)));
+  } catch {
+    return new Set();
+  }
+}
+
+function saveHiddenModules(hidden) {
+  try {
+    localStorage.setItem(HIDDEN_KEY, JSON.stringify([...hidden]));
+  } catch {
+    // Storage may be unavailable (private mode / file:// restrictions).
+  }
+}
+
+function loadCompletedModules() {
+  try {
+    const parsed = JSON.parse(localStorage.getItem(COMPLETED_KEY) || '{}');
+    if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) return {};
+    return Object.fromEntries(
+      Object.entries(parsed).filter(([key, token]) => (
+        COMPLETABLE_MODULES.has(key) && typeof token === 'string'
+      )),
+    );
+  } catch {
+    return {};
+  }
+}
+
+function saveCompletedModules(completed) {
+  try {
+    localStorage.setItem(COMPLETED_KEY, JSON.stringify(completed));
+  } catch {
+    // Storage may be unavailable (private mode / file:// restrictions).
+  }
+}
+
+
+
+function dailyCompletionToken(date = new Date()) {
+  return date.toISOString().slice(0, 10);
+}
+
+function weeklyCompletionToken(date = new Date()) {
+  const start = new Date(Date.UTC(
+    date.getUTCFullYear(),
+    date.getUTCMonth(),
+    date.getUTCDate(),
+  ));
+  start.setUTCDate(start.getUTCDate() - ((start.getUTCDay() + 6) % 7));
+  return start.toISOString().slice(0, 10);
+}
+
+function completionToken(key, model) {
+  if (!model) return null;
+  if (key === 'arbitration') {
+    return `arbitration:${Math.floor(Date.now() / 3_600_000)}`;
+  }
+  if (key === 'sortie') {
+    return `sortie:${model.sortie?.end || sortieFallbackToken()}`;
+  }
+  if (key === 'steelPathShop') {
+    return `steelPathShop:${model.steelPath?.activation || weeklyCompletionToken()}`;
+  }
+  if (key === 'steelPathIncursions') {
+    return `steelPathIncursions:${model.steelPath?.incursions?.expiry || dailyCompletionToken()}`;
+  }
+  if (key === 'darvo') {
+    return `darvo:${model.darvo?.activation || model.darvo?.end || darvoFallbackToken()}`;
+  }
+  if (key === 'nightwave') {
+    return `nightwave:${model.nightwave?.season || ''}:${weeklyCompletionToken()}`;
+  }
+  if (key === 'archon') {
+    return `archon:${model.archon?.activation || weeklyCompletionToken()}`;
+  }
+  if (key === 'circuit') return `circuit:${weeklyCompletionToken()}`;
+  if (key === 'archimedeaDeep' || key === 'archimedeaTemporal') {
+    const kind = key === 'archimedeaDeep' ? 'deep' : 'temporal';
+    const entry = model.archimedeas?.find((item) => item.kind === kind);
+    return `${key}:${entry?.end || weeklyCompletionToken()}`;
+  }
+  return null;
 }
 
 function marked(tag, text, loc, className = '') {
@@ -225,23 +375,29 @@ function renderDarvo(model, i18n, loc) {
   const content = model.darvo
     ? el('div', { class: 'darvo-card' },
       el('div', { class: 'darvo-card__head' },
-        localized('h3', model.darvo.item, loc),
-        model.darvo.discount > 0
-          ? badge(i18n.t('darvo.discount', { discount: model.darvo.discount }), 'gold')
-          : null,
+        el('div', { class: 'darvo-card__title' },
+          localized('h3', model.darvo.item, loc),
+          model.darvo.discount > 0
+            ? badge(i18n.t('darvo.discount', { discount: model.darvo.discount }), 'gold')
+            : null,
+        ),
       ),
       el('dl', { class: 'stat-list' },
         el('div', {}, el('dt', { text: i18n.t('darvo.sale') }), el('dd', { text: `${i18n.formatNumber(model.darvo.salePrice)} ${i18n.t('darvo.platinum')}` })),
         el('div', {}, el('dt', { text: i18n.t('darvo.original') }), el('dd', { class: 'muted', text: `${i18n.formatNumber(model.darvo.originalPrice)} ${i18n.t('darvo.platinum')}` })),
         el('div', {}, el('dt', { text: i18n.t('darvo.stock') }), el('dd', { text: i18n.formatNumber(Math.max(0, model.darvo.total - model.darvo.sold)) })),
       ),
-      el('div', { class: 'card-foot' },
-        el('span', { class: 'muted', text: i18n.t('common.endsAt') }),
-        timeElement(i18n, model.darvo.end),
-      ),
     )
     : emptyState(i18n.t('darvo.empty'));
-  return section('darvo', i18n, 'section.darvo', content);
+  const sectionNode = section('darvo', i18n, 'section.darvo', content);
+  if (model.darvo?.end) {
+    sectionNode.querySelector('.section-heading')?.append(
+      el('span', { class: 'module-countdown' },
+        timeElement(i18n, model.darvo.end),
+      ),
+    );
+  }
+  return sectionNode;
 }
 
 function renderNightwave(model, i18n, loc) {
@@ -268,11 +424,16 @@ function renderNightwave(model, i18n, loc) {
     )));
   };
 
+  const nightwaveEndMs = nightwave.end ? new Date(nightwave.end).getTime() : NaN;
+  const nightwaveRemaining = nightwaveEndMs - Date.now();
+  const showNightwaveEnd = Number.isFinite(nightwaveRemaining)
+    && nightwaveRemaining > 0
+    && nightwaveRemaining <= 14 * 86_400_000;
   const content = el('div', {},
     el('div', { class: 'nightwave-head' },
       badge(i18n.t('nightwave.season', { season: nightwave.season }), 'blue'),
-      el('span', { class: 'muted', text: i18n.t('nightwave.ends') }),
-      timeElement(i18n, nightwave.end),
+      showNightwaveEnd ? el('span', { class: 'muted', text: i18n.t('nightwave.ends') }) : null,
+      showNightwaveEnd ? timeElement(i18n, nightwave.end) : null,
     ),
     el('div', { class: 'nightwave-columns' },
       el('div', {},
@@ -313,21 +474,12 @@ function renderArbitration(model, i18n, loc) {
         el('div', { class: 'arbitration-card__title' },
           el('h3', {}, localizedNode(current.node, loc)),
           current.type ? badge(loc.missionType(current.typeKey, current.type), 'blue') : null,
+          factionMark(loc, current, { className: 'badge badge--muted' }),
         ),
       ),
       el('div', { class: 'arbitration-card__time' },
-        el('span', { class: 'muted', text: i18n.t('common.endsAt') }),
         timeElement(i18n, current.end, 'countdown countdown--large'),
       ),
-    ));
-  }
-
-  if (next) {
-    content.append(el('div', { class: 'arbitration-next' },
-      el('span', { class: 'label', text: i18n.t('arbitration.next') }),
-      localizedNode(next.node, loc, 'arbitration-next__node'),
-      next.type ? badge(loc.missionType(next.typeKey, next.type), 'blue') : null,
-      el('span', { class: 'muted', text: `${i18n.t('arbitration.startsAt')} ${i18n.formatDateTime(next.activation)}` }),
     ));
   }
 
@@ -335,11 +487,11 @@ function renderArbitration(model, i18n, loc) {
     content.append(el('div', { class: 'arbitration-upcoming' },
       el('span', { class: 'label', text: i18n.t('arbitration.upcoming') }),
       el('ul', { class: 'arbitration-list' }, upcoming.map((item) => el('li', {},
-        el('time', { datetime: item.activation, text: i18n.formatDateTime(item.activation) }),
-        el('span', { class: 'arbitration-list__main' },
-          localizedNode(item.node, loc),
-          el('span', { class: 'arbitration-list__type', text: loc.missionType(item.typeKey, item.type) }),
-        ),
+        el('time', { datetime: item.activation, text: i18n.formatClock(item.activation) }),
+        localizedNode(item.node, loc, 'arbitration-list__node'),
+        item.type ? badge(loc.missionType(item.typeKey, item.type), 'blue') : null,
+        factionMark(loc, item, { className: 'badge badge--muted' }),
+        timeElement(i18n, item.activation, 'countdown countdown--small'),
       ))),
     ));
   }
@@ -359,16 +511,16 @@ function renderAlerts(model, i18n, loc) {
   }
   const list = el('div', { class: 'stack' }, model.alerts.map((alert) => el('article', { class: 'alert-card' },
     el('div', { class: 'alert-card__head' },
-      badge(loc.missionType(alert.typeKey, alert.type), 'blue'),
-      localizedNode(alert.node, loc, 'alert-card__node'),
+      el('div', { class: 'alert-card__summary' },
+        badge(loc.missionType(alert.typeKey, alert.type), 'blue'),
+        factionMark(loc, alert, { className: 'badge badge--muted' }),
+        alert.minLevel || alert.maxLevel
+          ? el('span', { class: 'muted', text: i18n.t('alerts.level', { min: alert.minLevel, max: alert.maxLevel }) })
+          : null,
+      ),
       timeElement(i18n, alert.end, 'countdown countdown--small'),
     ),
-    el('div', { class: 'alert-card__meta' },
-      alert.faction ? localized('span', alert.faction, loc, 'muted') : null,
-      alert.minLevel || alert.maxLevel
-        ? el('span', { class: 'muted', text: i18n.t('alerts.level', { min: alert.minLevel, max: alert.maxLevel }) })
-        : null,
-    ),
+    localizedNode(alert.node, loc, 'alert-card__node'),
     el('div', { class: 'alert-card__reward' },
       el('span', { class: 'label', text: i18n.t('alerts.reward') }),
       rewardChips(loc.reward(alert.reward)) || el('span', { class: 'muted', text: i18n.t('common.notAvailable') }),
@@ -396,7 +548,7 @@ function renderInvasions(model, i18n, loc) {
       ),
       el('div', { class: 'invasion-sides' }, sides.map(({ key, data }) => el('div', { class: 'invasion-side' },
         el('span', { class: 'label', text: sideLabel(i18n, key) }),
-        el('strong', {}, localized('span', data.faction, loc)),
+        el('strong', {}, factionMark(loc, data, { node: invasion.node })),
         data.reward.items.length || data.reward.credits
           ? rewardChips(loc.reward(data.reward))
           : el('span', { class: 'muted', text: i18n.t('common.notAvailable') }),
@@ -425,7 +577,7 @@ function renderActivities(model, i18n, loc) {
     el('div', { class: 'event-card__meta' },
       event.node ? localizedNode(event.node, loc) : null,
       event.type ? localized('span', event.type, loc, 'muted') : null,
-      event.faction ? localized('span', event.faction, loc, 'muted') : null,
+      factionMark(loc, event, { className: 'muted' }),
     ),
     event.progress != null ? el('div', {},
       el('div', { class: 'invasion-progress__label' },
@@ -442,6 +594,24 @@ function renderActivities(model, i18n, loc) {
   return section('events', i18n, 'section.events', list, { count: model.events.length });
 }
 
+const ARCHON_SHARDS = [
+  { pattern: /amar|欺谋狼主/i, slug: 'crimson', labelKey: 'archon.shardCrimson' },
+  { pattern: /boreal|诡文枭主/i, slug: 'azure', labelKey: 'archon.shardAzure' },
+  { pattern: /nira|混沌蛇主/i, slug: 'amber', labelKey: 'archon.shardAmber' },
+];
+
+function archonShardMark(i18n, boss) {
+  const shard = ARCHON_SHARDS.find((entry) => entry.pattern.test(String(boss || '')));
+  if (!shard) return null;
+  return el('span', { class: 'badge badge--muted archon-shard' },
+    el('span', {
+      class: `shard-icon shard-icon--${shard.slug}`,
+      attrs: { 'aria-hidden': 'true' },
+    }),
+    el('span', { text: i18n.t(shard.labelKey) }),
+  );
+}
+
 function renderSortieLike({ model, i18n, loc, key, titleKey, emptyKey, bossKey, modifier = false }) {
   const data = model[key];
   if (!data) return section(key, i18n, titleKey, emptyState(i18n.t(emptyKey)));
@@ -449,11 +619,16 @@ function renderSortieLike({ model, i18n, loc, key, titleKey, emptyKey, bossKey, 
     el('div', { class: 'run-head' },
       el('div', {},
         el('span', { class: 'label', text: i18n.t(bossKey) }),
-        localized('h3', data.boss, loc),
+        el('div', { class: 'run-head__title' },
+          localized('h3', data.boss, loc),
+          factionMark(loc, data, {
+            className: 'badge badge--muted',
+            node: data.missions?.[0]?.node,
+          }),
+          key === 'archon' ? archonShardMark(i18n, data.boss) : null,
+        ),
       ),
       el('div', { class: 'run-head__meta' },
-        data.faction ? badge(loc.faction(data.factionKey, data.faction), 'muted') : null,
-        el('span', { class: 'muted', text: i18n.t('common.endsAt') }),
         timeElement(i18n, data.end, 'countdown'),
       ),
     ),
@@ -567,9 +742,17 @@ function renderCircuit(model, i18n, loc) {
     group('circuit.warframes', circuit.warframes, 'warframes'),
     group('circuit.incarnons', circuit.incarnons, 'incarnons'),
   );
-  return section('circuit', i18n, 'section.circuit', content, {
+  const sectionNode = section('circuit', i18n, 'section.circuit', content, {
     count: circuit.warframes.length + circuit.incarnons.length,
   });
+  if (model.weeklyReset) {
+    sectionNode.querySelector('.section-heading')?.append(
+      el('span', { class: 'module-countdown module-countdown--below' },
+        timeElement(i18n, model.weeklyReset),
+      ),
+    );
+  }
+  return sectionNode;
 }
 
 function steelPathOffering(loc, item, i18n) {
@@ -579,15 +762,9 @@ function steelPathOffering(loc, item, i18n) {
   );
 }
 
-function renderSteelPath(model, i18n, loc) {
-  const steelPath = model.steelPath;
-  if (!steelPath) {
-    return section('steelPath', i18n, 'section.steelPath', emptyState(i18n.t('steelPath.empty')));
-  }
-  const rotation = steelPath.rotation || [];
-  const current = steelPath.currentReward;
+function steelPathJobs(steelPath, loc) {
   const schedule = resolveSteelPathIncursions(new Date());
-  const jobs = schedule
+  return schedule
     ? schedule.nodes.map((job) => {
       const en = job.en || [];
       const zh = job.zh || en;
@@ -596,15 +773,36 @@ function renderSteelPath(model, i18n, loc) {
       const name = loc.isZh && /[\u3400-\u9fff]/u.test(zhBase)
         ? loc.normalizeChineseCopy(loc.simplify(zhName))
         : loc.node(en[0] || zhName || job.id);
+      const rawType = loc.isZh ? (zh[1] || en[1] || '') : (en[1] || zh[1] || '');
+      let type = loc.missionType('', rawType);
+      if (loc.isZh) {
+        type = type
+          .replace(/\bOrokin\b\s*/gi, '奥罗金')
+          .replace(/\bSabotage\b/gi, '破坏')
+          .replace(/\s+/g, ' ')
+          .trim();
+      }
       return {
         name,
-        type: loc.missionType('', en[1] || zh[1] || ''),
+        type,
+        faction: loc.isZh ? (zh[2] || en[2] || '') : (en[2] || zh[2] || ''),
       };
     })
     : (steelPath.incursions?.jobs || []).map((job) => ({
       name: job.node || '',
       type: job.type || job.missionType || '',
+      faction: job.faction || '',
+      factionKey: job.factionKey || '',
     }));
+}
+
+function renderSteelPathShop(model, i18n, loc) {
+  const steelPath = model.steelPath;
+  if (!steelPath) {
+    return section('steelPathShop', i18n, 'section.steelPathShop', emptyState(i18n.t('steelPath.empty')));
+  }
+  const rotation = steelPath.rotation || [];
+  const current = steelPath.currentReward;
   const rotationBlock = rotation.length
     ? el('div', { class: 'steel-path-rotation' },
       el('div', { class: 'steel-path-rotation__head' },
@@ -617,23 +815,36 @@ function renderSteelPath(model, i18n, loc) {
         return node;
       })),
     )
-    : null;
-  const incursionBlock = el('div', { class: 'steel-path-incursions' },
+    : emptyState(i18n.t('steelPath.empty'));
+  return section('steelPathShop', i18n, 'section.steelPathShop', rotationBlock, { count: rotation.length });
+}
+
+function renderSteelPathIncursions(model, i18n, loc) {
+  const steelPath = model.steelPath;
+  if (!steelPath) {
+    return section('steelPathIncursions', i18n, 'section.steelPathIncursions', emptyState(i18n.t('steelPath.empty')));
+  }
+  const jobs = steelPathJobs(steelPath, loc);
+  const content = el('div', { class: 'steel-path-incursions' },
     el('div', { class: 'steel-path-incursions__head' },
-      el('h3', { class: 'subheading', text: i18n.t('steelPath.incursions') }),
-      steelPath.incursions?.expiry ? timeElement(i18n, steelPath.incursions.expiry, 'countdown countdown--small') : null,
+      steelPath.incursions?.expiry
+        ? timeElement(i18n, steelPath.incursions.expiry, 'countdown countdown--small')
+        : null,
     ),
     jobs.length
       ? el('ul', { class: 'steel-path-list steel-path-list--incursions' }, jobs.slice(0, 6).map((job) => el('li', {},
         el('span', { class: 'steel-path-item__name', text: job.name }),
-        job.type ? el('span', { class: 'muted', text: job.type }) : null,
+        job.type ? badge(job.type, 'muted') : null,
+        job.faction
+          ? factionMark(loc, { faction: job.faction, factionKey: job.factionKey }, {
+            className: 'badge badge--muted',
+            node: job.name,
+          })
+          : null,
       )))
       : emptyState(i18n.t('steelPath.incursionEmpty')),
   );
-  return section('steelPath', i18n, 'section.steelPath', el('div', { class: 'steel-path-module' },
-    rotationBlock,
-    incursionBlock,
-  ), { count: rotation.length });
+  return section('steelPathIncursions', i18n, 'section.steelPathIncursions', content, { count: jobs.length });
 }
 
 function renderArchimedea(model, i18n, loc, kind) {
@@ -644,17 +855,30 @@ function renderArchimedea(model, i18n, loc, kind) {
     return section(key, i18n, titleKey, emptyState(i18n.t('archimedea.empty')));
   }
 
+  const personalBlock = archimedea.personalModifiers.length
+    ? el('div', { class: 'archimedea-block archimedea-block--personal' },
+      el('span', { class: 'label', text: i18n.t('archimedea.personal') }),
+      el('ul', { class: 'modifier-list' }, archimedea.personalModifiers.map((modifier) => {
+        const description = loc.personal(modifier.key, 'description', modifier.description);
+        return el('li', {},
+          marked('strong', loc.personal(modifier.key, 'name', modifier.name), loc),
+          description
+            ? marked('span', description, loc, 'fine-print')
+            : el('span', { class: 'fine-print muted', text: i18n.t('archimedea.valueUnavailable') }),
+        );
+      })),
+    )
+    : null;
   const content = el('div', { class: 'archimedea-grid archimedea-grid--single' },
     el('article', { class: `archimedea-card archimedea-card--${kind}` },
-      el('div', { class: 'archimedea-card__head' },
-        el('span', { class: 'label', text: i18n.t('archimedea.expires') }),
-        timeElement(i18n, archimedea.end, 'countdown countdown--small'),
-      ),
+      personalBlock,
       el('div', { class: 'archimedea-missions' }, archimedea.missions.map((mission, index) => el('div', { class: 'archimedea-mission' },
         el('div', { class: 'archimedea-mission__head' },
           el('span', { class: 'mission__index', text: String(index + 1).padStart(2, '0') }),
           badge(loc.missionType(mission.missionTypeKey, mission.missionType), 'blue'),
-          el('span', { class: 'muted', text: kind === 'deep' ? i18n.t('archimedea.murmur') : loc.faction(mission.factionKey, mission.faction) }),
+          kind === 'deep'
+            ? factionMark(loc, { factionKey: 'FC_MURMUR', faction: 'The Murmur' }, { className: 'muted' })
+            : factionMark(loc, mission, { className: 'muted' }),
         ),
         mission.deviation.name ? (() => {
           const description = loc.conquest(kind, mission.deviation.key, 'description', mission.deviation.description);
@@ -678,21 +902,17 @@ function renderArchimedea(model, i18n, loc, kind) {
           })),
         ) : null,
       ))),
-      archimedea.personalModifiers.length ? el('div', { class: 'archimedea-block archimedea-block--personal' },
-        el('span', { class: 'label', text: i18n.t('archimedea.personal') }),
-        el('ul', { class: 'modifier-list' }, archimedea.personalModifiers.map((modifier) => {
-          const description = loc.personal(modifier.key, 'description', modifier.description);
-          return el('li', {},
-            marked('strong', loc.personal(modifier.key, 'name', modifier.name), loc),
-            description
-              ? marked('span', description, loc, 'fine-print')
-              : el('span', { class: 'fine-print muted', text: i18n.t('archimedea.valueUnavailable') }),
-          );
-        })),
-      ) : null,
     ),
   );
-  return section(key, i18n, titleKey, content);
+  const sectionNode = section(key, i18n, titleKey, content);
+  if (archimedea.end) {
+    sectionNode.querySelector('.section-heading')?.append(
+      el('span', { class: 'module-countdown module-countdown--below' },
+        timeElement(i18n, archimedea.end, 'countdown countdown--small'),
+      ),
+    );
+  }
+  return sectionNode;
 }
 
 function renderFissureModule(model, i18n, loc, key, itemsKey, titleKey) {
@@ -702,13 +922,20 @@ function renderFissureModule(model, i18n, loc, key, itemsKey, titleKey) {
       const soon = fissure.remainingMs > 0 && fissure.remainingMs < 5 * 60 * 1000;
       return el('li', { class: `fissure${soon ? ' fissure--soon' : ''}` },
         el('div', { class: 'fissure__top' },
-          badge(loc.tier(fissure.tierKey, fissure.tier), 'blue'),
-          el('strong', { text: loc.missionType(fissure.missionTypeKey, fissure.missionType) }),
+          el('div', { class: 'fissure__identity' },
+            badge(loc.tier(fissure.tierKey, fissure.tier), 'blue'),
+            badge(loc.missionType(fissure.missionTypeKey, fissure.missionType), 'muted'),
+            factionMark(loc, { factionKey: fissure.enemyKey, faction: fissure.enemy }, {
+              className: 'badge badge--muted fissure__faction',
+              node: fissure.node,
+            }),
+          ),
+          soon ? el('div', { class: 'fissure__soon' },
+            badge(i18n.t('fissure.endingSoon'), 'danger'),
+          ) : null,
         ),
-        localizedNode(fissure.node, loc, 'fissure__node'),
         el('div', { class: 'fissure__meta' },
-          el('span', { class: 'muted', text: loc.faction(fissure.enemyKey, fissure.enemy) }),
-          soon ? badge(i18n.t('fissure.endingSoon'), 'danger') : null,
+          localizedNode(fissure.node, loc, 'fissure__node'),
           timeElement(i18n, fissure.end, 'countdown countdown--small'),
         ),
       );
@@ -745,6 +972,9 @@ export function createLivePage({ i18n, loc, model = null, meta = null, error = n
   let currentWarning = null;
   let masonryFrame = 0;
   let widthOverrides = loadLayoutWidths();
+  let hiddenModules = loadHiddenModules();
+  let completedModules = loadCompletedModules();
+  let completedTimer = 0;
   let editorOpen = false;
   let dragKey = null;
   let dragStartOrder = null;
@@ -785,6 +1015,16 @@ export function createLivePage({ i18n, loc, model = null, meta = null, error = n
     type: 'button',
     text: i18n.t('layout.reset'),
   });
+  const showCompletedButton = el('button', {
+    class: 'button button--ghost',
+    type: 'button',
+    text: i18n.t('layout.showCompleted'),
+  });
+  const showAllButton = el('button', {
+    class: 'button button--ghost',
+    type: 'button',
+    text: i18n.t('layout.showAll'),
+  });
   const closeLayoutButton = el('button', {
     class: 'button button--ghost',
     type: 'button',
@@ -802,7 +1042,12 @@ export function createLivePage({ i18n, loc, model = null, meta = null, error = n
         el('h2', { id: 'layout-title', text: i18n.t('layout.title') }),
         el('p', { id: 'layout-hint', class: 'section-hint', text: i18n.t('layout.hint') }),
       ),
-      el('div', { class: 'layout-editor__actions' }, resetLayoutButton, closeLayoutButton),
+      el('div', { class: 'layout-editor__actions' },
+        showCompletedButton,
+        showAllButton,
+        resetLayoutButton,
+        closeLayoutButton,
+      ),
     ),
     layoutList,
     layoutStatus,
@@ -835,6 +1080,8 @@ export function createLivePage({ i18n, loc, model = null, meta = null, error = n
   layoutButton.addEventListener('click', () => {
     setEditorOpen(layoutEditor.hidden);
   });
+  showCompletedButton.addEventListener('click', showCompletedModules);
+  showAllButton.addEventListener('click', showAllModules);
   closeLayoutButton.addEventListener('click', () => setEditorOpen(false));
 
   function onDocumentDragOver(event) {
@@ -847,6 +1094,167 @@ export function createLivePage({ i18n, loc, model = null, meta = null, error = n
 
   function announceSaved() {
     layoutStatus.textContent = i18n.t('layout.saved');
+  }
+
+  function isModuleHidden(key) {
+    return hiddenModules.has(key) || Boolean(completedModules[key]);
+  }
+
+  function prefersReducedMotion() {
+    return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  }
+
+  function transitionLayout(update, leavingKey = null) {
+    if (prefersReducedMotion()) {
+      update();
+      return;
+    }
+
+    const run = () => update();
+    if (typeof body.startViewTransition === 'function') {
+      try {
+        body.startViewTransition(run);
+        return;
+      } catch {
+        // Fall through to the document-level API or FLIP fallback.
+      }
+    }
+    if (typeof document.startViewTransition === 'function') {
+      try {
+        document.startViewTransition(run);
+        return;
+      } catch {
+        // Fall through to the FLIP fallback.
+      }
+    }
+
+    // FLIP fallback for browsers without View Transitions.
+    const oldNodes = [...body.querySelectorAll(':scope > .module')];
+    const oldKeys = new Set(oldNodes.map((node) => node.dataset.moduleKey));
+    const previous = capturePositions(oldNodes);
+    const finish = () => {
+      update();
+      const entering = [...body.querySelectorAll(':scope > .module')]
+        .filter((node) => !oldKeys.has(node.dataset.moduleKey));
+      for (const node of entering) node.classList.add('module--entering');
+      animatePositions(previous);
+      if (entering.length) {
+        window.setTimeout(() => {
+          for (const node of entering) node.classList.remove('module--entering');
+        }, 260);
+      }
+    };
+    const leaving = leavingKey ? currentModules?.[leavingKey] : null;
+    if (leaving?.isConnected) {
+      leaving.classList.add('module--leaving');
+      window.setTimeout(finish, 160);
+    } else {
+      finish();
+    }
+  }
+
+  function restoreCompletedModules() {
+    if (!currentModel) return false;
+    let changed = false;
+    for (const key of Object.keys(completedModules)) {
+      const token = completionToken(key, currentModel);
+      if (!token || completedModules[key] !== token) {
+        delete completedModules[key];
+        changed = true;
+      }
+    }
+    if (changed) {
+      saveCompletedModules(completedModules);
+      if (currentModules) applyLayout();
+      renderLayoutEditor();
+    }
+    return changed;
+  }
+
+  function hideModule(key) {
+    hiddenModules.add(key);
+    saveHiddenModules(hiddenModules);
+    transitionLayout(() => applyLayout(), key);
+    renderLayoutEditor();
+    announceSaved();
+  }
+
+  function markModuleCompleted(key) {
+    const token = completionToken(key, currentModel) || 'pending';
+    completedModules[key] = token;
+    saveCompletedModules(completedModules);
+    transitionLayout(() => applyLayout(), key);
+    renderLayoutEditor();
+    announceSaved();
+  }
+
+  function showCompletedModules() {
+    completedModules = {};
+    saveCompletedModules(completedModules);
+    transitionLayout(() => applyLayout());
+    renderLayoutEditor();
+    announceSaved();
+  }
+
+  function showAllModules() {
+    hiddenModules.clear();
+    completedModules = {};
+    saveHiddenModules(hiddenModules);
+    saveCompletedModules(completedModules);
+    transitionLayout(() => applyLayout());
+    renderLayoutEditor();
+    announceSaved();
+  }
+
+  function toggleModuleVisibility(key) {
+    const wasHidden = isModuleHidden(key);
+    if (wasHidden) {
+      hiddenModules.delete(key);
+      delete completedModules[key];
+    } else {
+      hiddenModules.add(key);
+      delete completedModules[key];
+    }
+    saveHiddenModules(hiddenModules);
+    saveCompletedModules(completedModules);
+    transitionLayout(() => applyLayout(), wasHidden ? null : key);
+    renderLayoutEditor();
+    announceSaved();
+  }
+
+  function attachModuleActions() {
+    for (const [key, node] of Object.entries(currentModules || {})) {
+      const heading = node.querySelector(':scope > .section-heading');
+      if (!heading) continue;
+      const module = MODULE_BY_KEY.get(key);
+      const name = i18n.t(module.labelKey);
+      const actions = el('div', { class: 'module-actions' });
+      if (COMPLETABLE_MODULES.has(key)) {
+        const completedButton = el('button', {
+          class: 'module-action',
+          type: 'button',
+          text: i18n.t('layout.markCompleted'),
+          attrs: {
+            'aria-label': i18n.t('layout.markCompletedFor', { name }),
+            title: i18n.t('layout.markCompletedFor', { name }),
+          },
+        });
+        completedButton.addEventListener('click', () => markModuleCompleted(key));
+        actions.append(completedButton);
+      }
+      const hideButton = el('button', {
+        class: 'module-action',
+        type: 'button',
+        text: i18n.t('layout.hideModule'),
+        attrs: {
+          'aria-label': i18n.t('layout.hideModuleFor', { name }),
+          title: i18n.t('layout.hideModuleFor', { name }),
+        },
+      });
+      hideButton.addEventListener('click', () => hideModule(key));
+      actions.append(hideButton);
+      heading.append(actions);
+    }
   }
 
   function previewAtPoint() {
@@ -1163,8 +1571,24 @@ export function createLivePage({ i18n, loc, model = null, meta = null, error = n
         scheduleMasonry();
         announceSaved();
       });
+      const hidden = isModuleHidden(key);
+      const visibilityButton = el('button', {
+        class: 'layout-visibility',
+        type: 'button',
+        text: hidden ? i18n.t('layout.show') : i18n.t('layout.hide'),
+        attrs: {
+          'aria-pressed': String(!hidden),
+          'aria-label': hidden
+            ? i18n.t('layout.showFor', { name })
+            : i18n.t('layout.hideFor', { name }),
+        },
+      });
+      visibilityButton.addEventListener('click', (event) => {
+        event.stopPropagation();
+        toggleModuleVisibility(key);
+      });
       const item = el('li', {
-        class: 'layout-item',
+        class: `layout-item${hidden ? ' is-hidden' : ''}`,
         dataset: { layoutKey: key },
         tabIndex: 0,
         draggable: true,
@@ -1180,6 +1604,7 @@ export function createLivePage({ i18n, loc, model = null, meta = null, error = n
           el('span', { class: 'visually-hidden', text: i18n.t('layout.widthFor', { name }) }),
           widthSelect,
         ),
+        visibilityButton,
       );
       item.querySelector('.layout-item__grip')?.addEventListener(
         'pointerdown',
@@ -1354,19 +1779,27 @@ export function createLivePage({ i18n, loc, model = null, meta = null, error = n
     for (const key of layoutOrder) {
       const node = currentModules[key];
       const module = MODULE_BY_KEY.get(key);
-      if (!node || !module) continue;
+      if (!node || !module || isModuleHidden(key)) continue;
       node.classList.add('module', `module--${module.span}`);
       node.dataset.moduleKey = key;
+      node.style.viewTransitionName = `module-${key}`;
       body.append(node);
     }
     syncModuleEditing();
-    scheduleMasonry();
+    if (body.isConnected) applyMasonry();
+    else scheduleMasonry();
   }
 
   resetLayoutButton.addEventListener('click', () => {
     layoutOrder = [...DEFAULT_LAYOUT];
+    widthOverrides = {};
+    hiddenModules.clear();
+    completedModules = {};
     saveLayoutOrder(layoutOrder);
-    applyLayout();
+    saveLayoutWidths(widthOverrides);
+    saveHiddenModules(hiddenModules);
+    saveCompletedModules(completedModules);
+    transitionLayout(() => applyLayout());
     renderLayoutEditor();
     announceSaved();
   });
@@ -1426,13 +1859,15 @@ export function createLivePage({ i18n, loc, model = null, meta = null, error = n
         bossKey: 'archon.boss',
       }),
       circuit: renderCircuit(currentModel, i18n, loc),
-      steelPath: renderSteelPath(currentModel, i18n, loc),
+      steelPathShop: renderSteelPathShop(currentModel, i18n, loc),
+      steelPathIncursions: renderSteelPathIncursions(currentModel, i18n, loc),
       archimedeaDeep: renderArchimedea(currentModel, i18n, loc, 'deep'),
       archimedeaTemporal: renderArchimedea(currentModel, i18n, loc, 'temporal'),
       fissuresNormal: renderFissureModule(currentModel, i18n, loc, 'fissuresNormal', 'normal', 'section.fissuresNormal'),
       fissuresSteel: renderFissureModule(currentModel, i18n, loc, 'fissuresSteel', 'steel', 'section.fissuresSteel'),
       fissuresStorm: renderFissureModule(currentModel, i18n, loc, 'fissuresStorm', 'storm', 'section.fissuresStorm'),
     };
+    attachModuleActions();
   }
 
   function renderBody() {
@@ -1450,6 +1885,7 @@ export function createLivePage({ i18n, loc, model = null, meta = null, error = n
       );
     }
     buildModules();
+    restoreCompletedModules();
     applyLayout();
   }
 
@@ -1471,6 +1907,7 @@ export function createLivePage({ i18n, loc, model = null, meta = null, error = n
   renderLayoutEditor();
   renderStatus();
   renderBody();
+  completedTimer = window.setInterval(restoreCompletedModules, 60_000);
   return {
     node: page,
     update,
@@ -1481,6 +1918,8 @@ export function createLivePage({ i18n, loc, model = null, meta = null, error = n
       window.removeEventListener('resize', onResize);
       if (masonryFrame) cancelAnimationFrame(masonryFrame);
       masonryFrame = 0;
+      if (completedTimer) window.clearInterval(completedTimer);
+      completedTimer = 0;
       document.documentElement.classList.remove('layout-editing');
       body.classList.remove('layout-editing');
       document.querySelectorAll('dialog.circuit-dialog').forEach((dialog) => dialog.close());
