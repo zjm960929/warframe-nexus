@@ -2368,6 +2368,10 @@ body.layout-editing {
   white-space: nowrap;
 }
 
+.steel-path-list--incursions .faction-mark__text {
+  display: inline;
+}
+
 .steel-path-item__name {
   min-width: 0;
   font-size: 0.78rem;

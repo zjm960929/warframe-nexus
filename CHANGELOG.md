@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.7.6] - 2026-11-28
+
+### Fixed
+
+- 扎里曼的 Crossfire 任务按当前 `zarimanCycle` 显示 Grineer 或 Corpus，不再固定显示“双方交战”。
+
 ## [0.7.5] - 2026-11-28
 
 ### Changed

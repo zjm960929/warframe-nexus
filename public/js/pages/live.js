@@ -467,6 +467,7 @@ function renderArbitration(model, i18n, loc) {
   }
 
   const content = el('div', { class: 'arbitration-module' });
+
   if (current) {
     content.append(el('div', { class: 'arbitration-card' },
       el('div', { class: 'arbitration-card__main' },
@@ -479,7 +480,7 @@ function renderArbitration(model, i18n, loc) {
         el('div', { class: 'arbitration-card__title' },
           el('h3', { attrs: { title: loc.node(current.node) } }, localizedNode(current.node, loc)),
           current.type ? badge(loc.missionType(current.typeKey, current.type), 'blue') : null,
-          factionMark(loc, current, { className: 'badge badge--muted' }),
+          factionMark(loc, resolveZarimanFaction(model, current), { className: 'badge badge--muted' }),
         ),
       ),
     ));
@@ -493,7 +494,7 @@ function renderArbitration(model, i18n, loc) {
         localizedNode(item.node, loc, 'arbitration-list__node'),
         el('span', { class: 'arbitration-list__tags' },
           item.type ? badge(loc.missionType(item.typeKey, item.type), 'blue') : null,
-          factionMark(loc, item, { className: 'badge badge--muted' }),
+          factionMark(loc, resolveZarimanFaction(model, item), { className: 'badge badge--muted' }),
         ),
         timeElement(i18n, item.activation, 'countdown countdown--small'),
       ))),
@@ -520,7 +521,7 @@ function renderAlerts(model, i18n, loc) {
     localizedNode(alert.node, loc, 'alert-card__node'),
     el('div', { class: 'alert-card__summary' },
       badge(loc.missionType(alert.typeKey, alert.type), 'blue'),
-      factionMark(loc, alert, { className: 'badge badge--muted' }),
+      factionMark(loc, resolveZarimanFaction(model, alert), { className: 'badge badge--muted' }),
     ),
     alert.minLevel || alert.maxLevel
       ? el('div', { class: 'alert-card__level muted', text: i18n.t('alerts.level', { min: alert.minLevel, max: alert.maxLevel }) })
@@ -535,6 +536,22 @@ function renderAlerts(model, i18n, loc) {
 
 function sideLabel(i18n, sideKey) {
   return i18n.t(`invasions.${sideKey}`);
+}
+
+function resolveZarimanFaction(model, item, node = item?.node) {
+  const location = String(node || '');
+  const source = `${item?.faction || ''} ${item?.factionKey || ''}`;
+  if (!/zariman|扎里曼/i.test(location) || !/crossfire|双方交战|雙方交戰|多方交战|多方交戰/i.test(source)) {
+    return item;
+  }
+  const cycle = model.cycles?.find((entry) => entry.id === 'zariman');
+  if (cycle?.state === 'corpus') {
+    return { ...item, faction: 'Corpus', factionKey: 'FC_CORPUS' };
+  }
+  if (cycle?.state === 'grineer') {
+    return { ...item, faction: 'Grineer', factionKey: 'FC_GRINEER' };
+  }
+  return item;
 }
 
 function renderInvasions(model, i18n, loc) {
@@ -552,7 +569,7 @@ function renderInvasions(model, i18n, loc) {
       ),
       el('div', { class: 'invasion-sides' }, sides.map(({ key, data }) => el('div', { class: 'invasion-side' },
         el('span', { class: 'label', text: sideLabel(i18n, key) }),
-        el('strong', {}, factionMark(loc, data, { node: invasion.node })),
+        el('strong', {}, factionMark(loc, resolveZarimanFaction(model, data, invasion.node), { node: invasion.node })),
         data.reward.items.length || data.reward.credits
           ? rewardChips(loc.reward(data.reward))
           : el('span', { class: 'muted', text: i18n.t('common.notAvailable') }),
@@ -581,7 +598,7 @@ function renderActivities(model, i18n, loc) {
     el('div', { class: 'event-card__meta' },
       event.node ? localizedNode(event.node, loc) : null,
       event.type ? localized('span', event.type, loc, 'muted') : null,
-      factionMark(loc, event, { className: 'muted' }),
+      factionMark(loc, resolveZarimanFaction(model, event), { className: 'muted' }),
     ),
     event.progress != null ? el('div', {},
       el('div', { class: 'invasion-progress__label' },
@@ -625,7 +642,7 @@ function renderSortieLike({ model, i18n, loc, key, titleKey, emptyKey, bossKey, 
         el('span', { class: 'label', text: i18n.t(bossKey) }),
         el('div', { class: 'run-head__title' },
           localized('h3', data.boss, loc),
-          factionMark(loc, data, {
+          factionMark(loc, resolveZarimanFaction(model, data, data.missions?.[0]?.node), {
             className: 'badge badge--muted',
             node: data.missions?.[0]?.node,
           }),
@@ -840,7 +857,7 @@ function renderSteelPathIncursions(model, i18n, loc) {
         el('span', { class: 'steel-path-item__name', text: job.name }),
         job.type ? badge(job.type, 'muted') : null,
         job.faction
-          ? factionMark(loc, { faction: job.faction, factionKey: job.factionKey }, {
+          ? factionMark(loc, resolveZarimanFaction(model, { faction: job.faction, factionKey: job.factionKey }, job.name), {
             className: 'badge badge--muted',
             node: job.name,
           })
@@ -882,7 +899,7 @@ function renderArchimedea(model, i18n, loc, kind) {
           badge(loc.missionType(mission.missionTypeKey, mission.missionType), 'blue'),
           kind === 'deep'
             ? factionMark(loc, { factionKey: 'FC_MURMUR', faction: 'The Murmur' }, { className: 'muted' })
-            : factionMark(loc, mission, { className: 'muted' }),
+            : factionMark(loc, resolveZarimanFaction(model, mission), { className: 'muted' }),
         ),
         mission.deviation.name ? (() => {
           const description = loc.conquest(kind, mission.deviation.key, 'description', mission.deviation.description);
@@ -929,7 +946,7 @@ function renderFissureModule(model, i18n, loc, key, itemsKey, titleKey) {
           el('div', { class: 'fissure__identity' },
             badge(loc.tier(fissure.tierKey, fissure.tier), 'blue'),
             badge(loc.missionType(fissure.missionTypeKey, fissure.missionType), 'muted'),
-            factionMark(loc, { factionKey: fissure.enemyKey, faction: fissure.enemy }, {
+            factionMark(loc, resolveZarimanFaction(model, { factionKey: fissure.enemyKey, faction: fissure.enemy }, fissure.node), {
               className: 'badge badge--muted fissure__faction',
               node: fissure.node,
             }),
