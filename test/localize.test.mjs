@@ -35,6 +35,19 @@ test('official templates receive values from the raw description', () => {
   assert.equal(punctuation, '战甲和友军超宏防护获取量减少 75%。');
 });
 
+test('Nightwave titles and challenge templates match official punctuation', () => {
+  assert.equal(loc.text("Builder's Touch"), '制造者之触');
+  assert.equal(
+    loc.sentence('Kill 20 enemies while riding a K-Drive, Kaithe, Velocipod or Merulina..'),
+    '骑乘 K 式悬浮板、绝灵骥、迅敏节虫或原子摩托车时击杀 20 名敌人。',
+  );
+});
+
+test('Zariman node names resolve through the official Zariman namespace', () => {
+  assert.equal(loc.node('Everview Arc (Zariman)'), '永视弧域（扎里曼号）');
+  assert.equal(loc.node('Tuvul Commons (扎里曼)'), '涂沃主厅（扎里曼）');
+});
+
 test('invasion component names resolve singular parser labels', () => {
   assert.equal(loc.item('Twin Vipers Wraith Barrel'), '双子蝰蛇·亡魂 枪管');
 });

@@ -10,6 +10,7 @@ export function normalizeKey(value) {
   return String(value ?? '')
     .normalize('NFKC')
     .toLowerCase()
+    .replace(/['’‘`´]/g, '')
     .replace(/\s+/g, ' ')
     .trim();
 }
@@ -84,12 +85,15 @@ export function createLocalizer(lang, terms) {
   function template(value) {
     if (!isZh || !templateEntries.length) return null;
     const input = normalizeKey(value)
+      .replace(/\bmerulina\b/g, 'atomicycle')
+      .replace(/,\s+or\b/g, ' or')
       .replace(/\bany\s+(?=\d)/g, '')
       .replace(/[.!?]+$/, '')
       .trim();
     if (!input) return null;
     for (const entry of templateEntries) {
       const en = normalizeKey(entry.en)
+        .replace(/,\s+or\b/g, ' or')
         .replace(/\bany\s+(?=\d)/g, '')
         .replace(/[.!?]+$/, '')
         .trim();

@@ -37,6 +37,7 @@ function normalize(value) {
   return String(value)
     .normalize('NFKC')
     .toLowerCase()
+    .replace(/['’‘`´]/g, '')
     .replace(/\s+/g, ' ')
     .trim();
 }
@@ -465,7 +466,7 @@ function main() {
 
   const nodes = {};
   for (const row of rows) {
-    if (!row.key.includes('/Locations/')) continue;
+    if (!row.key.includes('/Locations/') && !/\/Zariman\/ZarimanNode/.test(row.key)) continue;
     if (!isUsable(row.en, row.zh)) continue;
     if (row.en.length > 50) continue;
     const key = normalize(row.en);

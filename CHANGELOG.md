@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.7.7] - 2026-11-28
+
+### Fixed
+
+- 修复午夜电波 `Builder's Touch` 因直/弯引号差异未命中官方标题的问题。
+- 修复 `Thrill Rider` 旧版 `Merulina` 描述与官方 `Atomicycle` 模板不一致、仍显示英文的问题。
+- 将 `/Lotus/Language/Zariman/ZarimanNode*` 节点纳入术语表，修复扎里曼裂缝地点显示英文的问题。
+
 ## [0.7.6] - 2026-11-28
 
 ### Fixed
