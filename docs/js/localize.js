@@ -171,6 +171,9 @@ export function createLocalizer(lang, terms) {
     const comp = component(text);
     if (comp) return comp;
 
+    const plural = exact(`${text}s`) || exact(text.replace(/y$/i, 'ies'));
+    if (plural) return plural;
+
     return simplify(text);
   }
 

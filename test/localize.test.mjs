@@ -35,6 +35,10 @@ test('official templates receive values from the raw description', () => {
   assert.equal(punctuation, '战甲和友军超宏防护获取量减少 75%。');
 });
 
+test('invasion component names resolve singular parser labels', () => {
+  assert.equal(loc.item('Twin Vipers Wraith Barrel'), '双子蝰蛇·亡魂 枪管');
+});
+
 test('Steel Path shop names use official terms and spacing', () => {
   assert.equal(loc.item('Umbra Forma Blueprint'), 'Umbra Forma 蓝图');
   assert.equal(loc.item('Kitgun Riven Mod'), '组合枪裂罅 Mod');

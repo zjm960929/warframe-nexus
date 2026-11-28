@@ -2033,6 +2033,7 @@ body.layout-editing {
 
 .alert-card__head {
   align-items: center;
+  justify-content: flex-end;
   flex-wrap: nowrap;
 }
 
@@ -2052,8 +2053,9 @@ body.layout-editing {
 }
 
 .alert-card__node {
-  flex: 1 1 auto;
+  display: block;
   min-width: 0;
+  margin-top: 0.35rem;
   font-weight: 800;
   overflow-wrap: anywhere;
 }
@@ -4085,8 +4087,8 @@ body.layout-editing {
 }
 
 .riven-analysis__top > .riven-scan {
-  height: 18.625rem;
-  min-height: 0;
+  height: auto;
+  min-height: 18.625rem;
   margin: 0;
   overflow: hidden;
 }

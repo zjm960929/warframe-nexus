@@ -515,9 +515,9 @@ function renderAlerts(model, i18n, loc) {
   }
   const list = el('div', { class: 'stack' }, model.alerts.map((alert) => el('article', { class: 'alert-card' },
     el('div', { class: 'alert-card__head' },
-      localizedNode(alert.node, loc, 'alert-card__node'),
       timeElement(i18n, alert.end, 'countdown countdown--small'),
     ),
+    localizedNode(alert.node, loc, 'alert-card__node'),
     el('div', { class: 'alert-card__summary' },
       badge(loc.missionType(alert.typeKey, alert.type), 'blue'),
       factionMark(loc, alert, { className: 'badge badge--muted' }),
