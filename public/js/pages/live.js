@@ -489,8 +489,10 @@ function renderArbitration(model, i18n, loc) {
       el('ul', { class: 'arbitration-list' }, upcoming.map((item) => el('li', {},
         el('time', { datetime: item.activation, text: i18n.formatClock(item.activation) }),
         localizedNode(item.node, loc, 'arbitration-list__node'),
-        item.type ? badge(loc.missionType(item.typeKey, item.type), 'blue') : null,
-        factionMark(loc, item, { className: 'badge badge--muted' }),
+        el('span', { class: 'arbitration-list__tags' },
+          item.type ? badge(loc.missionType(item.typeKey, item.type), 'blue') : null,
+          factionMark(loc, item, { className: 'badge badge--muted' }),
+        ),
         timeElement(i18n, item.activation, 'countdown countdown--small'),
       ))),
     ));

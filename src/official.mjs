@@ -23,7 +23,7 @@ export async function fetchOfficialRaw({ timeoutMs = DEFAULT_TIMEOUT_MS } = {}) 
     const response = await fetch(OFFICIAL_WORLDSTATE_URL, {
       headers: {
         Accept: 'application/json',
-        'User-Agent': 'warframe-nexus/0.7.2 (community fan utility)',
+        'User-Agent': 'warframe-nexus/0.7.3 (community fan utility)',
       },
       signal: controller.signal,
       cache: 'no-store',

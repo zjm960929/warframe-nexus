@@ -1797,6 +1797,18 @@ body.layout-editing {
   white-space: nowrap;
 }
 
+.arbitration-list__tags {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+  min-width: 0;
+}
+
+.arbitration-list__tags .faction-mark__text {
+  display: inline;
+}
+
 .arbitration-list li .badge {
   flex: none;
   white-space: nowrap;
@@ -1806,6 +1818,41 @@ body.layout-editing {
   flex: none;
   margin-inline-start: auto;
   white-space: nowrap;
+}
+
+@media (max-width: 600px) {
+  .arbitration-list li {
+    display: grid;
+    grid-template-areas:
+      "time node node"
+      "tags tags end";
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    align-items: center;
+    column-gap: 0.45rem;
+    row-gap: 0.25rem;
+  }
+
+  .arbitration-list time {
+    grid-area: time;
+  }
+
+  .arbitration-list__node {
+    grid-area: node;
+    overflow: visible;
+    overflow-wrap: normal;
+    text-overflow: clip;
+    white-space: normal;
+    word-break: keep-all;
+  }
+
+  .arbitration-list__tags {
+    grid-area: tags;
+  }
+
+  .arbitration-list .countdown {
+    grid-area: end;
+    justify-self: end;
+  }
 }
 
 .arbitration-card__title .badge,
@@ -1832,22 +1879,28 @@ body.layout-editing {
 .arbitration-card__title {
   display: flex;
   align-items: center;
-  flex-wrap: nowrap;
-  gap: 0.45rem;
+  flex-wrap: wrap;
+  gap: 0.35rem 0.45rem;
   min-width: 0;
 }
 
 .arbitration-card__title h3 {
+  flex: 1 0 100%;
   min-width: 0;
   margin: 0;
-  overflow: hidden;
+  overflow: visible;
   font-size: 1.15rem;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  overflow-wrap: anywhere;
+  text-overflow: clip;
+  white-space: normal;
 }
 
 .arbitration-card__title .badge {
   flex: none;
+}
+
+.arbitration-card__title .faction-mark__text {
+  display: inline;
 }
 
 .arbitration-card__time {
@@ -2448,17 +2501,22 @@ body.layout-editing {
 
 .arb-current h2 {
   margin: 0.25rem 0 0.55rem;
-  font-size: clamp(2.4rem, 2rem + 2vw, 3.4rem);
-  line-height: 1.1;
-  overflow-wrap: anywhere;
+  font-size: clamp(1.8rem, 1.45rem + 1.25vw, 2.5rem);
+  line-height: 1.15;
+  max-inline-size: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .arb-current h2 .arb-node {
-  overflow: visible;
+  display: block;
+  min-width: 0;
+  overflow: hidden;
   font-size: inherit;
   font-weight: inherit;
-  text-overflow: clip;
-  white-space: normal;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .arb-current .label {
@@ -2497,15 +2555,40 @@ body.layout-editing {
 }
 
 .arb-next {
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 0.35rem 0.6rem;
+  display: grid;
+  gap: 0.3rem;
   padding: 0.55rem 0.7rem;
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
   background: var(--bg-elevated);
   font-size: 0.84rem;
+}
+
+.arb-next__line {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.3rem 0.55rem;
+  min-width: 0;
+}
+
+.arb-next__line--place .arb-node {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.arb-next__line--tags .arb-tags {
+  flex-wrap: wrap;
+  margin: 0;
+}
+
+.arb-next .faction-mark__text {
+  display: inline;
+}
+
+.arb-next__line--time {
+  color: var(--text-muted);
+  font-size: 0.78rem;
 }
 
 .arb-schedule-panel {

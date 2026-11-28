@@ -200,7 +200,9 @@ export function createArbitrationPage({ i18n, loc, schedule = null, error = null
       el('div', { class: 'arb-current' },
         el('div', {},
           el('span', { class: 'label', text: i18n.t('arbitration.current') }),
-          el('h2', {}, resolved.current
+          el('h2', {
+            attrs: resolved.current ? { title: loc.node(resolved.current.node) } : {},
+          }, resolved.current
             ? nodeLabel(loc, resolved.current.node)
             : el('span', { class: 'muted', text: i18n.t('common.notAvailable') })),
           resolved.current ? metaBadges(loc, resolved.current) : null,
@@ -226,10 +228,16 @@ export function createArbitrationPage({ i18n, loc, schedule = null, error = null
       ),
       resolved.next
         ? el('div', { class: 'arb-next' },
-          el('span', { class: 'label', text: i18n.t('arbitration.next') }),
-          nodeLabel(loc, resolved.next.node),
-          metaBadges(loc, resolved.next),
-          el('span', { class: 'muted', text: `${i18n.t('arbitration.startsAt')} ${i18n.formatDateTime(resolved.next.activation)}` }),
+          el('div', { class: 'arb-next__line arb-next__line--place' },
+            el('span', { class: 'label', text: i18n.t('arbitration.next') }),
+            nodeLabel(loc, resolved.next.node),
+          ),
+          metaBadges(loc, resolved.next)
+            ? el('div', { class: 'arb-next__line arb-next__line--tags' }, metaBadges(loc, resolved.next))
+            : null,
+          el('div', { class: 'arb-next__line arb-next__line--time' },
+            el('span', { class: 'muted', text: `${i18n.t('arbitration.startsAt')} ${i18n.formatDateTime(resolved.next.activation)}` }),
+          ),
         )
         : null,
     ));
