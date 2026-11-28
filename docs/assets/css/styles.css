@@ -1703,10 +1703,7 @@ body.layout-editing {
 }
 
 .arbitration-card {
-  display: flex;
-  align-items: stretch;
-  justify-content: space-between;
-  gap: 1rem;
+  display: block;
   min-width: 0;
   padding: 0.8rem;
   border: 1px solid var(--border);
@@ -1820,7 +1817,7 @@ body.layout-editing {
   white-space: nowrap;
 }
 
-@media (max-width: 600px) {
+@container (max-width: 30rem) {
   .arbitration-list li {
     display: grid;
     grid-template-areas:
@@ -1871,8 +1868,15 @@ body.layout-editing {
 
 .arbitration-card__main {
   display: grid;
-  flex: 1 1 0;
   gap: 0.3rem;
+  min-width: 0;
+}
+
+.arbitration-card__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.6rem;
   min-width: 0;
 }
 
@@ -1888,11 +1892,11 @@ body.layout-editing {
   flex: 1 0 100%;
   min-width: 0;
   margin: 0;
-  overflow: visible;
+  overflow: hidden;
   font-size: 1.15rem;
-  overflow-wrap: anywhere;
-  text-overflow: clip;
-  white-space: normal;
+  overflow-wrap: normal;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .arbitration-card__title .badge {
@@ -2039,6 +2043,7 @@ body.layout-editing {
   flex-wrap: wrap;
   gap: 0.35rem;
   min-width: 0;
+  margin-top: 0.4rem;
 }
 
 .alert-card__head .countdown {
@@ -2046,11 +2051,27 @@ body.layout-editing {
   white-space: nowrap;
 }
 
-.alert-card__node,
+.alert-card__node {
+  flex: 1 1 auto;
+  min-width: 0;
+  font-weight: 800;
+  overflow-wrap: anywhere;
+}
+
 .invasion-card__node {
   margin-top: 0.35rem;
   font-weight: 800;
   overflow-wrap: anywhere;
+}
+
+.alert-card__level {
+  margin-top: 0.25rem;
+  font-size: 0.8rem;
+}
+
+.alert-card__summary .faction-mark__text,
+.invasion-side .faction-mark__text {
+  display: inline;
 }
 
 .alert-card__meta,
@@ -3306,7 +3327,6 @@ body.layout-editing {
     flex-direction: column;
   }
 
-  .arbitration-card__time,
   .run-head__meta {
     justify-items: start;
     justify-content: flex-start;

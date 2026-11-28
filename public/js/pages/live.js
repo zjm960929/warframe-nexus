@@ -470,15 +470,17 @@ function renderArbitration(model, i18n, loc) {
   if (current) {
     content.append(el('div', { class: 'arbitration-card' },
       el('div', { class: 'arbitration-card__main' },
-        el('span', { class: 'muted', text: i18n.t('arbitration.current') }),
+        el('div', { class: 'arbitration-card__head' },
+          el('span', { class: 'muted', text: i18n.t('arbitration.current') }),
+          el('div', { class: 'arbitration-card__time' },
+            timeElement(i18n, current.end, 'countdown countdown--large'),
+          ),
+        ),
         el('div', { class: 'arbitration-card__title' },
-          el('h3', {}, localizedNode(current.node, loc)),
+          el('h3', { attrs: { title: loc.node(current.node) } }, localizedNode(current.node, loc)),
           current.type ? badge(loc.missionType(current.typeKey, current.type), 'blue') : null,
           factionMark(loc, current, { className: 'badge badge--muted' }),
         ),
-      ),
-      el('div', { class: 'arbitration-card__time' },
-        timeElement(i18n, current.end, 'countdown countdown--large'),
       ),
     ));
   }
@@ -513,16 +515,16 @@ function renderAlerts(model, i18n, loc) {
   }
   const list = el('div', { class: 'stack' }, model.alerts.map((alert) => el('article', { class: 'alert-card' },
     el('div', { class: 'alert-card__head' },
-      el('div', { class: 'alert-card__summary' },
-        badge(loc.missionType(alert.typeKey, alert.type), 'blue'),
-        factionMark(loc, alert, { className: 'badge badge--muted' }),
-        alert.minLevel || alert.maxLevel
-          ? el('span', { class: 'muted', text: i18n.t('alerts.level', { min: alert.minLevel, max: alert.maxLevel }) })
-          : null,
-      ),
+      localizedNode(alert.node, loc, 'alert-card__node'),
       timeElement(i18n, alert.end, 'countdown countdown--small'),
     ),
-    localizedNode(alert.node, loc, 'alert-card__node'),
+    el('div', { class: 'alert-card__summary' },
+      badge(loc.missionType(alert.typeKey, alert.type), 'blue'),
+      factionMark(loc, alert, { className: 'badge badge--muted' }),
+    ),
+    alert.minLevel || alert.maxLevel
+      ? el('div', { class: 'alert-card__level muted', text: i18n.t('alerts.level', { min: alert.minLevel, max: alert.maxLevel }) })
+      : null,
     el('div', { class: 'alert-card__reward' },
       el('span', { class: 'label', text: i18n.t('alerts.reward') }),
       rewardChips(loc.reward(alert.reward)) || el('span', { class: 'muted', text: i18n.t('common.notAvailable') }),
